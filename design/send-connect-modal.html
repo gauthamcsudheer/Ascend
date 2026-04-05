@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Send Connection Request — Ascend</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #5C1220;
+      --primary-d: #400C18;
+      --primary-dd: #2E0A11;
+      --primary-bg: rgba(92,18,32,.05);
+      --accent: #C9894A;
+      --accent-bg: rgba(201,137,74,.08);
+      --green: #1A5C38;
+      --green-bg: rgba(26,92,56,.08);
+      --bg: #FAF7F2;
+      --surface: #FFFFFF;
+      --text: #1A1410;
+      --muted: #7A6659;
+      --subtle: #B5A899;
+      --border: #DDD4C8;
+      --border-l: #EDE8E1;
+      --shadow: 0 24px 80px rgba(26,20,16,.28), 0 8px 24px rgba(26,20,16,.14);
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body { overflow: hidden; }
+
+    .page-bg {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      background: var(--bg);
+    }
+
+    .bg-sidebar {
+      width: 240px;
+      flex-shrink: 0;
+      background:
+        radial-gradient(circle at 18% 78%, rgba(201,137,74,.12) 0, rgba(201,137,74,.04) 24%, transparent 48%),
+        radial-gradient(circle, rgba(201,137,74,.1) 1px, transparent 1px),
+        var(--primary-d);
+      background-size: auto, 24px 24px, auto;
+    }
+
+    .bg-main {
+      flex: 1;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.3), rgba(255,255,255,0)),
+        var(--bg);
+      padding: 26px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .bg-topbar {
+      height: 64px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.78);
+      backdrop-filter: blur(8px);
+      position: relative;
+    }
+
+    .bg-topbar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 220px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), rgba(201,137,74,.3), transparent);
+    }
+
+    .bg-toolbar {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .bg-search,
+    .bg-pill,
+    .bg-select {
+      height: 42px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.75);
+      border-radius: 10px;
+    }
+
+    .bg-search { flex: 1; max-width: 360px; }
+    .bg-pill { width: 460px; }
+    .bg-select { width: 148px; }
+
+    .bg-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      opacity: .9;
+    }
+
+    .bg-card {
+      min-height: 142px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: rgba(255,255,255,.78);
+      box-shadow: 0 6px 24px rgba(92,18,32,.04);
+    }
+
+    .bg-right {
+      width: 284px;
+      flex-shrink: 0;
+      border-left: 1px solid var(--border);
+      background: rgba(255,255,255,.82);
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(26,20,16,.62);
+      backdrop-filter: blur(7px);
+      -webkit-backdrop-filter: blur(7px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 100;
+    }
+
+    .modal {
+      position: relative;
+      width: min(960px, 100%);
+      max-height: min(92vh, 860px);
+      display: flex;
+      flex-direction: column;
+      background: var(--surface);
+      border-radius: 2px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .modal::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), rgba(201,137,74,.4), transparent);
+      z-index: 1;
+    }
+
+    .modal-header {
+      padding: 22px 28px 18px;
+      border-bottom: 1px solid var(--border-l);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+
+    .modal-kicker {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    .modal-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 32px;
+      font-weight: 600;
+      line-height: 1.05;
+      letter-spacing: -.02em;
+      margin-bottom: 4px;
+    }
+
+    .modal-subtitle {
+      max-width: 560px;
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .modal-close {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: border-color .15s, color .15s, background .15s;
+      flex-shrink: 0;
+    }
+
+    .modal-close:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-bg);
+    }
+
+    .modal-close svg { width: 15px; height: 15px; }
+
+    .modal-body {
+      min-height: 0;
+      flex: 1;
+      display: grid;
+      grid-template-columns: 268px minmax(0, 1fr);
+      overflow: hidden;
+    }
+
+    .modal-left {
+      background: #FDFBF8;
+      border-right: 1px solid var(--border-l);
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+
+    .modal-left::-webkit-scrollbar { display: none; }
+
+    .modal-right {
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      min-height: 0;
+    }
+
+    .modal-right::-webkit-scrollbar { width: 6px; }
+    .modal-right::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+
+    .modal-section {
+      padding: 20px 22px;
+      border-bottom: 1px solid var(--border-l);
+    }
+
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 14px;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border-l);
+    }
+
+    .recipient-card {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding: 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+
+    .recipient-top {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .recipient-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: rgba(92,18,32,.07);
+      border: 1.5px solid rgba(92,18,32,.22);
+      color: var(--primary);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 19px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .recipient-name {
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1.25;
+      margin-bottom: 3px;
+    }
+
+    .recipient-role {
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .recipient-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      width: fit-content;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: var(--primary);
+      color: rgba(250,247,242,.95);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .recipient-badge svg { width: 10px; height: 10px; }
+
+    .recipient-meta {
+      display: grid;
+      gap: 8px;
+      padding-top: 2px;
+    }
+
+    .meta-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .meta-row svg {
+      width: 13px;
+      height: 13px;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .context-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .context-list li {
+      position: relative;
+      padding-left: 14px;
+      font-size: 12px;
+      color: var(--subtle);
+      line-height: 1.55;
+    }
+
+    .context-list li::before {
+      content: '';
+      position: absolute;
+      top: 7px;
+      left: 0;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: .7;
+    }
+
+    .signal-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .signal-card {
+      padding: 12px 10px;
+      background: var(--surface);
+      border: 1px solid var(--border-l);
+      text-align: center;
+    }
+
+    .signal-value {
+      display: block;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--primary);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .signal-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--subtle);
+      line-height: 1.35;
+    }
+
+    .editor-zone {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      flex: 1;
+    }
+
+    .hero-strip {
+      padding: 24px 26px 18px;
+      border-bottom: 1px solid var(--border-l);
+      background:
+        linear-gradient(135deg, rgba(92,18,32,.05), rgba(201,137,74,.05)),
+        #FFFEFC;
+    }
+
+    .hero-note {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 12px;
+      padding: 6px 10px;
+      background: rgba(255,255,255,.78);
+      border: 1px solid rgba(201,137,74,.22);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      color: var(--primary);
+    }
+
+    .hero-note svg { width: 12px; height: 12px; color: var(--accent); }
+
+    .hero-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px;
+      font-weight: 600;
+      line-height: 1.08;
+      letter-spacing: -.02em;
+      max-width: 500px;
+      margin-bottom: 8px;
+    }
+
+    .hero-copy {
+      max-width: 620px;
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .field-section {
+      padding: 22px 26px;
+      border-bottom: 1px solid var(--border-l);
+    }
+
+    .field-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .field-row .required { color: var(--accent); }
+
+    .char-count {
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0;
+      text-transform: none;
+      color: var(--subtle);
+    }
+
+    .char-count span {
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .message-textarea {
+      width: 100%;
+      min-height: 196px;
+      padding: 16px 16px 18px;
+      border: 1px solid var(--border);
+      outline: none;
+      resize: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14.5px;
+      line-height: 1.72;
+      color: var(--text);
+      background: var(--surface);
+      transition: border-color .16s, box-shadow .16s;
+    }
+
+    .message-textarea::placeholder { color: #C5B8AE; }
+
+    .message-textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(201,137,74,.12);
+    }
+
+    .support-row {
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .field-hint {
+      max-width: 510px;
+      font-size: 12px;
+      color: var(--subtle);
+      line-height: 1.55;
+    }
+
+    .field-hint strong { color: var(--primary); font-weight: 600; }
+
+    .templates-section {
+      padding: 22px 26px;
+      border-bottom: 1px solid var(--border-l);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .template-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .template-title {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .template-note {
+      font-size: 11px;
+      color: var(--subtle);
+    }
+
+    .template-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .template-chip {
+      padding: 14px 14px 13px;
+      border: 1px solid var(--border);
+      background: #FFFEFC;
+      text-align: left;
+      cursor: pointer;
+      transition: border-color .15s, background .15s, transform .12s;
+    }
+
+    .template-chip:hover {
+      border-color: var(--accent);
+      background: var(--accent-bg);
+      transform: translateY(-1px);
+    }
+
+    .template-chip-title {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: 6px;
+    }
+
+    .template-chip-copy {
+      display: block;
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .assurance-strip {
+      margin: 22px 26px 0;
+      padding: 13px 14px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      background: var(--green-bg);
+      border: 1px solid rgba(26,92,56,.14);
+      font-size: 12.5px;
+      color: var(--green);
+      line-height: 1.55;
+    }
+
+    .assurance-strip svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .modal-footer {
+      padding: 14px 28px;
+      border-top: 1px solid var(--border);
+      background: #FDFBF8;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .footer-note {
+      flex: 1;
+      font-size: 12px;
+      color: var(--subtle);
+      line-height: 1.5;
+    }
+
+    .footer-note span { color: var(--accent); }
+
+    .btn-cancel,
+    .btn-send {
+      border-radius: 0;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .18s, border-color .15s, color .15s;
+    }
+
+    .btn-cancel {
+      padding: 10px 22px;
+      border: 1.5px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+    }
+
+    .btn-cancel:hover {
+      border-color: var(--muted);
+      color: var(--text);
+    }
+
+    .btn-send {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 24px;
+      border: none;
+      background: var(--primary);
+      color: rgba(250,247,242,.95);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .btn-send:hover { background: var(--primary-d); }
+
+    .btn-send svg {
+      width: 14px;
+      height: 14px;
+      transition: transform .18s;
+    }
+
+    .btn-send:hover svg { transform: translateX(3px); }
+
+    @media (max-width: 980px) {
+      body { overflow: auto; }
+
+      .page-bg { display: none; }
+
+      .modal-overlay {
+        position: static;
+        min-height: 100vh;
+        padding: 16px;
+        background: var(--bg);
+        backdrop-filter: none;
+      }
+
+      .modal {
+        max-height: none;
+        box-shadow: none;
+        border: 1px solid var(--border);
+      }
+
+      .modal-body {
+        grid-template-columns: 1fr;
+      }
+
+      .modal-left {
+        order: 2;
+        border-right: none;
+        border-top: 1px solid var(--border-l);
+      }
+
+      .template-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .signal-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      .modal-header,
+      .field-section,
+      .templates-section,
+      .hero-strip,
+      .modal-footer,
+      .modal-section { padding-left: 18px; padding-right: 18px; }
+
+      .support-row,
+      .template-head,
+      .modal-footer {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .signal-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .btn-cancel,
+      .btn-send {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-bg" aria-hidden="true">
+    <div class="bg-sidebar"></div>
+    <div class="bg-main">
+      <div class="bg-topbar"></div>
+      <div class="bg-toolbar">
+        <div class="bg-search"></div>
+        <div class="bg-pill"></div>
+        <div class="bg-select"></div>
+      </div>
+      <div class="bg-cards">
+        <div class="bg-card"></div>
+        <div class="bg-card"></div>
+        <div class="bg-card"></div>
+      </div>
+    </div>
+    <div class="bg-right"></div>
+  </div>
+
+  <div class="modal-overlay">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="connectModalTitle">
+      <div class="modal-header">
+        <div>
+          <p class="modal-kicker">People</p>
+          <h2 class="modal-title" id="connectModalTitle">Send a Connection Request</h2>
+          <p class="modal-subtitle">Add a short, thoughtful note so your request feels intentional and gives the other person context on why you want to connect.</p>
+        </div>
+        <button class="modal-close" aria-label="Close modal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <aside class="modal-left">
+          <div class="modal-section">
+            <div class="section-label">Recipient</div>
+            <div class="recipient-card">
+              <div class="recipient-top">
+                <div class="recipient-avatar">DR</div>
+                <div>
+                  <div class="recipient-name">Dr. Sreelakshmi Rajan</div>
+                  <div class="recipient-role">Associate Professor, CSE Department</div>
+                </div>
+              </div>
+
+              <span class="recipient-badge">
+                <svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                Faculty
+              </span>
+
+              <div class="recipient-meta">
+                <div class="meta-row">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="7.5 4.21 12 6.81 16.5 4.21"></polyline><polyline points="7.5 19.79 7.5 14.6 3 12"></polyline><polyline points="21 12 16.5 14.6 16.5 19.79"></polyline><polyline points="12 22.08 12 16.9 21 12"></polyline><polyline points="12 16.9 3 12"></polyline><polyline points="12 6.81 12 2"></polyline></svg>
+                  2 mutual connections
+                </div>
+                <div class="meta-row">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M12 4h9"></path><path d="M4 9h16"></path><path d="M4 15h16"></path></svg>
+                  Interests: ML, research, higher studies
+                </div>
+                <div class="meta-row">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.12.9.33 1.78.62 2.62a2 2 0 0 1-.45 2.11L8 9.94a16 16 0 0 0 6.06 6.06l1.49-1.23a2 2 0 0 1 2.11-.45c.84.29 1.72.5 2.62.62A2 2 0 0 1 22 16.92z"></path></svg>
+                  Usually accepts context-rich requests
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-section">
+            <div class="section-label">What Helps</div>
+            <ul class="context-list">
+              <li>Say how you found them: class, mutuals, shared interest, or alumni search.</li>
+              <li>Mention one specific reason you want to connect so the request feels personal.</li>
+              <li>Keep it short. One warm paragraph usually works better than a long pitch.</li>
+            </ul>
+          </div>
+
+          <div class="modal-section">
+            <div class="section-label">Signals</div>
+            <div class="signal-grid">
+              <div class="signal-card">
+                <span class="signal-value">2</span>
+                <span class="signal-label">Mutual Connections</span>
+              </div>
+              <div class="signal-card">
+                <span class="signal-value">ML</span>
+                <span class="signal-label">Primary Focus</span>
+              </div>
+              <div class="signal-card">
+                <span class="signal-value">CSE</span>
+                <span class="signal-label">Department</span>
+              </div>
+              <div class="signal-card">
+                <span class="signal-value">3d</span>
+                <span class="signal-label">Typical Response</span>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <section class="modal-right">
+          <div class="editor-zone">
+            <div class="hero-strip">
+              <div class="hero-note">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                Personalize Before Sending
+              </div>
+              <h3 class="hero-heading">A short note can turn a cold request into a warm introduction.</h3>
+              <p class="hero-copy">This note will appear with your connection request. It should quickly answer two things: who you are, and why connecting would be meaningful right now.</p>
+            </div>
+
+            <div class="field-section">
+              <div class="field-row">
+                <span>Message <span class="required">*</span></span>
+                <span class="char-count"><span id="messageCount">206</span> / 280</span>
+              </div>
+              <textarea class="message-textarea" id="messageInput" maxlength="280" placeholder="Write a short note to introduce yourself and why you'd like to connect.">Hello ma'am, I'm Arjun from Sem 6 CSE. I've been following your work in ML and would love to connect as I'm exploring research internships and would value your guidance.</textarea>
+              <div class="support-row">
+                <p class="field-hint"><strong>Best practice:</strong> mention your shared context, then one clear reason for connecting. Avoid asking for too much in the first message.</p>
+              </div>
+            </div>
+
+            <div class="templates-section">
+              <div class="template-head">
+                <div class="template-title">Quick Starters</div>
+                <div class="template-note">Tap one if you want a nudge, then edit it to sound like you.</div>
+              </div>
+
+              <div class="template-grid">
+                <button class="template-chip" type="button" data-template="Hello ma'am, I'm Arjun from Sem 6 CSE. We have a couple of mutual connections, and I'd love to connect as I'm starting to explore ML research opportunities.">
+                  <span class="template-chip-title">Shared Context</span>
+                  <span class="template-chip-copy">Lead with mutuals or a common campus connection.</span>
+                </button>
+
+                <button class="template-chip" type="button" data-template="Hello ma'am, I'm Arjun from Sem 6 CSE. Your work in NLP and mentoring students really stood out to me, and I'd be grateful to connect as I learn more about research paths in this area.">
+                  <span class="template-chip-title">Mentorship</span>
+                  <span class="template-chip-copy">Use when you admire their work and want guidance.</span>
+                </button>
+
+                <button class="template-chip" type="button" data-template="Hello ma'am, I'm Arjun from Sem 6 CSE. I'm currently exploring higher studies in ML, and I would love to connect so I can learn from your perspective over time.">
+                  <span class="template-chip-title">Long-Term Interest</span>
+                  <span class="template-chip-copy">Keep it soft and future-oriented, not immediately ask-heavy.</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="assurance-strip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"></path><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+              Your note is sent only with this request. If they accept, you can continue the conversation in Messages.
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="modal-footer">
+        <p class="footer-note">Requests with a <span>specific reason to connect</span> are more likely to get accepted than blank or generic invites.</p>
+        <button class="btn-cancel" type="button">Cancel</button>
+        <button class="btn-send" type="button">
+          Send Request
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const messageInput = document.getElementById('messageInput');
+    const messageCount = document.getElementById('messageCount');
+    const templateButtons = document.querySelectorAll('.template-chip');
+
+    function syncCount() {
+      messageCount.textContent = messageInput.value.length;
+    }
+
+    messageInput.addEventListener('input', syncCount);
+
+    templateButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        messageInput.value = button.dataset.template || '';
+        syncCount();
+        messageInput.focus();
+        messageInput.setSelectionRange(messageInput.value.length, messageInput.value.length);
+      });
+    });
+
+    syncCount();
+  </script>
+</body>
+</html>

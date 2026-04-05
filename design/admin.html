@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard — Ascend</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Design Tokens ── */
+    :root {
+      --primary:    #5C1220;
+      --primary-d:  #400C18;
+      --primary-dd: #2E0A11;
+      --primary-bg: rgba(92,18,32,.05);
+      --accent:     #C9894A;
+      --accent-bg:  rgba(201,137,74,.08);
+      --green:      #1A5C38;
+      --green-bg:   rgba(26,92,56,.08);
+      --red:        #B91C1C;
+      --red-bg:     rgba(185,28,28,.07);
+      --yellow:     #B45309;
+      --yellow-bg:  rgba(180,83,9,.07);
+      --bg:         #FAF7F2;
+      --surface:    #FFFFFF;
+      --text:       #1A1410;
+      --muted:      #7A6659;
+      --subtle:     #B5A899;
+      --border:     #DDD4C8;
+      --border-l:   #EDE8E1;
+    }
+
+    html, body { height: 100%; }
+    body {
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       PAGE SHELL
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .page {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       LEFT SIDEBAR
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .sidebar {
+      width: 240px;
+      flex-shrink: 0;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      background: var(--primary-d);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sidebar::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(201,137,74,.1) 1px, transparent 1px);
+      background-size: 24px 24px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .sb-ring {
+      position: absolute;
+      bottom: -100px;
+      left: -100px;
+      width: 360px;
+      height: 360px;
+      border-radius: 50%;
+      border: 1px solid rgba(201,137,74,.12);
+      box-shadow:
+        0 0 0 50px  rgba(201,137,74,.04),
+        0 0 0 100px rgba(201,137,74,.02);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .sidebar > *:not(.sb-ring) { position: relative; z-index: 1; }
+
+    .sb-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 22px 20px 20px;
+      border-bottom: 1px solid rgba(201,137,74,.15);
+    }
+
+    .sb-brand-mark {
+      width: 36px;
+      height: 36px;
+      border: 1.5px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .sb-brand-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: rgba(250,247,242,.92);
+    }
+
+    .sb-nav {
+      flex: 1;
+      padding: 12px 0;
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+    .sb-nav::-webkit-scrollbar { display: none; }
+
+    .sb-section-label {
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: rgba(201,137,74,.55);
+      padding: 14px 20px 6px;
+    }
+
+    .sb-section-label.admin-label {
+      color: rgba(201,137,74,.9);
+      border-top: 1px solid rgba(201,137,74,.15);
+      margin-top: 4px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 20px;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: rgba(250,247,242,.55);
+      text-decoration: none;
+      cursor: pointer;
+      transition: background .12s, color .12s;
+      border-left: 3px solid transparent;
+    }
+
+    .nav-item:hover {
+      background: rgba(250,247,242,.06);
+      color: rgba(250,247,242,.85);
+    }
+
+    .nav-item.active {
+      background: rgba(201,137,74,.1);
+      color: var(--accent);
+      border-left-color: var(--accent);
+      font-weight: 600;
+    }
+
+    .nav-item svg { width: 17px; height: 17px; flex-shrink: 0; }
+
+    .nav-badge {
+      margin-left: auto;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 5px;
+      background: var(--accent);
+      color: var(--primary-dd);
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-badge.danger {
+      background: var(--red);
+      color: #fff;
+    }
+
+    .sb-divider {
+      height: 1px;
+      background: rgba(201,137,74,.12);
+      margin: 8px 0;
+    }
+
+    .sb-user-section {
+      border-top: 1px solid rgba(201,137,74,.15);
+      padding: 14px 16px 10px;
+    }
+
+    .sb-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      padding: 0 0 10px;
+    }
+
+    .sb-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(201,137,74,.18);
+      border: 1.5px solid rgba(201,137,74,.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .sb-avatar.admin-avatar {
+      background: rgba(185,28,28,.2);
+      border-color: rgba(185,28,28,.4);
+      color: #F87171;
+    }
+
+    .sb-user-info { flex: 1; min-width: 0; }
+
+    .sb-user-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(250,247,242,.9);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sb-user-role {
+      font-size: 11px;
+      color: rgba(250,247,242,.4);
+      margin-top: 1px;
+    }
+
+    .sb-admin-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      background: rgba(185,28,28,.15);
+      border: 1px solid rgba(185,28,28,.3);
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #F87171;
+      margin-top: 4px;
+      width: fit-content;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       MAIN AREA
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .main-area {
+      flex: 1;
+      height: 100vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .main-area::-webkit-scrollbar { display: none; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(250,247,242,.96);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .topbar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--red), rgba(185,28,28,.3), transparent);
+    }
+
+    .topbar-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -.01em;
+    }
+
+    .topbar-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 12px;
+      background: rgba(185,28,28,.07);
+      border: 1px solid rgba(185,28,28,.18);
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--red);
+    }
+
+    .topbar-badge svg { width: 12px; height: 12px; }
+
+    .topbar-spacer { flex: 1; }
+
+    .topbar-time {
+      font-size: 12.5px;
+      color: var(--subtle);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Content area */
+    .content {
+      padding: 28px 32px 48px;
+      flex: 1;
+    }
+
+    /* ── Stat Grid ── */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px 24px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color .15s, box-shadow .2s;
+    }
+
+    .stat-card:hover {
+      border-color: rgba(201,137,74,.4);
+      box-shadow: 0 4px 20px rgba(92,18,32,.06);
+    }
+
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--stat-accent, var(--accent));
+      opacity: .7;
+    }
+
+    .stat-card.danger { --stat-accent: var(--red); }
+    .stat-card.warning { --stat-accent: var(--yellow); }
+    .stat-card.success { --stat-accent: var(--green); }
+
+    .stat-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: var(--stat-icon-bg, var(--accent-bg));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+    }
+
+    .stat-card.danger .stat-icon { background: var(--red-bg); }
+    .stat-card.warning .stat-icon { background: var(--yellow-bg); }
+    .stat-card.success .stat-icon { background: var(--green-bg); }
+
+    .stat-icon svg {
+      width: 18px;
+      height: 18px;
+      color: var(--accent);
+    }
+
+    .stat-card.danger .stat-icon svg { color: var(--red); }
+    .stat-card.warning .stat-icon svg { color: var(--yellow); }
+    .stat-card.success .stat-icon svg { color: var(--green); }
+
+    .stat-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--subtle);
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 36px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .stat-delta {
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .stat-delta.up { color: var(--green); }
+    .stat-delta.warn { color: var(--red); }
+
+    .stat-delta svg { width: 13px; height: 13px; }
+
+    /* ── Dashboard Grid ── */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 20px;
+    }
+
+    /* ── Section Card ── */
+    .section-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border-l);
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: var(--text);
+      flex: 1;
+    }
+
+    .section-link {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--primary);
+      text-decoration: none;
+      letter-spacing: .03em;
+    }
+
+    .section-link:hover { text-decoration: underline; }
+
+    /* ── Report Table ── */
+    .report-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .report-table th {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--subtle);
+      text-align: left;
+      padding: 10px 24px;
+      border-bottom: 1px solid var(--border-l);
+      background: #FDFBF8;
+    }
+
+    .report-table td {
+      padding: 14px 24px;
+      font-size: 13.5px;
+      color: var(--text);
+      border-bottom: 1px solid var(--border-l);
+      vertical-align: middle;
+    }
+
+    .report-table tr:last-child td { border-bottom: none; }
+
+    .report-table tr:hover td { background: #FDFBF8; }
+
+    .report-content-type {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      font-weight: 500;
+      padding: 3px 9px;
+      border-radius: 5px;
+      background: var(--accent-bg);
+      color: var(--accent);
+      border: 1px solid rgba(201,137,74,.18);
+    }
+
+    .report-content-type.question {
+      background: var(--primary-bg);
+      color: var(--primary);
+      border-color: rgba(92,18,32,.15);
+    }
+
+    .report-content-type.post {
+      background: rgba(26,92,56,.07);
+      color: var(--green);
+      border-color: rgba(26,92,56,.18);
+    }
+
+    .report-content-type.resource {
+      background: var(--yellow-bg);
+      color: var(--yellow);
+      border-color: rgba(180,83,9,.18);
+    }
+
+    .report-reason {
+      font-size: 13px;
+      color: var(--muted);
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Status badges */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+
+    .status-badge::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: currentColor;
+      flex-shrink: 0;
+    }
+
+    .status-badge.pending {
+      background: var(--yellow-bg);
+      color: var(--yellow);
+    }
+
+    .status-badge.resolved {
+      background: var(--green-bg);
+      color: var(--green);
+    }
+
+    .status-badge.dismissed {
+      background: rgba(0,0,0,.05);
+      color: var(--muted);
+    }
+
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .12s, border-color .12s;
+      text-decoration: none;
+      border: none;
+    }
+
+    .action-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+    .action-btn.review {
+      background: var(--primary-bg);
+      color: var(--primary);
+      border: 1px solid rgba(92,18,32,.15);
+    }
+
+    .action-btn.review:hover {
+      background: rgba(92,18,32,.1);
+    }
+
+    .action-btn.approve {
+      background: var(--green-bg);
+      color: var(--green);
+      border: 1px solid rgba(26,92,56,.18);
+    }
+
+    .action-btn.approve:hover {
+      background: rgba(26,92,56,.14);
+    }
+
+    .action-btn.reject {
+      background: var(--red-bg);
+      color: var(--red);
+      border: 1px solid rgba(185,28,28,.15);
+    }
+
+    .action-btn.reject:hover {
+      background: rgba(185,28,28,.12);
+    }
+
+    /* ── Activity Feed ── */
+    .activity-list { padding: 8px 0; }
+
+    .activity-item {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 12px 24px;
+    }
+
+    .activity-item + .activity-item {
+      border-top: 1px solid var(--border-l);
+    }
+
+    .activity-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .activity-dot.approve { background: var(--green-bg); color: var(--green); }
+    .activity-dot.reject  { background: var(--red-bg);   color: var(--red);   }
+    .activity-dot.remove  { background: var(--red-bg);   color: var(--red);   }
+    .activity-dot.warn    { background: var(--yellow-bg); color: var(--yellow); }
+    .activity-dot.note    { background: var(--accent-bg); color: var(--accent); }
+
+    .activity-dot svg { width: 14px; height: 14px; }
+
+    .activity-body { flex: 1; min-width: 0; }
+
+    .activity-text {
+      font-size: 13.5px;
+      color: var(--text);
+      line-height: 1.45;
+    }
+
+    .activity-text strong { font-weight: 600; color: var(--primary); }
+
+    .activity-time {
+      font-size: 11.5px;
+      color: var(--subtle);
+      margin-top: 3px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* ── Quick Actions ── */
+    .quick-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      padding: 16px 20px;
+    }
+
+    .quick-action-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 14px;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .12s;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .quick-action-btn:hover {
+      background: var(--surface);
+      border-color: var(--accent);
+    }
+
+    .quick-action-btn svg { width: 15px; height: 15px; color: var(--accent); flex-shrink: 0; }
+
+    /* ── System Health ── */
+    .health-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 24px;
+    }
+
+    .health-row + .health-row { border-top: 1px solid var(--border-l); }
+
+    .health-label {
+      font-size: 13px;
+      color: var(--muted);
+      flex: 1;
+    }
+
+    .health-bar-wrap {
+      width: 100px;
+      height: 6px;
+      background: var(--border-l);
+      border-radius: 3px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .health-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: var(--green);
+    }
+
+    .health-bar-fill.warn { background: var(--yellow); }
+    .health-bar-fill.danger { background: var(--red); }
+
+    .health-pct {
+      font-size: 12.5px;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text);
+      min-width: 36px;
+      text-align: right;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       MODAL OVERLAY
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(26,20,16,.55);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .modal-overlay.hidden { display: none; }
+
+    .modal {
+      background: var(--surface);
+      border-radius: 20px;
+      box-shadow: 0 24px 64px rgba(26,20,16,.22);
+      width: 100%;
+      max-width: 540px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .modal-header {
+      padding: 24px 28px 20px;
+      border-bottom: 1px solid var(--border-l);
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    .modal-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .modal-icon.danger { background: var(--red-bg); color: var(--red); }
+    .modal-icon.warning { background: var(--yellow-bg); color: var(--yellow); }
+    .modal-icon.info { background: var(--accent-bg); color: var(--accent); }
+
+    .modal-icon svg { width: 20px; height: 20px; }
+
+    .modal-title-group { flex: 1; }
+
+    .modal-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .modal-subtitle {
+      font-size: 13.5px;
+      color: var(--muted);
+      margin-top: 4px;
+      line-height: 1.5;
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--muted);
+      flex-shrink: 0;
+      transition: background .12s;
+    }
+
+    .modal-close:hover { background: var(--bg); }
+    .modal-close svg { width: 16px; height: 16px; }
+
+    .modal-body { padding: 22px 28px; }
+
+    .modal-footer {
+      padding: 16px 28px 24px;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 22px;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s, transform .1s;
+      border: none;
+      letter-spacing: .02em;
+    }
+
+    .btn:active { transform: translateY(1px); }
+
+    .btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .btn-ghost:hover { background: var(--bg); color: var(--text); }
+
+    .btn-primary {
+      background: var(--primary);
+      color: rgba(250,247,242,.95);
+    }
+
+    .btn-primary:hover { background: var(--primary-dd); }
+
+    .btn-danger {
+      background: var(--red);
+      color: #fff;
+    }
+
+    .btn-danger:hover { background: #991B1B; }
+
+    .btn-success {
+      background: var(--green);
+      color: #fff;
+    }
+
+    .btn-success:hover { background: #14472B; }
+
+    /* User info block in modal */
+    .modal-user-block {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 18px;
+    }
+
+    .modal-user-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--accent-bg);
+      border: 1.5px solid rgba(201,137,74,.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .modal-user-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .modal-user-meta {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* Content preview block */
+    .content-preview {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 18px;
+    }
+
+    .content-preview-label {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--subtle);
+      margin-bottom: 8px;
+    }
+
+    .content-preview-text {
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.55;
+    }
+
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ═══════════════════════════════════════
+       LEFT SIDEBAR
+  ═══════════════════════════════════════ -->
+  <aside class="sidebar">
+    <div class="sb-ring"></div>
+
+    <div class="sb-brand">
+      <div class="sb-brand-mark">A</div>
+      <span class="sb-brand-name">Ascend</span>
+    </div>
+
+    <nav class="sb-nav">
+
+      <div class="sb-section-label">Discover</div>
+
+      <a href="feed.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        Feed
+      </a>
+
+      <a href="questions.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        Questions
+      </a>
+
+      <a href="resources.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+        </svg>
+        Resources
+      </a>
+
+      <div class="sb-divider"></div>
+      <div class="sb-section-label">Connect</div>
+
+      <a href="people.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        People
+      </a>
+
+      <a href="messages.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+        Messages
+      </a>
+
+      <div class="sb-divider"></div>
+
+      <a href="#" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        Notifications
+      </a>
+
+      <!-- Administration Section -->
+      <div class="sb-section-label admin-label">Administration</div>
+
+      <a href="admin.html" class="nav-item active">
+        <!-- Shield / dashboard icon -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+        Dashboard
+      </a>
+
+      <a href="admin-users.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        Users
+      </a>
+
+      <a href="admin-alumni-verification.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="8" r="4"/>
+          <path d="M20 21a8 8 0 1 0-16 0"/>
+          <polyline points="9 11 11 13 15 9"/>
+        </svg>
+        Alumni Verification
+        <span class="nav-badge">8</span>
+      </a>
+
+      <a href="admin-reports.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        Reports
+        <span class="nav-badge danger">14</span>
+      </a>
+
+    </nav>
+
+    <div class="sb-user-section">
+      <div class="sb-user">
+        <div class="sb-avatar admin-avatar">SA</div>
+        <div class="sb-user-info">
+          <div class="sb-user-name">Sana Arun</div>
+          <div class="sb-user-role">Platform Administrator</div>
+          <div class="sb-admin-badge">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            Admin
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ═══════════════════════════════════════
+       MAIN CONTENT
+  ═══════════════════════════════════════ -->
+  <main class="main-area">
+
+    <div class="topbar">
+      <h1 class="topbar-title">Admin Dashboard</h1>
+      <div class="topbar-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        Admin
+      </div>
+      <span class="topbar-spacer"></span>
+      <span class="topbar-time">Sun 05 Apr 2026 · 10:42 AM</span>
+    </div>
+
+    <div class="content">
+
+      <!-- ── Stat Cards ── -->
+      <div class="stat-grid">
+
+        <div class="stat-card">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+          <div class="stat-label">Total Users</div>
+          <div class="stat-value">1,247</div>
+          <div class="stat-delta up">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+            +23 this week
+          </div>
+        </div>
+
+        <div class="stat-card warning">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="8" r="4"/>
+              <path d="M20 21a8 8 0 1 0-16 0"/>
+              <polyline points="9 11 11 13 15 9"/>
+            </svg>
+          </div>
+          <div class="stat-label">Pending Verifications</div>
+          <div class="stat-value">8</div>
+          <div class="stat-delta warn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            +3 since yesterday
+          </div>
+        </div>
+
+        <div class="stat-card danger">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </div>
+          <div class="stat-label">Open Reports</div>
+          <div class="stat-value">14</div>
+          <div class="stat-delta warn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            +5 today
+          </div>
+        </div>
+
+        <div class="stat-card success">
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+              <polyline points="10 9 9 9 8 9"/>
+            </svg>
+          </div>
+          <div class="stat-label">Total Content</div>
+          <div class="stat-value">3,891</div>
+          <div class="stat-delta up">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+            +41 today
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── Dashboard Grid ── -->
+      <div class="dashboard-grid">
+
+        <!-- Recent Reports Table -->
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-title">Recent Reports</div>
+            <a href="admin-reports.html" class="section-link">View all →</a>
+          </div>
+          <table class="report-table">
+            <thead>
+              <tr>
+                <th>Content</th>
+                <th>Reported By</th>
+                <th>Reason</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="report-content-type question">Question</span></td>
+                <td>Arjun K.</td>
+                <td><span class="report-reason">Inappropriate language in post</span></td>
+                <td style="color:var(--subtle);font-size:12.5px;font-family:'JetBrains Mono',monospace;">2h ago</td>
+                <td><span class="status-badge pending">Pending</span></td>
+                <td><button class="action-btn review" onclick="document.getElementById('reviewModal').classList.remove('hidden')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  Review
+                </button></td>
+              </tr>
+              <tr>
+                <td><span class="report-content-type post">Post</span></td>
+                <td>Meera S.</td>
+                <td><span class="report-reason">Spam or misleading content</span></td>
+                <td style="color:var(--subtle);font-size:12.5px;font-family:'JetBrains Mono',monospace;">5h ago</td>
+                <td><span class="status-badge pending">Pending</span></td>
+                <td><button class="action-btn review" onclick="document.getElementById('reviewModal').classList.remove('hidden')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  Review
+                </button></td>
+              </tr>
+              <tr>
+                <td><span class="report-content-type resource">Resource</span></td>
+                <td>Vishnu R.</td>
+                <td><span class="report-reason">Broken or incorrect link</span></td>
+                <td style="color:var(--subtle);font-size:12.5px;font-family:'JetBrains Mono',monospace;">1d ago</td>
+                <td><span class="status-badge pending">Pending</span></td>
+                <td><button class="action-btn review" onclick="document.getElementById('reviewModal').classList.remove('hidden')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  Review
+                </button></td>
+              </tr>
+              <tr>
+                <td><span class="report-content-type question">Answer</span></td>
+                <td>Keerthi S.</td>
+                <td><span class="report-reason">Incorrect or misleading answer</span></td>
+                <td style="color:var(--subtle);font-size:12.5px;font-family:'JetBrains Mono',monospace;">2d ago</td>
+                <td><span class="status-badge resolved">Resolved</span></td>
+                <td><button class="action-btn review" onclick="document.getElementById('reviewModal').classList.remove('hidden')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  Review
+                </button></td>
+              </tr>
+              <tr>
+                <td><span class="report-content-type post">Post</span></td>
+                <td>Rahul M.</td>
+                <td><span class="report-reason">Harassment or bullying</span></td>
+                <td style="color:var(--subtle);font-size:12.5px;font-family:'JetBrains Mono',monospace;">3d ago</td>
+                <td><span class="status-badge dismissed">Dismissed</span></td>
+                <td><button class="action-btn review" onclick="document.getElementById('reviewModal').classList.remove('hidden')">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  Review
+                </button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Right Column -->
+        <div style="display:flex;flex-direction:column;gap:20px;">
+
+          <!-- Quick Actions -->
+          <div class="section-card">
+            <div class="section-header">
+              <div class="section-title">Quick Actions</div>
+            </div>
+            <div class="quick-actions">
+              <a href="admin-alumni-verification.html" class="quick-action-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="8" r="4"/>
+                  <path d="M20 21a8 8 0 1 0-16 0"/>
+                  <polyline points="9 11 11 13 15 9"/>
+                </svg>
+                Verify Alumni
+              </a>
+              <a href="admin-reports.html" class="quick-action-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                  <line x1="12" y1="9" x2="12" y2="13"/>
+                </svg>
+                Review Reports
+              </a>
+              <a href="admin-users.html" class="quick-action-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                  <circle cx="9" cy="7" r="4"/>
+                </svg>
+                Manage Users
+              </a>
+              <a href="#" class="quick-action-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                </svg>
+                Platform Stats
+              </a>
+            </div>
+          </div>
+
+          <!-- Recent Admin Activity -->
+          <div class="section-card">
+            <div class="section-header">
+              <div class="section-title">Recent Activity</div>
+            </div>
+            <div class="activity-list">
+              <div class="activity-item">
+                <div class="activity-dot approve">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                </div>
+                <div class="activity-body">
+                  <div class="activity-text">Approved alumni account for <strong>Priya Nambiar</strong></div>
+                  <div class="activity-time">10 min ago</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot remove">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                  </svg>
+                </div>
+                <div class="activity-body">
+                  <div class="activity-text">Removed post flagged as spam by <strong>Anon User</strong></div>
+                  <div class="activity-time">43 min ago</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot warn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/>
+                  </svg>
+                </div>
+                <div class="activity-body">
+                  <div class="activity-text">Issued warning to <strong>Suresh K.</strong> for rule violation</div>
+                  <div class="activity-time">2h ago</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot reject">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                </div>
+                <div class="activity-body">
+                  <div class="activity-text">Rejected alumni request from <strong>Mohit Verma</strong> — invalid credentials</div>
+                  <div class="activity-time">4h ago</div>
+                </div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-dot note">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                  </svg>
+                </div>
+                <div class="activity-body">
+                  <div class="activity-text">Dismissed report on <strong>Q&amp;A post</strong> — no violation found</div>
+                  <div class="activity-time">6h ago</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- System Health (decorative) -->
+          <div class="section-card">
+            <div class="section-header">
+              <div class="section-title">Platform Health</div>
+            </div>
+            <div style="padding:8px 0;">
+              <div class="health-row">
+                <span class="health-label">API Response</span>
+                <div class="health-bar-wrap"><div class="health-bar-fill" style="width:92%"></div></div>
+                <span class="health-pct">92%</span>
+              </div>
+              <div class="health-row">
+                <span class="health-label">DB Load</span>
+                <div class="health-bar-wrap"><div class="health-bar-fill warn" style="width:64%"></div></div>
+                <span class="health-pct">64%</span>
+              </div>
+              <div class="health-row">
+                <span class="health-label">Storage</span>
+                <div class="health-bar-wrap"><div class="health-bar-fill" style="width:37%"></div></div>
+                <span class="health-pct">37%</span>
+              </div>
+              <div class="health-row">
+                <span class="health-label">Active Sessions</span>
+                <div class="health-bar-wrap"><div class="health-bar-fill" style="width:81%"></div></div>
+                <span class="health-pct">312</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+</div>
+
+<!-- ═══════════════════════════════════════
+     MODAL: Review Report
+═══════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="reviewModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-icon danger">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </div>
+      <div class="modal-title-group">
+        <div class="modal-title">Review Report</div>
+        <div class="modal-subtitle">Report #1042 · Question · Submitted 2h ago by Arjun K.</div>
+      </div>
+      <button class="modal-close" onclick="document.getElementById('reviewModal').classList.add('hidden')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Reported User -->
+      <div style="font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--subtle);margin-bottom:8px;">Reported User</div>
+      <div class="modal-user-block">
+        <div class="modal-user-avatar">SK</div>
+        <div>
+          <div class="modal-user-name">Sree Kumar</div>
+          <div class="modal-user-meta">Student · CSE · 6th Semester</div>
+        </div>
+      </div>
+
+      <!-- Reported Content -->
+      <div style="font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--subtle);margin-bottom:8px;">Reported Content</div>
+      <div class="content-preview">
+        <div class="content-preview-label">Question</div>
+        <div class="content-preview-text">"Why is everyone at this college so useless and unable to help? Can't believe no one knows basic things here."</div>
+      </div>
+
+      <!-- Report Reason -->
+      <div style="margin-bottom:18px;">
+        <div style="font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--subtle);margin-bottom:6px;">Reason Given</div>
+        <div style="font-size:14px;color:var(--muted);padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;">
+          Inappropriate language — uses demeaning terms toward other community members.
+        </div>
+      </div>
+
+      <!-- Admin Action Selection -->
+      <div style="font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--subtle);margin-bottom:10px;">Take Action</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+
+        <label style="display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;">
+          <input type="radio" name="report-action" value="dismiss" style="margin-top:2px;accent-color:var(--primary);">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--text);">Dismiss report</div>
+            <div style="font-size:12.5px;color:var(--muted);margin-top:2px;">No violation found. Close the report.</div>
+          </div>
+        </label>
+
+        <label style="display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;">
+          <input type="radio" name="report-action" value="delete" style="margin-top:2px;accent-color:var(--primary);">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--text);">Remove content</div>
+            <div style="font-size:12.5px;color:var(--muted);margin-top:2px;">Delete the reported question / post.</div>
+          </div>
+        </label>
+
+        <label style="display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;">
+          <input type="radio" name="report-action" value="warn" style="margin-top:2px;accent-color:var(--primary);">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--text);">Warn user</div>
+            <div style="font-size:12.5px;color:var(--muted);margin-top:2px;">Send an official warning to the user.</div>
+          </div>
+        </label>
+
+        <label style="display:flex;align-items:flex-start;gap:12px;padding:12px 14px;border:1.5px solid var(--red);border-radius:10px;cursor:pointer;background:var(--red-bg);">
+          <input type="radio" name="report-action" value="ban" style="margin-top:2px;accent-color:var(--red);">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--red);">Suspend user</div>
+            <div style="font-size:12.5px;color:var(--muted);margin-top:2px;">Temporarily or permanently restrict account access.</div>
+          </div>
+        </label>
+
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="document.getElementById('reviewModal').classList.add('hidden')">Cancel</button>
+      <button class="btn btn-primary">Confirm Action</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

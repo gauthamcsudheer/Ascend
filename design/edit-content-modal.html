@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Content — Ascend</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #5C1220;
+      --primary-d: #400C18;
+      --primary-dd: #2E0A11;
+      --primary-bg: rgba(92,18,32,.05);
+      --accent: #C9894A;
+      --accent-bg: rgba(201,137,74,.08);
+      --green: #1A5C38;
+      --green-d: #14472B;
+      --green-bg: rgba(26,92,56,.08);
+      --bg: #FAF7F2;
+      --surface: #FFFFFF;
+      --text: #1A1410;
+      --muted: #7A6659;
+      --subtle: #B5A899;
+      --border: #DDD4C8;
+      --border-l: #EDE8E1;
+      --shadow: 0 24px 80px rgba(26,20,16,.28), 0 8px 24px rgba(26,20,16,.14);
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body { overflow: hidden; }
+
+    .page-bg {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      background: var(--bg);
+    }
+
+    .bg-sidebar {
+      width: 240px;
+      flex-shrink: 0;
+      background:
+        radial-gradient(circle, rgba(201,137,74,.1) 1px, transparent 1px),
+        radial-gradient(circle at 12% 82%, rgba(201,137,74,.1) 0, rgba(201,137,74,.03) 22%, transparent 46%),
+        var(--primary-d);
+      background-size: 24px 24px, auto, auto;
+    }
+
+    .bg-main {
+      flex: 1;
+      padding: 24px 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,.28), rgba(255,255,255,0)), var(--bg);
+    }
+
+    .bg-topbar {
+      height: 62px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.78);
+      position: relative;
+    }
+
+    .bg-topbar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 62%;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), rgba(201,137,74,.3), transparent);
+    }
+
+    .bg-hero {
+      min-height: 230px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: rgba(255,255,255,.82);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .bg-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0 auto auto 0;
+      width: 100%;
+      height: 116px;
+      background: var(--primary-d);
+      box-shadow: inset 0 -2px 0 rgba(201,137,74,.5);
+    }
+
+    .bg-hero::after {
+      content: '';
+      position: absolute;
+      top: -80px;
+      right: -70px;
+      width: 240px;
+      height: 240px;
+      border-radius: 50%;
+      border: 1px solid rgba(201,137,74,.16);
+      box-shadow: 0 0 0 38px rgba(201,137,74,.05), 0 0 0 76px rgba(201,137,74,.025);
+    }
+
+    .bg-activity {
+      min-height: 360px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      background: rgba(255,255,255,.78);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .bg-tabs {
+      height: 56px;
+      border-bottom: 1px solid var(--border);
+      background: #FDFBF8;
+    }
+
+    .bg-card-list {
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .bg-card {
+      min-height: 150px;
+      border: 1px solid var(--border-l);
+      border-left: 3px solid rgba(26,92,56,.3);
+      border-radius: 12px;
+      background: rgba(255,255,255,.88);
+    }
+
+    .bg-right {
+      width: 284px;
+      flex-shrink: 0;
+      border-left: 1px solid var(--border);
+      background: rgba(255,255,255,.84);
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(26,20,16,.62);
+      backdrop-filter: blur(7px);
+      -webkit-backdrop-filter: blur(7px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 100;
+    }
+
+    .modal {
+      position: relative;
+      width: min(980px, 100%);
+      max-height: min(92vh, 880px);
+      display: flex;
+      flex-direction: column;
+      background: var(--surface);
+      border-radius: 2px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .modal::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), rgba(201,137,74,.4), transparent);
+      z-index: 1;
+    }
+
+    .modal-header {
+      padding: 22px 28px 18px;
+      border-bottom: 1px solid var(--border-l);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+
+    .modal-kicker {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 5px;
+    }
+
+    .modal-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 31px;
+      font-weight: 600;
+      letter-spacing: -.02em;
+      line-height: 1.05;
+      margin-bottom: 4px;
+    }
+
+    .modal-subtitle {
+      max-width: 590px;
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .modal-close {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: border-color .15s, color .15s, background .15s;
+      flex-shrink: 0;
+    }
+
+    .modal-close:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-bg);
+    }
+
+    .modal-close svg { width: 15px; height: 15px; }
+
+    .modal-body {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 270px minmax(0, 1fr);
+      overflow: hidden;
+    }
+
+    .modal-left {
+      background: #FDFBF8;
+      border-right: 1px solid var(--border-l);
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+
+    .modal-left::-webkit-scrollbar { display: none; }
+
+    .modal-right {
+      overflow-y: auto;
+      min-height: 0;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+
+    .modal-right::-webkit-scrollbar { width: 6px; }
+    .modal-right::-webkit-scrollbar-thumb { background: var(--border); border-radius: 999px; }
+
+    .modal-section {
+      padding: 20px 22px;
+      border-bottom: 1px solid var(--border-l);
+    }
+
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--green);
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border-l);
+    }
+
+    .status-card {
+      padding: 16px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .status-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: var(--green-bg);
+      border: 1px solid rgba(26,92,56,.18);
+      color: var(--green);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .status-badge svg { width: 10px; height: 10px; }
+
+    .status-meta {
+      font-size: 12px;
+      color: var(--subtle);
+      line-height: 1.55;
+    }
+
+    .mini-stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .mini-stat {
+      padding: 10px 8px;
+      border: 1px solid var(--border-l);
+      text-align: center;
+      background: #FFFEFC;
+    }
+
+    .mini-stat strong {
+      display: block;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 21px;
+      color: var(--primary);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .mini-stat span {
+      display: block;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--subtle);
+      line-height: 1.35;
+    }
+
+    .visibility-options,
+    .tips-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .visibility-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 12px;
+      border: 1px solid var(--border-l);
+      background: var(--surface);
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+    }
+
+    .visibility-row.active {
+      border-color: rgba(92,18,32,.18);
+      background: var(--primary-bg);
+    }
+
+    .visibility-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--accent-bg);
+      border: 1px solid rgba(201,137,74,.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .visibility-icon svg { width: 13px; height: 13px; }
+
+    .visibility-title {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .visibility-copy {
+      font-size: 11.5px;
+      color: var(--subtle);
+      line-height: 1.5;
+    }
+
+    .tips-list {
+      list-style: none;
+    }
+
+    .tips-list li {
+      position: relative;
+      padding-left: 14px;
+      font-size: 12px;
+      color: var(--subtle);
+      line-height: 1.55;
+    }
+
+    .tips-list li::before {
+      content: '';
+      position: absolute;
+      top: 7px;
+      left: 0;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: .7;
+    }
+
+    .hero-strip {
+      padding: 24px 26px 18px;
+      border-bottom: 1px solid var(--border-l);
+      background: linear-gradient(135deg, rgba(92,18,32,.05), rgba(201,137,74,.05)), #FFFEFC;
+    }
+
+    .hero-note {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 10px;
+      margin-bottom: 12px;
+      border: 1px solid rgba(201,137,74,.22);
+      background: rgba(255,255,255,.78);
+      color: var(--primary);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+
+    .hero-note svg { width: 12px; height: 12px; color: var(--accent); }
+
+    .hero-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px;
+      font-weight: 600;
+      line-height: 1.08;
+      letter-spacing: -.02em;
+      max-width: 540px;
+      margin-bottom: 8px;
+    }
+
+    .hero-copy {
+      max-width: 620px;
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.68;
+    }
+
+    .field-section {
+      padding: 22px 26px;
+      border-bottom: 1px solid var(--border-l);
+    }
+
+    .field-label-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .char-count {
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--subtle);
+      letter-spacing: 0;
+      text-transform: none;
+    }
+
+    .char-count span {
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .title-input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      outline: none;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 25px;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.3;
+      letter-spacing: -.01em;
+      transition: border-color .16s, box-shadow .16s;
+    }
+
+    .title-input::placeholder { color: #C8BBB2; font-style: italic; font-weight: 300; }
+
+    .title-input:focus,
+    .summary-textarea:focus,
+    .content-textarea:focus,
+    .tag-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(201,137,74,.12);
+    }
+
+    .summary-textarea,
+    .content-textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      outline: none;
+      resize: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14.5px;
+      color: var(--text);
+      line-height: 1.72;
+      padding: 13px 14px;
+      transition: border-color .16s, box-shadow .16s;
+    }
+
+    .summary-textarea {
+      min-height: 98px;
+    }
+
+    .content-textarea {
+      min-height: 270px;
+    }
+
+    .summary-textarea::placeholder,
+    .content-textarea::placeholder { color: #C5B8AE; }
+
+    .toolbar-wrap {
+      border: 1px solid var(--border);
+      background: #FFFEFC;
+      margin-bottom: 12px;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 10px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .toolbar::-webkit-scrollbar { display: none; }
+
+    .toolbar-sep {
+      width: 1px;
+      height: 18px;
+      background: var(--border);
+      margin: 0 5px;
+      flex-shrink: 0;
+    }
+
+    .tb-btn {
+      width: 30px;
+      height: 28px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      background: transparent;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: color .12s, background .12s, border-color .12s;
+      flex-shrink: 0;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .tb-btn:hover {
+      color: var(--text);
+      background: var(--border-l);
+      border-color: var(--border);
+    }
+
+    .tb-btn.active {
+      color: var(--primary);
+      background: var(--primary-bg);
+      border-color: rgba(92,18,32,.15);
+    }
+
+    .tb-btn svg { width: 13px; height: 13px; }
+
+    .tb-btn-wide {
+      width: auto;
+      padding: 0 8px;
+      gap: 4px;
+      font-size: 11px;
+    }
+
+    .tags-field {
+      min-height: 46px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 9px 11px;
+      transition: border-color .16s, box-shadow .16s;
+    }
+
+    .tags-field:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(201,137,74,.12);
+    }
+
+    .tag-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 8px 3px 9px;
+      border-radius: 20px;
+      background: var(--green-bg);
+      border: 1px solid rgba(26,92,56,.2);
+      color: var(--green);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .tag-pill-remove {
+      width: 13px;
+      height: 13px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(26,92,56,.15);
+      color: var(--green-d);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .tag-pill-remove svg { width: 7px; height: 7px; }
+
+    .tag-input {
+      flex: 1;
+      min-width: 110px;
+      padding: 2px 0;
+      border: 1px solid transparent;
+      background: transparent;
+      outline: none;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      color: var(--text);
+    }
+
+    .tag-input::placeholder {
+      color: #C5B8AE;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+    }
+
+    .inline-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .select-wrap {
+      position: relative;
+    }
+
+    .select {
+      width: 100%;
+      height: 44px;
+      padding: 0 38px 0 13px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: var(--text);
+      appearance: none;
+      outline: none;
+      transition: border-color .16s, box-shadow .16s;
+    }
+
+    .select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(201,137,74,.12);
+    }
+
+    .select-wrap::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      right: 14px;
+      width: 10px;
+      height: 10px;
+      border-right: 1.5px solid var(--subtle);
+      border-bottom: 1.5px solid var(--subtle);
+      transform: translateY(-65%) rotate(45deg);
+      pointer-events: none;
+    }
+
+    .publish-note {
+      margin-top: 10px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--subtle);
+      line-height: 1.55;
+    }
+
+    .publish-note svg {
+      width: 13px;
+      height: 13px;
+      flex-shrink: 0;
+      color: var(--accent);
+      margin-top: 2px;
+    }
+
+    .revision-strip {
+      margin-top: 18px;
+      padding: 13px 14px;
+      border: 1px solid rgba(26,92,56,.14);
+      background: var(--green-bg);
+      color: var(--green);
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      font-size: 12.5px;
+      line-height: 1.55;
+    }
+
+    .revision-strip svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .modal-footer {
+      padding: 14px 28px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #FDFBF8;
+      flex-shrink: 0;
+    }
+
+    .footer-note {
+      flex: 1;
+      font-size: 12px;
+      color: var(--subtle);
+      line-height: 1.5;
+    }
+
+    .footer-note span { color: var(--accent); }
+
+    .btn-secondary,
+    .btn-tertiary,
+    .btn-primary {
+      border-radius: 0;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .18s, border-color .15s, color .15s;
+    }
+
+    .btn-tertiary,
+    .btn-secondary {
+      background: transparent;
+      border: 1.5px solid var(--border);
+      color: var(--muted);
+    }
+
+    .btn-tertiary { padding: 10px 18px; }
+    .btn-secondary { padding: 10px 22px; }
+
+    .btn-tertiary:hover,
+    .btn-secondary:hover {
+      border-color: var(--muted);
+      color: var(--text);
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 24px;
+      border: none;
+      background: var(--primary);
+      color: rgba(250,247,242,.95);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .btn-primary:hover { background: var(--primary-d); }
+
+    .btn-primary svg {
+      width: 14px;
+      height: 14px;
+      transition: transform .18s;
+    }
+
+    .btn-primary:hover svg { transform: translateX(3px); }
+
+    @media (max-width: 980px) {
+      body { overflow: auto; }
+
+      .page-bg { display: none; }
+
+      .modal-overlay {
+        position: static;
+        min-height: 100vh;
+        padding: 16px;
+        background: var(--bg);
+        backdrop-filter: none;
+      }
+
+      .modal {
+        max-height: none;
+        box-shadow: none;
+        border: 1px solid var(--border);
+      }
+
+      .modal-body {
+        grid-template-columns: 1fr;
+      }
+
+      .modal-left {
+        order: 2;
+        border-right: none;
+        border-top: 1px solid var(--border-l);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .modal-header,
+      .hero-strip,
+      .field-section,
+      .modal-footer,
+      .modal-section { padding-left: 18px; padding-right: 18px; }
+
+      .inline-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .modal-footer {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .btn-primary,
+      .btn-secondary,
+      .btn-tertiary {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-bg" aria-hidden="true">
+    <div class="bg-sidebar"></div>
+    <div class="bg-main">
+      <div class="bg-topbar"></div>
+      <div class="bg-hero"></div>
+      <div class="bg-activity">
+        <div class="bg-tabs"></div>
+        <div class="bg-card-list">
+          <div class="bg-card"></div>
+          <div class="bg-card"></div>
+        </div>
+      </div>
+    </div>
+    <div class="bg-right"></div>
+  </div>
+
+  <div class="modal-overlay">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="editContentTitle">
+      <div class="modal-header">
+        <div>
+          <p class="modal-kicker">Profile Activity</p>
+          <h2 class="modal-title" id="editContentTitle">Edit Content</h2>
+          <p class="modal-subtitle">Refine what is already live on your profile without losing its context, performance, or tone. This modal is tuned for editing long-form profile posts and shared writeups.</p>
+        </div>
+        <button class="modal-close" aria-label="Close modal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <aside class="modal-left">
+          <div class="modal-section">
+            <div class="section-label">Status</div>
+            <div class="status-card">
+              <div class="status-top">
+                <span class="status-badge">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  Published
+                </span>
+                <span style="font-size:11px;color:var(--subtle);">Updated 2h ago</span>
+              </div>
+
+              <p class="status-meta">Editing: <strong style="color:var(--text);font-weight:600;">Feed post</strong><br>Originally published 6 days ago from your profile activity tab.</p>
+
+              <div class="mini-stats">
+                <div class="mini-stat">
+                  <strong>84</strong>
+                  <span>Likes</span>
+                </div>
+                <div class="mini-stat">
+                  <strong>19</strong>
+                  <span>Replies</span>
+                </div>
+                <div class="mini-stat">
+                  <strong>7</strong>
+                  <span>Saves</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-section">
+            <div class="section-label">Visibility</div>
+            <div class="visibility-options">
+              <div class="visibility-row active">
+                <div class="visibility-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                </div>
+                <div>
+                  <div class="visibility-title">Visible to campus</div>
+                  <div class="visibility-copy">Anyone in Ascend can discover this from your profile and the feed.</div>
+                </div>
+              </div>
+              <div class="visibility-row">
+                <div class="visibility-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><path d="M20 8v6"></path><path d="M23 11h-6"></path></svg>
+                </div>
+                <div>
+                  <div class="visibility-title">Connections only</div>
+                  <div class="visibility-copy">Useful for more personal reflections or progress updates.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-section">
+            <div class="section-label">Editing Notes</div>
+            <ul class="tips-list">
+              <li>Preserve the original voice if people have already engaged with this post.</li>
+              <li>Use the summary field to sharpen the hook without rewriting the full body.</li>
+              <li>If the meaning changes significantly, mention that in the footer note or first line.</li>
+              <li>Strong tags help this continue performing inside profile activity and feed search.</li>
+            </ul>
+          </div>
+        </aside>
+
+        <section class="modal-right">
+          <div class="hero-strip">
+            <div class="hero-note">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M12 4h9"></path><path d="M4 9h16"></path><path d="M4 15h16"></path></svg>
+              Editing Live Content
+            </div>
+            <h3 class="hero-title">Tighten the story, sharpen the hook, and keep the value that made people stop scrolling.</h3>
+            <p class="hero-copy">This editor is designed for content already visible on your profile. It gives the main body room to breathe, but still keeps the metadata and publishing signals close by.</p>
+          </div>
+
+          <div class="field-section">
+            <div class="field-label-row">
+              <span>Title</span>
+              <span class="char-count"><span id="titleCount">72</span> / 120</span>
+            </div>
+            <input class="title-input" id="titleInput" type="text" maxlength="120" value="How I cracked the system design round at Juspay — a 6th sem perspective">
+          </div>
+
+          <div class="field-section">
+            <div class="field-label-row">
+              <span>Summary</span>
+              <span class="char-count"><span id="summaryCount">146</span> / 220</span>
+            </div>
+            <textarea class="summary-textarea" id="summaryInput" maxlength="220">A practical breakdown of how I approached the Juspay system design round, what actually helped, and the mistake I made under pressure.</textarea>
+          </div>
+
+          <div class="field-section">
+            <div class="field-label-row">
+              <span>Body</span>
+              <span class="char-count"><span id="bodyCount">1247</span> / 5000</span>
+            </div>
+
+            <div class="toolbar-wrap">
+              <div class="toolbar">
+                <button class="tb-btn active" type="button" title="Bold">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"></path><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"></path></svg>
+                </button>
+                <button class="tb-btn" type="button" title="Italic">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="4" x2="10" y2="4"></line><line x1="14" y1="20" x2="5" y2="20"></line><line x1="15" y1="4" x2="9" y2="20"></line></svg>
+                </button>
+                <button class="tb-btn" type="button" title="Bullet list">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="9" y1="6" x2="20" y2="6"></line><line x1="9" y1="12" x2="20" y2="12"></line><line x1="9" y1="18" x2="20" y2="18"></line><circle cx="4" cy="6" r="1.5" fill="currentColor" stroke="none"></circle><circle cx="4" cy="12" r="1.5" fill="currentColor" stroke="none"></circle><circle cx="4" cy="18" r="1.5" fill="currentColor" stroke="none"></circle></svg>
+                </button>
+                <button class="tb-btn" type="button" title="Numbered list">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="10" y1="6" x2="21" y2="6"></line><line x1="10" y1="12" x2="21" y2="12"></line><line x1="10" y1="18" x2="21" y2="18"></line><path d="M4 6h1v4"></path><path d="M4 10h2"></path><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"></path></svg>
+                </button>
+                <div class="toolbar-sep"></div>
+                <button class="tb-btn tb-btn-wide" type="button">H2</button>
+                <button class="tb-btn tb-btn-wide" type="button">Quote</button>
+                <button class="tb-btn" type="button" title="Link">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                </button>
+              </div>
+            </div>
+
+            <textarea class="content-textarea" id="bodyInput" maxlength="5000">Got my Juspay offer last week and a few juniors asked me to write this up, so here goes.
+
+The system design round was the part I was most nervous about going in. I hadn't done any "formal" prep. What I did have was a semester of building stuff: a real-time chat app, a URL shortener I wrote from scratch when I was bored, and a lot of late nights reading architecture blogs.
+
+Here's the thing nobody tells you: Juspay's system design round is less about knowing the "right" answer and more about how you think through trade-offs. They gave me "Design a payment retry system" and the best move was slowing down before drawing boxes.
+
+What worked for me:
+- Start with the problem constraints before touching any architecture
+- Talk through your assumptions out loud so the interviewer can track your reasoning
+- Bring up failure modes early. I mentioned idempotency keys before they asked, and that changed the tone of the round
+- Don't design for scale you can't justify
+
+The part I fumbled: I didn't handle the dead letter queue elegantly. I knew what it was, but my explanation came out muddled under pressure. They moved past it, probably because the rest felt grounded.
+
+If you're in Sem 5 or 6 and targeting product companies, start building. Reading helps, but building is what gave me something concrete to say.</textarea>
+
+            <div class="publish-note">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              Big edits can change how returning readers interpret your post. If you're updating advice, consider mentioning what changed.
+            </div>
+
+            <div class="revision-strip">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3.23-6.91"></path><polyline points="21 3 21 9 15 9"></polyline></svg>
+              Saving now will update the live post and keep its likes, replies, and saves intact.
+            </div>
+          </div>
+
+          <div class="field-section">
+            <div class="field-label-row">
+              <span>Tags</span>
+              <span class="char-count"><span>3</span> / 5</span>
+            </div>
+            <div class="tags-field">
+              <span class="tag-pill">#system-design <button class="tag-pill-remove" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></span>
+              <span class="tag-pill">#placements <button class="tag-pill-remove" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></span>
+              <span class="tag-pill">#interviews <button class="tag-pill-remove" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></span>
+              <input class="tag-input" type="text" placeholder="+ Add another tag">
+            </div>
+          </div>
+
+          <div class="field-section">
+            <div class="inline-grid">
+              <div>
+                <div class="field-label-row">
+                  <span>Content Type</span>
+                  <span class="char-count">Optional</span>
+                </div>
+                <div class="select-wrap">
+                  <select class="select">
+                    <option selected>Post</option>
+                    <option>Reflection</option>
+                    <option>Experience</option>
+                    <option>Guide</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <div class="field-label-row">
+                  <span>Audience</span>
+                  <span class="char-count">Visible</span>
+                </div>
+                <div class="select-wrap">
+                  <select class="select">
+                    <option selected>Campus-wide</option>
+                    <option>Connections only</option>
+                    <option>Draft</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="modal-footer">
+        <p class="footer-note">You’re editing a <span>live profile activity item</span>. Saving updates the current version instead of creating a duplicate.</p>
+        <button class="btn-tertiary" type="button">Unpublish</button>
+        <button class="btn-secondary" type="button">Cancel</button>
+        <button class="btn-primary" type="button">
+          Save Changes
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const titleInput = document.getElementById('titleInput');
+    const summaryInput = document.getElementById('summaryInput');
+    const bodyInput = document.getElementById('bodyInput');
+    const titleCount = document.getElementById('titleCount');
+    const summaryCount = document.getElementById('summaryCount');
+    const bodyCount = document.getElementById('bodyCount');
+
+    function syncCounts() {
+      titleCount.textContent = titleInput.value.length;
+      summaryCount.textContent = summaryInput.value.length;
+      bodyCount.textContent = bodyInput.value.length;
+    }
+
+    [titleInput, summaryInput, bodyInput].forEach((input) => {
+      input.addEventListener('input', syncCounts);
+    });
+
+    syncCounts();
+  </script>
+</body>
+</html>

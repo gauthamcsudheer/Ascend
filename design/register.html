@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account — Ascend</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+  <style>
+
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Design Tokens ── */
+    :root {
+      --primary:   #5C1220;
+      --primary-d: #400C18;
+      --accent:    #C9894A;
+      --bg:        #FAF7F2;
+      --text:      #1A1410;
+      --muted:     #7A6659;
+      --subtle:    #B5A899;
+      --border:    #DDD4C8;
+    }
+
+    html, body { height: 100%; }
+    body {
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       PAGE LAYOUT
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .page { display: flex; height: 100vh; overflow: hidden; }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       LEFT PANEL
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .l-panel {
+      width: 38%;
+      background: var(--primary);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      padding: 28px 42px 22px;
+    }
+
+    /* Dot-grid texture */
+    .l-panel::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(201,137,74,.15) 1.5px, transparent 1.5px);
+      background-size: 28px 28px;
+    }
+
+    /* Decorative concentric rings — top left */
+    .l-ring {
+      position: absolute;
+      top: -100px;
+      left: -100px;
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      border: 1px solid rgba(201,137,74,.15);
+      box-shadow:
+        0 0 0 55px  rgba(201,137,74,.04),
+        0 0 0 110px rgba(201,137,74,.025);
+      pointer-events: none;
+    }
+
+    .l-panel > *:not(.l-ring) { position: relative; z-index: 1; }
+
+    /* Brand */
+    .brand { display: flex; align-items: center; gap: 14px; }
+
+    .brand-mark {
+      width: 44px;
+      height: 44px;
+      border: 1.5px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .brand-text { display: flex; flex-direction: column; gap: 3px; }
+
+    .brand-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: rgba(250,247,242,.95);
+      line-height: 1;
+    }
+
+    .brand-college {
+      font-size: 10.5px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: rgba(250,247,242,.4);
+    }
+
+    /* Three-row panel layout — equal thirds */
+    .l-row {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+      flex: 1;
+    }
+
+    .l-row-2 { justify-content: center; }
+
+    .l-row-3 { justify-content: flex-end; }
+
+    .l-kicker {
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+
+    .l-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 54px;
+      font-weight: 300;
+      line-height: 1.04;
+      color: var(--bg);
+      letter-spacing: -.02em;
+      margin-bottom: 14px;
+    }
+    .l-heading em { font-style: italic; }
+
+    .l-desc {
+      font-size: 15px;
+      color: rgba(250,247,242,.55);
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    /* Community stats */
+    .stats {
+      border-top: 1px solid rgba(201,137,74,.2);
+      padding-top: 16px;
+      margin-bottom: 20px;
+    }
+
+    .stat {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(250,247,242,.05);
+    }
+    .stat:last-child { border-bottom: none; }
+
+    .stat-label { font-size: 12px; color: rgba(250,247,242,.45); }
+
+    .stat-val {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px;
+      font-weight: 500;
+      color: rgba(250,247,242,.85);
+      letter-spacing: -.02em;
+    }
+
+    /* Role cards */
+    .roles { display: flex; flex-direction: column; gap: 10px; }
+
+    .role-row { display: flex; align-items: flex-start; gap: 12px; }
+
+    .role-icon {
+      width: 30px;
+      height: 30px;
+      border: 1px solid rgba(201,137,74,.28);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--accent);
+      flex-shrink: 0;
+      margin-top: 1px;
+      font-family: 'Cormorant Garamond', serif;
+    }
+
+    .role-info { display: flex; flex-direction: column; gap: 3px; }
+    .role-title { font-size: 13.5px; font-weight: 600; color: rgba(250,247,242,.72); }
+    .role-desc  { font-size: 12.5px; color: rgba(250,247,242,.4); line-height: 1.42; }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       RIGHT PANEL
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .r-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-y: auto;
+      padding: 22px 48px 18px;
+    }
+
+    .form-wrap {
+      width: 100%;
+      max-width: 580px;
+      margin: auto;
+    }
+
+    /* Form header */
+    .f-kicker {
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 6px;
+    }
+
+    .f-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 38px;
+      font-weight: 500;
+      line-height: 1.1;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       CSS-ONLY ROLE TAB SYSTEM
+       Radio inputs must precede both .role-tabs and .panels
+       as siblings for the ~ combinator to work.
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .role-input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+      width: 0;
+      height: 0;
+    }
+
+    /* Underline-style tab bar */
+    .role-tabs {
+      display: flex;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 16px;
+    }
+
+    .role-tab {
+      flex: 1;
+      display: block;
+      padding: 9px 16px;
+      text-align: center;
+      font-size: 12.5px;
+      font-weight: 600;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--subtle);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      user-select: none;
+      transition: color .15s, border-color .15s;
+    }
+
+    .role-tab:hover { color: var(--muted); border-bottom-color: var(--border); }
+
+    /* Active tab — underline in primary, text in primary */
+    #role-student:checked ~ .role-tabs .tab-s,
+    #role-alumni:checked  ~ .role-tabs .tab-a,
+    #role-faculty:checked ~ .role-tabs .tab-f {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    /* All panels hidden by default */
+    .reg-panel { display: none; }
+
+    /* Show active panel */
+    #role-student:checked ~ .panels .panel-s { display: block; }
+    #role-alumni:checked  ~ .panels .panel-a { display: block; }
+    #role-faculty:checked ~ .panels .panel-f { display: block; }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       FORM GRID
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .fgrid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      column-gap: 16px;
+      row-gap: 15px;
+    }
+
+    .s2 { grid-column: 1 / -1; }
+
+    /* Field group */
+    .fg { display: flex; flex-direction: column; gap: 6px; }
+
+    .fg-lbl {
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .req { color: var(--accent); }
+
+    .opt-badge {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      color: var(--subtle);
+      background: #EAE3D8;
+      padding: 2px 6px;
+      margin-left: 5px;
+      vertical-align: middle;
+    }
+
+    .fg-hint {
+      font-size: 12.5px;
+      color: #B5A899;
+      line-height: 1.4;
+    }
+
+    /* Inputs & Select */
+    input[type="email"],
+    input[type="password"],
+    input[type="text"],
+    input[type="url"],
+    select {
+      display: block;
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid var(--border);
+      background: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14.5px;
+      color: var(--text);
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      border-radius: 0;
+      transition: border-color .16s, box-shadow .16s;
+    }
+
+    input::placeholder { color: #C5B8AE; }
+
+    input:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(201,137,74,.12);
+    }
+
+    /* Custom select arrow */
+    .sel-wrap { position: relative; }
+
+    .sel-wrap::after {
+      content: '';
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      border-left: 4.5px solid transparent;
+      border-right: 4.5px solid transparent;
+      border-top: 5px solid var(--muted);
+      pointer-events: none;
+    }
+
+    /* Section divider (for optional fields in alumni) */
+    .sect-div {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 4px;
+    }
+
+    .sect-div-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--subtle);
+      white-space: nowrap;
+    }
+
+    .sect-div-line { flex: 1; height: 1px; background: var(--border); }
+
+    /* Password requirements box */
+    .pw-note {
+      grid-column: 1 / -1;
+      background: #F4EEE7;
+      border: 1px solid var(--border);
+      padding: 7px 12px;
+    }
+
+    .pw-note-title {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .pw-note ul { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+
+    .pw-note li {
+      font-size: 11px;
+      color: #A8998D;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pw-note li::before {
+      content: '';
+      display: inline-block;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(201,137,74,.6);
+      flex-shrink: 0;
+    }
+
+    /* Alumni info note */
+    .info-note {
+      display: flex;
+      gap: 10px;
+      background: #F4EEE7;
+      border: 1px solid rgba(201,137,74,.28);
+      border-left: 3px solid var(--accent);
+      padding: 12px 14px;
+      margin-bottom: 26px;
+    }
+
+    .info-note-icon { font-size: 14px; color: var(--accent); flex-shrink: 0; line-height: 1.5; }
+
+    .info-note-text { font-size: 12.5px; color: var(--muted); line-height: 1.55; }
+
+    /* Submit button */
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 12px 24px;
+      background: var(--primary);
+      color: rgba(250,247,242,.95);
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background .18s;
+      margin-top: 12px;
+    }
+    .btn:hover { background: var(--primary-d); }
+    .btn svg { flex-shrink: 0; transition: transform .18s; }
+    .btn:hover svg { transform: translateX(3px); }
+
+    /* Terms */
+    .terms {
+      font-size: 12px;
+      color: var(--subtle);
+      line-height: 1.45;
+      text-align: center;
+      margin-top: 8px;
+    }
+    .terms a { color: var(--muted); text-decoration: underline; }
+
+    /* Footer */
+    .form-foot {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .form-foot a { color: var(--primary); font-weight: 500; text-decoration: none; }
+    .form-foot a:hover { text-decoration: underline; }
+
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ─────────────── LEFT PANEL ─────────────── -->
+  <aside class="l-panel">
+    <div class="l-ring"></div>
+
+    <div class="l-row l-row-1">
+      <div class="brand">
+        <div class="brand-mark">A</div>
+        <div class="brand-text">
+          <span class="brand-name">Ascend</span>
+          <span class="brand-college">Rajagiri School of Engineering and Technology</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="l-row l-row-2">
+      <p class="l-kicker">Be part of the community</p>
+      <h1 class="l-heading">
+        Connect.<br>
+        <em>Learn.</em><br>
+        Grow.
+      </h1>
+      <p class="l-desc">
+        Join a growing network of students, alumni, and faculty invested in each other's success.
+      </p>
+    </div>
+
+    <div class="l-row l-row-3">
+    <div class="roles">
+      <div class="role-row">
+        <div class="role-icon">S</div>
+        <div class="role-info">
+          <span class="role-title">Students</span>
+          <span class="role-desc">Ask questions, access resources, and connect with seniors for guidance.</span>
+        </div>
+      </div>
+      <div class="role-row">
+        <div class="role-icon">A</div>
+        <div class="role-info">
+          <span class="role-title">Alumni</span>
+          <span class="role-desc">Share your journey, mentor juniors, and stay connected with your alma mater.</span>
+        </div>
+      </div>
+      <div class="role-row">
+        <div class="role-icon">F</div>
+        <div class="role-info">
+          <span class="role-title">Faculty</span>
+          <span class="role-desc">Share resources and guide students on academic and professional matters.</span>
+        </div>
+      </div>
+    </div>
+    </div><!-- /l-row-3 -->
+  </aside>
+
+  <!-- ─────────────── RIGHT PANEL ─────────────── -->
+  <main class="r-panel">
+    <div class="form-wrap">
+
+      <p class="f-kicker">Get started</p>
+      <h2 class="f-title">Create your account</h2>
+
+      <!--
+        CSS-only tab system:
+        Radio inputs MUST precede .role-tabs and .panels as DOM siblings
+        so the general sibling combinator (~) can target them.
+      -->
+      <input type="radio" id="role-student" name="role" class="role-input" checked>
+      <input type="radio" id="role-alumni"  name="role" class="role-input">
+      <input type="radio" id="role-faculty" name="role" class="role-input">
+
+      <!-- Tab labels -->
+      <div class="role-tabs">
+        <label for="role-student" class="role-tab tab-s">Student</label>
+        <label for="role-alumni"  class="role-tab tab-a">Alumni</label>
+        <label for="role-faculty" class="role-tab tab-f">Faculty</label>
+      </div>
+
+      <!-- Form panels (each role has its own form) -->
+      <div class="panels">
+
+        <!-- ══════════════════════════════
+             STUDENT PANEL
+        ══════════════════════════════ -->
+        <div class="reg-panel panel-s">
+          <form action="#" method="post" novalidate>
+            <div class="fgrid">
+
+              <div class="fg s2">
+                <span class="fg-lbl">Full Name <span class="req">*</span></span>
+                <input type="text" name="s_name" placeholder="e.g. Arjun Krishnan" autocomplete="name">
+              </div>
+
+              <div class="fg s2">
+                <span class="fg-lbl">College Email Address <span class="req">*</span></span>
+                <input type="email" name="s_email" placeholder="yourname@rajagiri.edu.in">
+              </div>
+
+              <div class="fg">
+                <span class="fg-lbl">Department <span class="req">*</span></span>
+                <div class="sel-wrap">
+                  <select name="s_dept">
+                    <option value="" disabled selected>Select department</option>
+                    <option>Computer Science &amp; Engineering</option>
+                    <option>Electronics &amp; Communication Engg.</option>
+                    <option>Mechanical Engineering</option>
+                    <option>Civil Engineering</option>
+                    <option>Electrical &amp; Electronics Engg.</option>
+                    <option>Information Technology</option>
+                    <option>Applied Electronics &amp; Instrumentation</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="fg">
+                <span class="fg-lbl">Current Semester <span class="req">*</span></span>
+                <div class="sel-wrap">
+                  <select name="s_sem">
+                    <option value="" disabled selected>Select semester</option>
+                    <option value="1">Semester 1</option>
+                    <option value="2">Semester 2</option>
+                    <option value="3">Semester 3</option>
+                    <option value="4">Semester 4</option>
+                    <option value="5">Semester 5</option>
+                    <option value="6">Semester 6</option>
+                    <option value="7">Semester 7</option>
+                    <option value="8">Semester 8</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="fg s2">
+                <span class="fg-lbl">Batch — Admission Year <span class="req">*</span></span>
+                <div class="sel-wrap">
+                  <select name="s_batch">
+                    <option value="" disabled selected>Select the year you joined Rajagiri</option>
+                    <option>2026</option>
+                    <option>2025</option>
+                    <option>2024</option>
+                    <option>2023</option>
+                    <option>2022</option>
+                    <option>2021</option>
+                    <option>2020</option>
+                    <option>2019</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="fg">
+                <span class="fg-lbl">Password <span class="req">*</span></span>
+                <input type="password" name="s_pwd" placeholder="Create a strong password">
+              </div>
+
+              <div class="fg">
+                <span class="fg-lbl">Confirm Password <span class="req">*</span></span>
+                <input type="password" name="s_cpwd" placeholder="Re-enter your password">
+              </div>
+
+              <div class="pw-note">
+                <p class="pw-note-title">Password must include</p>
+                <ul>
+                  <li>At least 8 characters</li>
+                  <li>One uppercase letter (A – Z)</li>
+                  <li>One number or special character</li>
+                </ul>
+              </div>
+
+            </div><!-- /fgrid -->
+
+            <button type="submit" class="btn">
+              Create Student Account
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </button>
+
+            <p class="terms">
+              By creating an account, you agree to Ascend's
+              <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+            </p>
+          </form>
+        </div><!-- /panel-s -->
+
+        <!-- ══════════════════════════════
+             ALUMNI PANEL
+        ══════════════════════════════ -->
+        <div class="reg-panel panel-a">
+          <form action="#" method="post" novalidate>
+
+            <div class="fgrid">
+
+              <div class="fg s2">
+                <span class="fg-lbl">Full Name <span class="req">*</span></span>
+                <input type="text" name="a_name" placeholder="e.g. Meera Suresh" autocomplete="name">
+              </div>
+
+              <div class="fg s2">
+                <span class="fg-lbl">Personal Email Address <span class="req">*</span></span>
+                <input type="email" name="a_email" placeholder="you@gmail.com">
+              </div>
+
+              <div class="fg">
+                <span class="fg-lbl">Department <span class="req">*</span></span>
+                <div class="sel-wrap">
+                  <select name="a_dept">
+                    <option value="" disabled selected>Select department</option>
+                    <option>Computer Science &amp; Engineering</option>
+                    <option>Electronics &amp; Communication Engg.</option>
+                    <option>Mechanical Engineering</option>
+                    <option>Civil Engineering</option>
+                    <option>Electrical &amp; Electronics Engg.</option>
+                    <option>Information Technology</option>
+                    <option>Applied Electronics &amp; Instrumentation</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="fg">
+                <span class="fg-lbl">Year of Graduation <span class="req">*</span></span>
+                <div class="sel-wrap">
+                  <select name="a_grad">
+                    <option value="" disabled selected>Select year</option>
+                    <option>2025</option><option>2024</option><option>2023</option>
+                    <option>2022</option><option>2021</option><option>2020</option>
+                    <option>2019</option><option>2018</option><option>2017</option>
+                    <option>2016</option><option>2015</option><option>2014</option>
+                    <option>2013</option><option>2012</option><option>2010</option>
+                    <option>2008</option><option>2006</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="fg">
+                <span class="fg-lbl">Password <span class="req">*</span></span>
+                <input type="password" name="a_pwd" placeholder="Create a strong password">
+              </div>
+
+              <div class="fg">
+                <span class="fg-lbl">Confirm Password <span class="req">*</span></span>
+                <input type="password" name="a_cpwd" placeholder="Re-enter your password">
+              </div>
+
+              <div class="fg s2">
+                <span class="fg-lbl">LinkedIn Profile URL <span class="req">*</span></span>
+                <input type="url" name="a_linkedin" placeholder="https://linkedin.com/in/your-profile">
+              </div>
+
+              <!-- Optional section divider -->
+              <div class="sect-div">
+                <span class="sect-div-label">Professional Info <span class="opt-badge">Optional</span></span>
+                <div class="sect-div-line"></div>
+              </div>
+
+              <div class="fg">
+                <span class="fg-lbl">Current Company</span>
+                <input type="text" name="a_company" placeholder="e.g. Infosys, Google, TCS">
+              </div>
+
+              <div class="fg">
+                <span class="fg-lbl">Designation</span>
+                <input type="text" name="a_designation" placeholder="e.g. Software Engineer">
+              </div>
+
+            </div><!-- /fgrid -->
+
+            <button type="submit" class="btn">
+              Submit for Verification
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </button>
+
+            <p class="terms">
+              By submitting, you agree to Ascend's
+              <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+            </p>
+          </form>
+        </div><!-- /panel-a -->
+
+        <!-- ══════════════════════════════
+             FACULTY PANEL
+        ══════════════════════════════ -->
+        <div class="reg-panel panel-f">
+          <form action="#" method="post" novalidate>
+            <div class="fgrid">
+
+              <div class="fg s2">
+                <span class="fg-lbl">Full Name <span class="req">*</span></span>
+                <input type="text" name="f_name" placeholder="e.g. Dr. Saji Mathew" autocomplete="name">
+              </div>
+
+              <div class="fg s2">
+                <span class="fg-lbl">Institutional Email <span class="req">*</span></span>
+                <input type="email" name="f_email" placeholder="yourname@rajagiritech.edu.in">
+              </div>
+
+              <div class="fg s2">
+                <span class="fg-lbl">Department <span class="req">*</span></span>
+                <div class="sel-wrap">
+                  <select name="f_dept">
+                    <option value="" disabled selected>Select your department</option>
+                    <option>Computer Science &amp; Engineering</option>
+                    <option>Electronics &amp; Communication Engg.</option>
+                    <option>Mechanical Engineering</option>
+                    <option>Civil Engineering</option>
+                    <option>Electrical &amp; Electronics Engg.</option>
+                    <option>Information Technology</option>
+                    <option>Applied Electronics &amp; Instrumentation</option>
+                    <option>Basic Sciences &amp; Humanities</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="fg">
+                <span class="fg-lbl">Password <span class="req">*</span></span>
+                <input type="password" name="f_pwd" placeholder="Create a strong password">
+              </div>
+
+              <div class="fg">
+                <span class="fg-lbl">Confirm Password <span class="req">*</span></span>
+                <input type="password" name="f_cpwd" placeholder="Re-enter your password">
+              </div>
+
+              <div class="pw-note">
+                <p class="pw-note-title">Password must include</p>
+                <ul>
+                  <li>At least 8 characters</li>
+                  <li>One uppercase letter (A – Z)</li>
+                  <li>One number or special character</li>
+                </ul>
+              </div>
+
+            </div><!-- /fgrid -->
+
+            <button type="submit" class="btn">
+              Create Faculty Account
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+              </svg>
+            </button>
+
+            <p class="terms">
+              By creating an account, you agree to Ascend's
+              <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+            </p>
+          </form>
+        </div><!-- /panel-f -->
+
+      </div><!-- /panels -->
+
+      <div class="form-foot">
+        Already have an account? <a href="login.html">Sign in</a>
+      </div>
+
+    </div>
+  </main>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Management — Admin — Ascend</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary:    #5C1220;
+      --primary-d:  #400C18;
+      --primary-dd: #2E0A11;
+      --primary-bg: rgba(92,18,32,.05);
+      --accent:     #C9894A;
+      --accent-bg:  rgba(201,137,74,.08);
+      --green:      #1A5C38;
+      --green-bg:   rgba(26,92,56,.08);
+      --red:        #B91C1C;
+      --red-bg:     rgba(185,28,28,.07);
+      --yellow:     #B45309;
+      --yellow-bg:  rgba(180,83,9,.07);
+      --blue:       #1D4ED8;
+      --blue-bg:    rgba(29,78,216,.07);
+      --bg:         #FAF7F2;
+      --surface:    #FFFFFF;
+      --text:       #1A1410;
+      --muted:      #7A6659;
+      --subtle:     #B5A899;
+      --border:     #DDD4C8;
+      --border-l:   #EDE8E1;
+    }
+
+    html, body { height: 100%; }
+    body { font-family: 'DM Sans', -apple-system, sans-serif; color: var(--text); background: var(--bg); -webkit-font-smoothing: antialiased; }
+
+    .page { display: flex; height: 100vh; overflow: hidden; }
+
+    /* ── Sidebar ── */
+    .sidebar { width: 240px; flex-shrink: 0; height: 100vh; position: sticky; top: 0; background: var(--primary-d); display: flex; flex-direction: column; overflow: hidden; }
+    .sidebar::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(circle, rgba(201,137,74,.1) 1px, transparent 1px); background-size: 24px 24px; pointer-events: none; z-index: 0; }
+    .sb-ring { position: absolute; bottom: -100px; left: -100px; width: 360px; height: 360px; border-radius: 50%; border: 1px solid rgba(201,137,74,.12); box-shadow: 0 0 0 50px rgba(201,137,74,.04), 0 0 0 100px rgba(201,137,74,.02); pointer-events: none; z-index: 0; }
+    .sidebar > *:not(.sb-ring) { position: relative; z-index: 1; }
+    .sb-brand { display: flex; align-items: center; gap: 12px; padding: 22px 20px 20px; border-bottom: 1px solid rgba(201,137,74,.15); }
+    .sb-brand-mark { width: 36px; height: 36px; border: 1.5px solid var(--accent); display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: var(--accent); flex-shrink: 0; }
+    .sb-brand-name { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: rgba(250,247,242,.92); }
+    .sb-nav { flex: 1; padding: 12px 0; overflow-y: auto; scrollbar-width: none; }
+    .sb-nav::-webkit-scrollbar { display: none; }
+    .sb-section-label { font-size: 9.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: rgba(201,137,74,.55); padding: 14px 20px 6px; }
+    .sb-section-label.admin-label { color: rgba(201,137,74,.9); border-top: 1px solid rgba(201,137,74,.15); margin-top: 4px; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 20px; font-size: 13.5px; font-weight: 500; color: rgba(250,247,242,.55); text-decoration: none; cursor: pointer; transition: background .12s, color .12s; border-left: 3px solid transparent; }
+    .nav-item:hover { background: rgba(250,247,242,.06); color: rgba(250,247,242,.85); }
+    .nav-item.active { background: rgba(201,137,74,.1); color: var(--accent); border-left-color: var(--accent); font-weight: 600; }
+    .nav-item svg { width: 17px; height: 17px; flex-shrink: 0; }
+    .nav-badge { margin-left: auto; min-width: 18px; height: 18px; padding: 0 5px; background: var(--accent); color: var(--primary-dd); font-size: 10px; font-weight: 700; border-radius: 9px; display: flex; align-items: center; justify-content: center; }
+    .nav-badge.danger { background: var(--red); color: #fff; }
+    .sb-divider { height: 1px; background: rgba(201,137,74,.12); margin: 8px 0; }
+    .sb-user-section { border-top: 1px solid rgba(201,137,74,.15); padding: 14px 16px 10px; }
+    .sb-user { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 0 0 10px; }
+    .sb-avatar { width: 36px; height: 36px; border-radius: 50%; background: rgba(201,137,74,.18); border: 1.5px solid rgba(201,137,74,.35); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: var(--accent); flex-shrink: 0; }
+    .sb-avatar.admin-avatar { background: rgba(185,28,28,.2); border-color: rgba(185,28,28,.4); color: #F87171; }
+    .sb-user-info { flex: 1; min-width: 0; }
+    .sb-user-name { font-size: 13px; font-weight: 600; color: rgba(250,247,242,.9); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sb-user-role { font-size: 11px; color: rgba(250,247,242,.4); margin-top: 1px; }
+    .sb-admin-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: rgba(185,28,28,.15); border: 1px solid rgba(185,28,28,.3); border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #F87171; margin-top: 4px; width: fit-content; }
+
+    /* ── Main Area ── */
+    .main-area { flex: 1; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; scrollbar-width: none; -ms-overflow-style: none; }
+    .main-area::-webkit-scrollbar { display: none; }
+
+    /* ── Topbar ── */
+    .topbar { position: sticky; top: 0; z-index: 10; background: rgba(250,247,242,.96); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 14px 32px; display: flex; align-items: center; gap: 16px; }
+    .topbar::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--primary), rgba(92,18,32,.3), transparent); }
+    .topbar-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600; color: var(--text); letter-spacing: -.01em; }
+    .topbar-count { display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; background: var(--primary-bg); border: 1px solid rgba(92,18,32,.15); border-radius: 6px; font-size: 12px; font-weight: 700; color: var(--primary); }
+    .topbar-spacer { flex: 1; }
+    .search-bar { display: flex; align-items: center; gap: 10px; padding: 8px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; width: 260px; }
+    .search-bar svg { width: 15px; height: 15px; color: var(--subtle); flex-shrink: 0; }
+    .search-bar input { border: none; background: transparent; outline: none; font-family: 'DM Sans', sans-serif; font-size: 13.5px; color: var(--text); width: 100%; }
+    .search-bar input::placeholder { color: var(--subtle); }
+
+    .content { padding: 28px 32px 48px; flex: 1; }
+
+    /* ── Filter row ── */
+    .filter-row { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; flex-wrap: wrap; }
+    .filter-tabs { display: flex; gap: 0; border: 1px solid var(--border); background: var(--surface); overflow: hidden; border-radius: 10px; }
+    .filter-tab { padding: 8px 18px; font-size: 13px; font-weight: 500; color: var(--muted); cursor: pointer; border-right: 1px solid var(--border-l); transition: background .12s, color .12s; text-decoration: none; white-space: nowrap; }
+    .filter-tab:last-child { border-right: none; }
+    .filter-tab:hover { background: var(--bg); color: var(--text); }
+    .filter-tab.active { background: var(--primary); color: rgba(250,247,242,.95); font-weight: 600; }
+    .filter-spacer { flex: 1; }
+    .sort-select { padding: 8px 14px; border: 1px solid var(--border); background: var(--surface); border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--muted); cursor: pointer; outline: none; }
+
+    /* ── Status filter pills ── */
+    .status-filters { display: flex; gap: 8px; margin-bottom: 20px; }
+    .status-pill { display: inline-flex; align-items: center; gap: 5px; padding: 5px 13px; border-radius: 20px; font-size: 12.5px; font-weight: 500; cursor: pointer; border: 1.5px solid transparent; background: var(--surface); color: var(--muted); border-color: var(--border); transition: all .12s; }
+    .status-pill:hover { color: var(--text); border-color: var(--border); background: var(--bg); }
+    .status-pill.active { font-weight: 600; }
+    .status-pill.active.all { background: var(--primary-bg); color: var(--primary); border-color: rgba(92,18,32,.2); }
+    .status-pill.active.active-s { background: var(--green-bg); color: var(--green); border-color: rgba(26,92,56,.2); }
+    .status-pill.active.suspended { background: var(--yellow-bg); color: var(--yellow); border-color: rgba(180,83,9,.2); }
+    .status-pill.active.banned { background: var(--red-bg); color: var(--red); border-color: rgba(185,28,28,.2); }
+    .status-pill::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+    /* ── User Table ── */
+    .user-table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+
+    .user-table { width: 100%; border-collapse: collapse; }
+
+    .user-table thead th {
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--subtle);
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    .user-table thead th:first-child { padding-left: 20px; }
+    .user-table thead th:last-child { padding-right: 20px; text-align: right; }
+
+    .user-table tbody tr {
+      border-bottom: 1px solid var(--border-l);
+      transition: background .1s;
+    }
+    .user-table tbody tr:last-child { border-bottom: none; }
+    .user-table tbody tr:hover { background: rgba(250,247,242,.6); }
+
+    .user-table tbody td { padding: 14px 16px; vertical-align: middle; }
+    .user-table tbody td:first-child { padding-left: 20px; }
+    .user-table tbody td:last-child { padding-right: 20px; }
+
+    /* User cell */
+    .user-cell { display: flex; align-items: center; gap: 12px; }
+    .user-avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; flex-shrink: 0;
+    }
+    .user-avatar.student { background: var(--primary-bg); color: var(--primary); border: 1.5px solid rgba(92,18,32,.15); }
+    .user-avatar.alumni  { background: var(--accent-bg);  color: var(--accent);  border: 1.5px solid rgba(201,137,74,.25); }
+    .user-avatar.faculty { background: var(--blue-bg);    color: var(--blue);    border: 1.5px solid rgba(29,78,216,.2); }
+    .user-avatar.admin   { background: rgba(185,28,28,.1); color: var(--red);    border: 1.5px solid rgba(185,28,28,.25); }
+
+    .user-info-name { font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.3; }
+    .user-info-email { font-size: 12px; color: var(--muted); margin-top: 1px; font-family: 'JetBrains Mono', monospace; }
+
+    /* Role badge */
+    .role-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 6px; font-size: 11.5px; font-weight: 700; letter-spacing: .04em; white-space: nowrap; }
+    .role-badge.student { background: var(--primary-bg); color: var(--primary); }
+    .role-badge.alumni  { background: var(--accent-bg);  color: var(--accent); }
+    .role-badge.faculty { background: var(--blue-bg);    color: var(--blue); }
+    .role-badge.admin   { background: rgba(185,28,28,.1); color: var(--red); }
+    .role-badge svg { width: 11px; height: 11px; }
+
+    /* Dept cell */
+    .dept-cell { font-size: 13.5px; color: var(--text); }
+    .dept-semester { font-size: 12px; color: var(--muted); margin-top: 2px; font-family: 'JetBrains Mono', monospace; }
+
+    /* Status badge */
+    .status-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 600; padding: 4px 10px; border-radius: 20px; white-space: nowrap; }
+    .status-badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+    .status-badge.active    { background: var(--green-bg); color: var(--green); }
+    .status-badge.suspended { background: var(--yellow-bg); color: var(--yellow); }
+    .status-badge.banned    { background: var(--red-bg); color: var(--red); }
+
+    /* Last active */
+    .last-active { font-size: 12.5px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+    .joined-date { font-size: 11.5px; color: var(--subtle); margin-top: 2px; font-family: 'JetBrains Mono', monospace; }
+
+    /* Report count pill */
+    .report-pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: var(--red-bg); border: 1px solid rgba(185,28,28,.15); border-radius: 12px; font-size: 11.5px; font-weight: 700; color: var(--red); }
+    .report-pill svg { width: 10px; height: 10px; }
+    .report-pill.none { background: transparent; border-color: transparent; color: var(--subtle); font-weight: 400; }
+
+    /* Action buttons */
+    .action-group { display: flex; align-items: center; gap: 6px; justify-content: flex-end; }
+    .icon-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: transparent; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--muted); transition: background .12s, color .12s, border-color .12s; flex-shrink: 0; }
+    .icon-btn svg { width: 14px; height: 14px; }
+    .icon-btn:hover { background: var(--bg); color: var(--text); }
+    .icon-btn.warn:hover { background: var(--yellow-bg); color: var(--yellow); border-color: rgba(180,83,9,.2); }
+    .icon-btn.danger:hover { background: var(--red-bg); color: var(--red); border-color: rgba(185,28,28,.2); }
+    .icon-btn.primary:hover { background: var(--primary-bg); color: var(--primary); border-color: rgba(92,18,32,.2); }
+
+    /* Pagination */
+    .pagination { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-top: 1px solid var(--border-l); }
+    .pagination-info { font-size: 13px; color: var(--muted); }
+    .pagination-controls { display: flex; align-items: center; gap: 4px; }
+    .page-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .12s; }
+    .page-btn:hover { background: var(--bg); color: var(--text); }
+    .page-btn.active { background: var(--primary); color: rgba(250,247,242,.95); border-color: var(--primary); font-weight: 600; }
+    .page-btn:disabled { opacity: .35; cursor: not-allowed; }
+    .page-btn svg { width: 14px; height: 14px; }
+
+    /* Buttons */
+    .btn { display: inline-flex; align-items: center; gap: 7px; padding: 10px 22px; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: background .15s, transform .1s; border: none; letter-spacing: .02em; }
+    .btn:active { transform: translateY(1px); }
+    .btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+    .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+    .btn-ghost:hover { background: var(--bg); color: var(--text); }
+    .btn-primary { background: var(--primary); color: rgba(250,247,242,.95); }
+    .btn-primary:hover { background: var(--primary-dd); }
+    .btn-danger { background: var(--red); color: #fff; }
+    .btn-danger:hover { background: #991B1B; }
+    .btn-warning { background: var(--yellow); color: #fff; }
+    .btn-warning:hover { background: #92400E; }
+    .btn-success { background: var(--green); color: #fff; }
+    .btn-success:hover { background: #14472B; }
+
+    /* ── Modal ── */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(26,20,16,.55); backdrop-filter: blur(4px); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .modal-overlay.hidden { display: none; }
+    .modal { background: var(--surface); border-radius: 20px; box-shadow: 0 24px 64px rgba(26,20,16,.22); width: 100%; max-width: 560px; overflow: hidden; }
+    .modal-header { padding: 24px 28px 20px; border-bottom: 1px solid var(--border-l); display: flex; align-items: flex-start; gap: 14px; }
+    .modal-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .modal-icon.danger  { background: var(--red-bg);    color: var(--red); }
+    .modal-icon.warning { background: var(--yellow-bg); color: var(--yellow); }
+    .modal-icon.info    { background: var(--accent-bg); color: var(--accent); }
+    .modal-icon.primary { background: var(--primary-bg); color: var(--primary); }
+    .modal-icon svg { width: 20px; height: 20px; }
+    .modal-title-group { flex: 1; }
+    .modal-title { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: var(--text); line-height: 1.2; }
+    .modal-subtitle { font-size: 13.5px; color: var(--muted); margin-top: 4px; line-height: 1.5; }
+    .modal-close { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: transparent; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--muted); flex-shrink: 0; transition: background .12s; }
+    .modal-close:hover { background: var(--bg); }
+    .modal-close svg { width: 16px; height: 16px; }
+    .modal-body { padding: 22px 28px; }
+    .modal-footer { padding: 16px 28px 24px; display: flex; gap: 10px; justify-content: flex-end; }
+
+    /* View User modal specifics */
+    .user-profile-block {
+      display: flex; align-items: center; gap: 16px;
+      padding: 16px 18px; background: var(--bg);
+      border: 1px solid var(--border); border-radius: 14px; margin-bottom: 20px;
+    }
+    .profile-avatar {
+      width: 54px; height: 54px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 700; flex-shrink: 0;
+    }
+    .profile-avatar.student { background: var(--primary-bg); color: var(--primary); border: 2px solid rgba(92,18,32,.18); }
+    .profile-avatar.alumni  { background: var(--accent-bg);  color: var(--accent);  border: 2px solid rgba(201,137,74,.3); }
+    .profile-avatar.faculty { background: var(--blue-bg);    color: var(--blue);    border: 2px solid rgba(29,78,216,.25); }
+    .profile-name { font-size: 17px; font-weight: 700; color: var(--text); line-height: 1.2; }
+    .profile-email { font-size: 12.5px; color: var(--muted); margin-top: 3px; font-family: 'JetBrains Mono', monospace; }
+    .profile-tags { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+    .info-cell { padding: 12px 14px; background: var(--bg); border: 1px solid var(--border-l); border-radius: 10px; }
+    .info-cell-label { font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--subtle); margin-bottom: 5px; }
+    .info-cell-value { font-size: 14px; font-weight: 600; color: var(--text); }
+
+    .activity-row { display: flex; align-items: center; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid var(--border-l); }
+    .activity-row:last-child { border-bottom: none; }
+    .activity-label { font-size: 13.5px; color: var(--muted); }
+    .activity-value { font-size: 14px; font-weight: 600; color: var(--text); }
+
+    .modal-section-title { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--subtle); margin-bottom: 10px; }
+
+    /* Role selector */
+    .role-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+    .role-option { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 10px; cursor: pointer; transition: border-color .12s, background .12s; }
+    .role-option:hover { border-color: rgba(92,18,32,.2); background: var(--bg); }
+    .role-option.selected { border-color: var(--accent); background: var(--accent-bg); }
+    .role-option input[type="radio"] { accent-color: var(--primary); flex-shrink: 0; }
+    .role-option-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .role-option-icon svg { width: 16px; height: 16px; }
+    .role-option-icon.student { background: var(--primary-bg); color: var(--primary); }
+    .role-option-icon.alumni  { background: var(--accent-bg);  color: var(--accent); }
+    .role-option-icon.faculty { background: var(--blue-bg);    color: var(--blue); }
+    .role-option-title { font-size: 14px; font-weight: 600; color: var(--text); }
+    .role-option-desc  { font-size: 12.5px; color: var(--muted); margin-top: 1px; }
+
+    /* Form elements */
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; }
+    .form-select { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); outline: none; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); cursor: pointer; }
+    .form-select:focus { border-color: var(--accent); }
+    .form-textarea { width: 100%; padding: 11px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); outline: none; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); resize: vertical; min-height: 80px; transition: border-color .15s; }
+    .form-textarea:focus { border-color: var(--accent); }
+    .form-textarea::placeholder { color: var(--subtle); }
+
+    .warn-box { display: flex; gap: 10px; padding: 12px 14px; background: var(--red-bg); border: 1px solid rgba(185,28,28,.2); border-radius: 10px; margin-bottom: 18px; font-size: 13px; color: var(--red); line-height: 1.5; }
+    .warn-box svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; }
+
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ─── Sidebar ─── -->
+  <aside class="sidebar">
+    <div class="sb-ring"></div>
+    <div class="sb-brand">
+      <div class="sb-brand-mark">A</div>
+      <span class="sb-brand-name">Ascend</span>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-section-label">Discover</div>
+      <a href="feed.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Feed
+      </a>
+      <a href="questions.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Questions
+      </a>
+      <a href="resources.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        Resources
+      </a>
+      <div class="sb-divider"></div>
+      <div class="sb-section-label">Connect</div>
+      <a href="people.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        People
+      </a>
+      <a href="messages.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Messages
+      </a>
+      <div class="sb-divider"></div>
+      <a href="#" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        Notifications
+      </a>
+      <div class="sb-section-label admin-label">Administration</div>
+      <a href="admin.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </a>
+      <a href="admin-users.html" class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Users
+      </a>
+      <a href="admin-alumni-verification.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/><polyline points="9 11 11 13 15 9"/></svg>
+        Alumni Verification
+        <span class="nav-badge">8</span>
+      </a>
+      <a href="admin-reports.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Reports
+        <span class="nav-badge danger">14</span>
+      </a>
+    </nav>
+    <div class="sb-user-section">
+      <div class="sb-user">
+        <div class="sb-avatar admin-avatar">SA</div>
+        <div class="sb-user-info">
+          <div class="sb-user-name">Sana Arun</div>
+          <div class="sb-user-role">Platform Administrator</div>
+          <div class="sb-admin-badge">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Admin
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ─── Main Content ─── -->
+  <main class="main-area">
+
+    <div class="topbar">
+      <h1 class="topbar-title">User Management</h1>
+      <div class="topbar-count">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        1,247 users
+      </div>
+      <span class="topbar-spacer"></span>
+      <div class="search-bar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Search by name, email, or ID…">
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- Role filter tabs -->
+      <div class="filter-row">
+        <div class="filter-tabs">
+          <a href="#" class="filter-tab active">All (1,247)</a>
+          <a href="#" class="filter-tab">Students (1,089)</a>
+          <a href="#" class="filter-tab">Alumni (126)</a>
+          <a href="#" class="filter-tab">Faculty (31)</a>
+          <a href="#" class="filter-tab">Admin (1)</a>
+        </div>
+        <span class="filter-spacer"></span>
+        <select class="sort-select">
+          <option>Newest first</option>
+          <option>Oldest first</option>
+          <option>Most reports</option>
+          <option>Last active</option>
+          <option>Name A–Z</option>
+        </select>
+      </div>
+
+      <!-- Status pills -->
+      <div class="status-filters">
+        <button class="status-pill active all">All users</button>
+        <button class="status-pill active-s">Active</button>
+        <button class="status-pill suspended">Suspended</button>
+        <button class="status-pill banned">Banned</button>
+      </div>
+
+      <!-- User Table -->
+      <div class="user-table-wrap">
+        <table class="user-table">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Role</th>
+              <th>Department</th>
+              <th>Status</th>
+              <th>Reports</th>
+              <th>Last Active</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <!-- Row 1: Student, Active -->
+            <tr>
+              <td>
+                <div class="user-cell">
+                  <div class="user-avatar student">AK</div>
+                  <div>
+                    <div class="user-info-name">Arjun Krishnan</div>
+                    <div class="user-info-email">arjun.k@rajagiri.edu</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="role-badge student">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                  Student
+                </span>
+              </td>
+              <td>
+                <div class="dept-cell">Computer Science</div>
+                <div class="dept-semester">6th Semester</div>
+              </td>
+              <td><span class="status-badge active">Active</span></td>
+              <td>
+                <span class="report-pill none">0</span>
+              </td>
+              <td>
+                <div class="last-active">2h ago</div>
+                <div class="joined-date">Jan 2023</div>
+              </td>
+              <td>
+                <div class="action-group">
+                  <button class="icon-btn primary" title="View profile" onclick="document.getElementById('viewUserModal').classList.remove('hidden')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                  <button class="icon-btn" title="Change role" onclick="document.getElementById('changeRoleModal').classList.remove('hidden')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M16 3.13a4 4 0 0 1 0 7.75" stroke-dasharray="2 2"/></svg>
+                  </button>
+                  <button class="icon-btn warn" title="Suspend user" onclick="document.getElementById('suspendModal').classList.remove('hidden')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                  </button>
+                  <button class="icon-btn danger" title="Ban user" onclick="document.getElementById('banModal').classList.remove('hidden')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Row 2: Faculty, Active -->
+            <tr>
+              <td>
+                <div class="user-cell">
+                  <div class="user-avatar faculty">PN</div>
+                  <div>
+                    <div class="user-info-name">Dr. Priya Nambiar</div>
+                    <div class="user-info-email">priya.n@rajagiri.edu</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="role-badge faculty">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="7" width="20" height="15" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                  Faculty
+                </span>
+              </td>
+              <td>
+                <div class="dept-cell">Electronics & Comm.</div>
+                <div class="dept-semester">Associate Professor</div>
+              </td>
+              <td><span class="status-badge active">Active</span></td>
+              <td>
+                <span class="report-pill none">0</span>
+              </td>
+              <td>
+                <div class="last-active">1d ago</div>
+                <div class="joined-date">Aug 2022</div>
+              </td>
+              <td>
+                <div class="action-group">
+                  <button class="icon-btn primary" title="View profile" onclick="document.getElementById('viewUserModal').classList.remove('hidden')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                  <button class="icon-btn" title="Change role" onclick="document.getElementById('changeRoleModal').classList.remove('hidden')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  </button>
+                  <button class="icon-btn warn" title="Suspend user" onclick="document.getElementById('suspendModal').classList.remove('hidden')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                  </button>
+                  <button class="icon-btn danger" title="Ban user" onclick="document.getElementById('banModal').classList.remove('hidden')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Row 3: Alumni, Suspended -->
+            <tr>
+              <td>
+                <div class="user-cell">
+                  <div class="user-avatar alumni">RM</div>
+                  <div>
+                    <div class="user-info-name">Rahul Menon</div>
+                    <div class="user-info-email">rahul.m@gmail.com</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="role-badge alumni">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  Alumni
+                </span>
+              </td>
+              <td>
+                <div class="dept-cell">Computer Science</div>
+                <div class="dept-semester">Batch of 2022</div>
+              </td>
+              <td><span class="status-badge suspended">Suspended</span></td>
+              <td>
+                <span class="report-pill">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+                  3
+                </span>
+              </td>
+              <td>
+                <div class="last-active">5d ago</div>
+                <div class="joined-date">Jun 2022</div>
+              </td>
+              <td>
+                <div class="action-group">
+                  <button class="icon-btn primary" title="View profile" onclick="document.getElementById('viewUserModal').classList.remove('hidden')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                  <button class="icon-btn" title="Lift suspension" onclick="document.getElementById('liftSuspensionModal').classList.remove('hidden')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                  </button>
+                  <button class="icon-btn danger" title="Ban user" onclick="document.getElementById('banModal').classList.remove('hidden')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Row 4: Student, Active -->
+            <tr>
+              <td>
+                <div class="user-cell">
+                  <div class="user-avatar student">KS</div>
+                  <div>
+                    <div class="user-info-name">Keerthi Suresh</div>
+                    <div class="user-info-email">keerthi.s@rajagiri.edu</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="role-badge student">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                  Student
+                </span>
+              </td>
+              <td>
+                <div class="dept-cell">Mechanical Eng.</div>
+                <div class="dept-semester">4th Semester</div>
+              </td>
+              <td><span class="status-badge active">Active</span></td>
+              <td>
+                <span class="report-pill none">0</span>
+              </td>
+              <td>
+                <div class="last-active">3h ago</div>
+                <div class="joined-date">Aug 2024</div>
+              </td>
+              <td>
+                <div class="action-group">
+                  <button class="icon-btn primary" title="View profile" onclick="document.getElementById('viewUserModal').classList.remove('hidden')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                  <button class="icon-btn" title="Change role" onclick="document.getElementById('changeRoleModal').classList.remove('hidden')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  </button>
+                  <button class="icon-btn warn" title="Suspend user" onclick="document.getElementById('suspendModal').classList.remove('hidden')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                  </button>
+                  <button class="icon-btn danger" title="Ban user" onclick="document.getElementById('banModal').classList.remove('hidden')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Row 5: Student, Banned -->
+            <tr>
+              <td>
+                <div class="user-cell">
+                  <div class="user-avatar student">SK</div>
+                  <div>
+                    <div class="user-info-name">Sree Kumar</div>
+                    <div class="user-info-email">sree.k@rajagiri.edu</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="role-badge student">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                  Student
+                </span>
+              </td>
+              <td>
+                <div class="dept-cell">Computer Science</div>
+                <div class="dept-semester">6th Semester</div>
+              </td>
+              <td><span class="status-badge banned">Banned</span></td>
+              <td>
+                <span class="report-pill">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+                  7
+                </span>
+              </td>
+              <td>
+                <div class="last-active">2d ago</div>
+                <div class="joined-date">Jan 2023</div>
+              </td>
+              <td>
+                <div class="action-group">
+                  <button class="icon-btn primary" title="View profile" onclick="document.getElementById('viewUserModal').classList.remove('hidden')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                  <button class="icon-btn" title="Lift ban" onclick="document.getElementById('liftSuspensionModal').classList.remove('hidden')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Row 6: Alumni, Active -->
+            <tr>
+              <td>
+                <div class="user-cell">
+                  <div class="user-avatar alumni">MP</div>
+                  <div>
+                    <div class="user-info-name">Meera Pillai</div>
+                    <div class="user-info-email">meera.p@infosys.com</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="role-badge alumni">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  Alumni
+                </span>
+              </td>
+              <td>
+                <div class="dept-cell">Computer Science</div>
+                <div class="dept-semester">Batch of 2021</div>
+              </td>
+              <td><span class="status-badge active">Active</span></td>
+              <td>
+                <span class="report-pill none">0</span>
+              </td>
+              <td>
+                <div class="last-active">12h ago</div>
+                <div class="joined-date">Oct 2023</div>
+              </td>
+              <td>
+                <div class="action-group">
+                  <button class="icon-btn primary" title="View profile" onclick="document.getElementById('viewUserModal').classList.remove('hidden')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                  <button class="icon-btn" title="Change role" onclick="document.getElementById('changeRoleModal').classList.remove('hidden')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  </button>
+                  <button class="icon-btn warn" title="Suspend user" onclick="document.getElementById('suspendModal').classList.remove('hidden')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                  </button>
+                  <button class="icon-btn danger" title="Ban user" onclick="document.getElementById('banModal').classList.remove('hidden')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Row 7: Student, Active -->
+            <tr>
+              <td>
+                <div class="user-cell">
+                  <div class="user-avatar student">TG</div>
+                  <div>
+                    <div class="user-info-name">Thomas George</div>
+                    <div class="user-info-email">thomas.g@rajagiri.edu</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="role-badge student">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                  Student
+                </span>
+              </td>
+              <td>
+                <div class="dept-cell">Information Tech.</div>
+                <div class="dept-semester">2nd Semester</div>
+              </td>
+              <td><span class="status-badge active">Active</span></td>
+              <td>
+                <span class="report-pill none">0</span>
+              </td>
+              <td>
+                <div class="last-active">6h ago</div>
+                <div class="joined-date">Aug 2025</div>
+              </td>
+              <td>
+                <div class="action-group">
+                  <button class="icon-btn primary" title="View profile" onclick="document.getElementById('viewUserModal').classList.remove('hidden')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                  <button class="icon-btn" title="Change role" onclick="document.getElementById('changeRoleModal').classList.remove('hidden')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  </button>
+                  <button class="icon-btn warn" title="Suspend user" onclick="document.getElementById('suspendModal').classList.remove('hidden')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                  </button>
+                  <button class="icon-btn danger" title="Ban user" onclick="document.getElementById('banModal').classList.remove('hidden')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Row 8: Faculty, Active -->
+            <tr>
+              <td>
+                <div class="user-cell">
+                  <div class="user-avatar faculty">NV</div>
+                  <div>
+                    <div class="user-info-name">Prof. Nisha Varghese</div>
+                    <div class="user-info-email">nisha.v@rajagiri.edu</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="role-badge faculty">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="7" width="20" height="15" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                  Faculty
+                </span>
+              </td>
+              <td>
+                <div class="dept-cell">Mechanical Eng.</div>
+                <div class="dept-semester">Assistant Professor</div>
+              </td>
+              <td><span class="status-badge active">Active</span></td>
+              <td>
+                <span class="report-pill none">0</span>
+              </td>
+              <td>
+                <div class="last-active">2d ago</div>
+                <div class="joined-date">Sep 2021</div>
+              </td>
+              <td>
+                <div class="action-group">
+                  <button class="icon-btn primary" title="View profile" onclick="document.getElementById('viewUserModal').classList.remove('hidden')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                  <button class="icon-btn" title="Change role" onclick="document.getElementById('changeRoleModal').classList.remove('hidden')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  </button>
+                  <button class="icon-btn warn" title="Suspend user" onclick="document.getElementById('suspendModal').classList.remove('hidden')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                  </button>
+                  <button class="icon-btn danger" title="Ban user" onclick="document.getElementById('banModal').classList.remove('hidden')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Row 9: Student, Active, 1 report -->
+            <tr>
+              <td>
+                <div class="user-cell">
+                  <div class="user-avatar student">RS</div>
+                  <div>
+                    <div class="user-info-name">Ravi Shankar</div>
+                    <div class="user-info-email">ravi.s@rajagiri.edu</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="role-badge student">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                  Student
+                </span>
+              </td>
+              <td>
+                <div class="dept-cell">Computer Science</div>
+                <div class="dept-semester">8th Semester</div>
+              </td>
+              <td><span class="status-badge active">Active</span></td>
+              <td>
+                <span class="report-pill">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+                  2
+                </span>
+              </td>
+              <td>
+                <div class="last-active">1h ago</div>
+                <div class="joined-date">Jan 2022</div>
+              </td>
+              <td>
+                <div class="action-group">
+                  <button class="icon-btn primary" title="View profile" onclick="document.getElementById('viewUserModal').classList.remove('hidden')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                  <button class="icon-btn" title="Change role" onclick="document.getElementById('changeRoleModal').classList.remove('hidden')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  </button>
+                  <button class="icon-btn warn" title="Suspend user" onclick="document.getElementById('suspendModal').classList.remove('hidden')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                  </button>
+                  <button class="icon-btn danger" title="Ban user" onclick="document.getElementById('banModal').classList.remove('hidden')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- Row 10: Alumni, Active -->
+            <tr>
+              <td>
+                <div class="user-cell">
+                  <div class="user-avatar alumni">JT</div>
+                  <div>
+                    <div class="user-info-name">Jithin Thomas</div>
+                    <div class="user-info-email">jithin.t@tcs.com</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="role-badge alumni">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  Alumni
+                </span>
+              </td>
+              <td>
+                <div class="dept-cell">Electronics & Comm.</div>
+                <div class="dept-semester">Batch of 2020</div>
+              </td>
+              <td><span class="status-badge active">Active</span></td>
+              <td>
+                <span class="report-pill none">0</span>
+              </td>
+              <td>
+                <div class="last-active">3d ago</div>
+                <div class="joined-date">Mar 2023</div>
+              </td>
+              <td>
+                <div class="action-group">
+                  <button class="icon-btn primary" title="View profile" onclick="document.getElementById('viewUserModal').classList.remove('hidden')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                  <button class="icon-btn" title="Change role" onclick="document.getElementById('changeRoleModal').classList.remove('hidden')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  </button>
+                  <button class="icon-btn warn" title="Suspend user" onclick="document.getElementById('suspendModal').classList.remove('hidden')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                  </button>
+                  <button class="icon-btn danger" title="Ban user" onclick="document.getElementById('banModal').classList.remove('hidden')">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+
+        <!-- Pagination -->
+        <div class="pagination">
+          <span class="pagination-info">Showing 1–10 of 1,247 users</span>
+          <div class="pagination-controls">
+            <button class="page-btn" disabled>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <span style="padding: 0 4px; color: var(--subtle); font-size: 13px;">…</span>
+            <button class="page-btn">125</button>
+            <button class="page-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<!-- ═══════════════════════════════════════
+     MODAL: View User Details
+═══════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="viewUserModal">
+  <div class="modal" style="max-width:580px;">
+    <div class="modal-header">
+      <div class="modal-icon primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div class="modal-title-group">
+        <div class="modal-title">User Profile</div>
+        <div class="modal-subtitle">Full account details and activity overview.</div>
+      </div>
+      <button class="modal-close" onclick="document.getElementById('viewUserModal').classList.add('hidden')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <!-- Identity block -->
+      <div class="user-profile-block">
+        <div class="profile-avatar student">AK</div>
+        <div style="flex:1; min-width:0;">
+          <div class="profile-name">Arjun Krishnan</div>
+          <div class="profile-email">arjun.k@rajagiri.edu</div>
+          <div class="profile-tags">
+            <span class="role-badge student" style="font-size:11px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="10" height="10"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+              Student
+            </span>
+            <span class="status-badge active" style="font-size:11px;">Active</span>
+          </div>
+        </div>
+        <a href="profile.html" style="font-size:12.5px; color:var(--primary); font-weight:600; text-decoration:none; white-space:nowrap;">
+          View public profile →
+        </a>
+      </div>
+
+      <!-- Info grid -->
+      <div class="info-grid">
+        <div class="info-cell">
+          <div class="info-cell-label">Department</div>
+          <div class="info-cell-value">Computer Science</div>
+        </div>
+        <div class="info-cell">
+          <div class="info-cell-label">Semester</div>
+          <div class="info-cell-value">6th Semester</div>
+        </div>
+        <div class="info-cell">
+          <div class="info-cell-label">Joined</div>
+          <div class="info-cell-value">Jan 15, 2023</div>
+        </div>
+        <div class="info-cell">
+          <div class="info-cell-label">Last Active</div>
+          <div class="info-cell-value">2h ago</div>
+        </div>
+      </div>
+
+      <!-- Activity -->
+      <div class="modal-section-title">Activity Summary</div>
+      <div style="background:var(--bg); border:1px solid var(--border-l); border-radius:12px; padding:4px 14px; margin-bottom:4px;">
+        <div class="activity-row">
+          <span class="activity-label">Questions asked</span>
+          <span class="activity-value">12</span>
+        </div>
+        <div class="activity-row">
+          <span class="activity-label">Answers given</span>
+          <span class="activity-value">7</span>
+        </div>
+        <div class="activity-row">
+          <span class="activity-label">Posts published</span>
+          <span class="activity-value">4</span>
+        </div>
+        <div class="activity-row">
+          <span class="activity-label">Resources shared</span>
+          <span class="activity-value">3</span>
+        </div>
+        <div class="activity-row">
+          <span class="activity-label">Reports received</span>
+          <span class="activity-value" style="color:var(--green);">0</span>
+        </div>
+        <div class="activity-row">
+          <span class="activity-label">Prior warnings</span>
+          <span class="activity-value" style="color:var(--green);">0</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="document.getElementById('viewUserModal').classList.add('hidden')">Close</button>
+      <button class="btn btn-warning" onclick="document.getElementById('viewUserModal').classList.add('hidden'); document.getElementById('suspendModal').classList.remove('hidden')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        Suspend
+      </button>
+      <button class="btn btn-danger" onclick="document.getElementById('viewUserModal').classList.add('hidden'); document.getElementById('banModal').classList.remove('hidden')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+        Ban
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     MODAL: Change Role
+═══════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="changeRoleModal">
+  <div class="modal" style="max-width:500px;">
+    <div class="modal-header">
+      <div class="modal-icon info">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <div class="modal-title-group">
+        <div class="modal-title">Change Role</div>
+        <div class="modal-subtitle">Arjun Krishnan · Student · CSE · 6th Semester</div>
+      </div>
+      <button class="modal-close" onclick="document.getElementById('changeRoleModal').classList.add('hidden')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13.5px; color:var(--muted); line-height:1.6; margin-bottom:18px;">
+        Changing a user's role affects what content they can see and interact with. Alumni require separate verification before gaining alumni privileges.
+      </p>
+      <div class="role-options">
+        <label class="role-option selected">
+          <input type="radio" name="role" value="student" checked>
+          <div class="role-option-icon student">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+          </div>
+          <div>
+            <div class="role-option-title">Student</div>
+            <div class="role-option-desc">Can ask questions, view and upvote answers, share resources.</div>
+          </div>
+        </label>
+        <label class="role-option">
+          <input type="radio" name="role" value="alumni">
+          <div class="role-option-icon alumni">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div>
+            <div class="role-option-title">Alumni</div>
+            <div class="role-option-desc">Can answer any question regardless of semester. Requires verification.</div>
+          </div>
+        </label>
+        <label class="role-option">
+          <input type="radio" name="role" value="faculty">
+          <div class="role-option-icon faculty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          </div>
+          <div>
+            <div class="role-option-title">Faculty</div>
+            <div class="role-option-desc">Can answer any question. Marked as authoritative source.</div>
+          </div>
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="document.getElementById('changeRoleModal').classList.add('hidden')">Cancel</button>
+      <button class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Save Role
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     MODAL: Suspend User
+═══════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="suspendModal">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header">
+      <div class="modal-icon warning">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      </div>
+      <div class="modal-title-group">
+        <div class="modal-title">Suspend Account</div>
+        <div class="modal-subtitle">Temporarily restrict the user's access to the platform.</div>
+      </div>
+      <button class="modal-close" onclick="document.getElementById('suspendModal').classList.add('hidden')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <!-- User info -->
+      <div style="display:flex; align-items:center; gap:14px; padding:14px 16px; background:var(--bg); border:1px solid var(--border); border-radius:12px; margin-bottom:18px;">
+        <div style="width:44px; height:44px; border-radius:50%; background:var(--primary-bg); border:1.5px solid rgba(92,18,32,.2); display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:700; color:var(--primary); flex-shrink:0;">AK</div>
+        <div>
+          <div style="font-size:15px; font-weight:600; color:var(--text);">Arjun Krishnan</div>
+          <div style="font-size:13px; color:var(--muted); margin-top:2px;">Student · CSE · 6th Semester · 0 prior warnings</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Suspension Duration</label>
+        <select class="form-select">
+          <option value="3">3 days</option>
+          <option value="7" selected>7 days</option>
+          <option value="14">14 days</option>
+          <option value="30">30 days</option>
+          <option value="90">90 days</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Reason (shown to user)</label>
+        <textarea class="form-textarea" placeholder="Explain the reason for suspension to the user…">Your account has been temporarily suspended due to a violation of Ascend's community guidelines. During this period you will not be able to post, answer, or interact with content.</textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="document.getElementById('suspendModal').classList.add('hidden')">Cancel</button>
+      <button class="btn btn-warning">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        Suspend Account
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     MODAL: Ban User
+═══════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="banModal">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header">
+      <div class="modal-icon danger">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+      </div>
+      <div class="modal-title-group">
+        <div class="modal-title">Ban Account</div>
+        <div class="modal-subtitle">Permanently remove this user from the platform.</div>
+      </div>
+      <button class="modal-close" onclick="document.getElementById('banModal').classList.add('hidden')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <!-- User info -->
+      <div style="display:flex; align-items:center; gap:14px; padding:14px 16px; background:var(--bg); border:1px solid var(--border); border-radius:12px; margin-bottom:18px;">
+        <div style="width:44px; height:44px; border-radius:50%; background:var(--primary-bg); border:1.5px solid rgba(92,18,32,.2); display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:700; color:var(--primary); flex-shrink:0;">AK</div>
+        <div>
+          <div style="font-size:15px; font-weight:600; color:var(--text);">Arjun Krishnan</div>
+          <div style="font-size:13px; color:var(--muted); margin-top:2px;">Student · CSE · 6th Semester</div>
+        </div>
+      </div>
+      <div class="warn-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        This action is permanent. The user will lose access to their account and all their content will be hidden from the platform. This cannot be undone without contacting the platform team.
+      </div>
+      <div class="form-group">
+        <label class="form-label">Reason for Ban</label>
+        <select class="form-select" style="margin-bottom:12px;">
+          <option>Repeated community guideline violations</option>
+          <option>Harassment or abuse</option>
+          <option>Spam or commercial promotion</option>
+          <option>Impersonation</option>
+          <option>Other (describe below)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Additional Notes (internal)</label>
+        <textarea class="form-textarea" placeholder="Add internal notes for record-keeping…" style="min-height:64px;"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="document.getElementById('banModal').classList.add('hidden')">Cancel</button>
+      <button class="btn btn-danger">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+        Ban Account
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     MODAL: Lift Suspension / Unban
+═══════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="liftSuspensionModal">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-header">
+      <div class="modal-icon" style="background:var(--green-bg); color:var(--green);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      </div>
+      <div class="modal-title-group">
+        <div class="modal-title">Lift Restriction</div>
+        <div class="modal-subtitle">Restore full access to this user's account.</div>
+      </div>
+      <button class="modal-close" onclick="document.getElementById('liftSuspensionModal').classList.add('hidden')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex; align-items:center; gap:14px; padding:14px 16px; background:var(--bg); border:1px solid var(--border); border-radius:12px; margin-bottom:18px;">
+        <div style="width:44px; height:44px; border-radius:50%; background:var(--accent-bg); border:1.5px solid rgba(201,137,74,.3); display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:700; color:var(--accent); flex-shrink:0;">RM</div>
+        <div>
+          <div style="font-size:15px; font-weight:600; color:var(--text);">Rahul Menon</div>
+          <div style="font-size:13px; color:var(--muted); margin-top:2px;">Alumni · CSE · Suspended since Mar 28, 2026</div>
+        </div>
+      </div>
+      <p style="font-size:13.5px; color:var(--muted); line-height:1.6; margin-bottom:18px;">
+        Lifting the restriction will immediately restore this user's ability to post, comment, and interact on the platform. They will receive a notification by email.
+      </p>
+      <div class="form-group">
+        <label class="form-label">Internal Note (optional)</label>
+        <textarea class="form-textarea" placeholder="Reason for lifting the restriction…" style="min-height:64px;"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="document.getElementById('liftSuspensionModal').classList.add('hidden')">Cancel</button>
+      <button class="btn btn-success">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 11l3 3L22 4"/></svg>
+        Lift Restriction
+      </button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

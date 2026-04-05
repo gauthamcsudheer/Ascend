@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Verify your email — Ascend</title>
+  <!--
+    NOTE: This file is a design reference.
+    In production, all styles must be inlined as shown here.
+    Table-based layout is used for email client compatibility.
+  -->
+  <style>
+    /* Client-specific resets */
+    body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+    img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; }
+    body { margin: 0 !important; padding: 0 !important; width: 100% !important; }
+
+    /* Preheader — hidden preview text */
+    .preheader { display: none; max-height: 0; overflow: hidden; mso-hide: all; }
+
+    /* Mobile */
+    @media only screen and (max-width: 620px) {
+      .email-container { width: 100% !important; }
+      .otp-cell { width: 36px !important; height: 44px !important; font-size: 24px !important; }
+      .body-pad { padding: 28px 20px !important; }
+      .header-pad { padding: 24px 20px !important; }
+    }
+  </style>
+</head>
+<body style="margin:0;padding:0;background-color:#EDE8E1;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
+
+  <!-- Preheader -->
+  <span class="preheader" style="display:none;max-height:0;overflow:hidden;mso-hide:all;">
+    Your Ascend verification code is inside. It expires in 10 minutes.
+  </span>
+
+  <!-- Email wrapper -->
+  <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%"
+         style="background-color:#EDE8E1;">
+    <tr>
+      <td align="center" style="padding:32px 16px;">
+
+        <!-- Email container -->
+        <table class="email-container" role="presentation" border="0" cellpadding="0" cellspacing="0"
+               width="560" style="width:560px;max-width:560px;">
+
+          <!-- ─── HEADER ─── -->
+          <tr>
+            <td style="background-color:#5C1220;padding:28px 40px;" class="header-pad">
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                  <td valign="middle">
+
+                    <!-- Brand mark + name -->
+                    <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <!-- Square brand mark -->
+                        <td style="width:40px;height:40px;border:1.5px solid #C9894A;text-align:center;vertical-align:middle;padding:0;">
+                          <span style="font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:bold;color:#C9894A;line-height:40px;display:block;">A</span>
+                        </td>
+                        <td style="width:12px;"></td>
+                        <td valign="middle">
+                          <span style="display:block;font-family:Georgia,'Times New Roman',serif;font-size:17px;font-weight:bold;letter-spacing:0.08em;text-transform:uppercase;color:rgba(250,247,242,0.95);line-height:1;">Ascend</span>
+                          <span style="display:block;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:9.5px;letter-spacing:0.07em;text-transform:uppercase;color:rgba(250,247,242,0.38);margin-top:4px;">Rajagiri School of Engineering and Technology</span>
+                        </td>
+                      </tr>
+                    </table>
+
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Thin gold accent bar -->
+          <tr>
+            <td style="height:3px;background-color:#C9894A;font-size:0;line-height:0;">&nbsp;</td>
+          </tr>
+
+          <!-- ─── BODY ─── -->
+          <tr>
+            <td style="background-color:#FAF7F2;padding:40px 40px 32px;" class="body-pad">
+
+              <!-- Kicker -->
+              <p style="margin:0 0 10px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#C9894A;">
+                Email verification
+              </p>
+
+              <!-- Heading -->
+              <h1 style="margin:0 0 16px;font-family:Georgia,'Times New Roman',serif;font-size:36px;font-weight:normal;line-height:1.1;color:#1A1410;letter-spacing:-0.01em;">
+                Verify your email address
+              </h1>
+
+              <!-- Divider rule -->
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                  <td style="padding-bottom:20px;">
+                    <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="width:44px;height:2px;background-color:#C9894A;opacity:0.5;font-size:0;line-height:0;"></td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Greeting + body copy -->
+              <p style="margin:0 0 10px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:15px;color:#1A1410;line-height:1.6;">
+                Hi <strong style="font-weight:600;">Arjun,</strong>
+              </p>
+              <p style="margin:0 0 28px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:15px;color:#7A6659;line-height:1.65;">
+                Thanks for joining Ascend. Use the code below to verify your email address and complete your registration.
+              </p>
+
+              <!-- OTP display block -->
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%"
+                     style="margin-bottom:24px;">
+                <tr>
+                  <td align="center"
+                      style="background-color:#F0E9DF;border:1px solid #DDD4C8;border-top:3px solid #C9894A;padding:28px 20px;">
+
+                    <p style="margin:0 0 16px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:10.5px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#B5A899;">
+                      Your verification code
+                    </p>
+
+                    <!-- 6 OTP digit cells -->
+                    <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin:0 auto;">
+                      <tr>
+
+                        <td class="otp-cell"
+                            style="width:48px;height:58px;text-align:center;vertical-align:middle;background-color:#FFFFFF;border:1.5px solid #DDD4C8;font-family:Georgia,'Times New Roman',serif;font-size:30px;font-weight:500;color:#1A1410;letter-spacing:0;">
+                          4
+                        </td>
+                        <td style="width:6px;"></td>
+                        <td class="otp-cell"
+                            style="width:48px;height:58px;text-align:center;vertical-align:middle;background-color:#FFFFFF;border:1.5px solid #DDD4C8;font-family:Georgia,'Times New Roman',serif;font-size:30px;font-weight:500;color:#1A1410;letter-spacing:0;">
+                          8
+                        </td>
+                        <td style="width:6px;"></td>
+                        <td class="otp-cell"
+                            style="width:48px;height:58px;text-align:center;vertical-align:middle;background-color:#FFFFFF;border:1.5px solid #DDD4C8;font-family:Georgia,'Times New Roman',serif;font-size:30px;font-weight:500;color:#1A1410;letter-spacing:0;">
+                          1
+                        </td>
+
+                        <!-- Separator -->
+                        <td style="width:16px;text-align:center;vertical-align:middle;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:20px;color:#DDD4C8;padding-bottom:4px;">
+                          –
+                        </td>
+
+                        <td class="otp-cell"
+                            style="width:48px;height:58px;text-align:center;vertical-align:middle;background-color:#FFFFFF;border:1.5px solid #DDD4C8;font-family:Georgia,'Times New Roman',serif;font-size:30px;font-weight:500;color:#1A1410;letter-spacing:0;">
+                          5
+                        </td>
+                        <td style="width:6px;"></td>
+                        <td class="otp-cell"
+                            style="width:48px;height:58px;text-align:center;vertical-align:middle;background-color:#FFFFFF;border:1.5px solid #DDD4C8;font-family:Georgia,'Times New Roman',serif;font-size:30px;font-weight:500;color:#1A1410;letter-spacing:0;">
+                          3
+                        </td>
+                        <td style="width:6px;"></td>
+                        <td class="otp-cell"
+                            style="width:48px;height:58px;text-align:center;vertical-align:middle;background-color:#FFFFFF;border:1.5px solid #DDD4C8;font-family:Georgia,'Times New Roman',serif;font-size:30px;font-weight:500;color:#1A1410;letter-spacing:0;">
+                          9
+                        </td>
+
+                      </tr>
+                    </table>
+
+                    <!-- Expiry -->
+                    <p style="margin:18px 0 0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:12px;color:#B5A899;line-height:1.5;">
+                      <!-- Clock unicode -->
+                      &#x23F0;&nbsp; This code expires in <strong style="color:#7A6659;font-weight:600;">10 minutes</strong>
+                    </p>
+
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Closing -->
+              <p style="margin:0 0 4px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:15px;color:#7A6659;line-height:1.6;">
+                If you didn't create an account, you can safely ignore this email.
+              </p>
+
+            </td>
+          </tr>
+
+          <!-- ─── FOOTER ─── -->
+          <tr>
+            <td style="background-color:#EDE8E1;padding:22px 40px 28px;border-top:1px solid #DDD4C8;">
+
+              <!-- Divider rule -->
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                  <td style="padding-bottom:16px;">
+                    <table role="presentation" border="0" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="width:32px;height:1px;background-color:#C9894A;opacity:0.4;font-size:0;line-height:0;"></td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:0 0 6px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:12px;color:#B5A899;line-height:1.6;">
+                This email was sent by <strong style="color:#7A6659;font-weight:500;">Ascend</strong>, the knowledge and mentorship platform of Rajagiri School of Engineering and Technology, Kakkanad, Kochi — 682 039.
+              </p>
+              <p style="margin:0;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:11.5px;color:#C5B8AE;line-height:1.55;">
+                You received this because an account was created using this email address.
+                This is an automated message — please do not reply.
+              </p>
+
+            </td>
+          </tr>
+
+        </table>
+        <!-- /email-container -->
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>

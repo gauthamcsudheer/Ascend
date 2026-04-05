@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alumni Verification — Admin — Ascend</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary:    #5C1220;
+      --primary-d:  #400C18;
+      --primary-dd: #2E0A11;
+      --primary-bg: rgba(92,18,32,.05);
+      --accent:     #C9894A;
+      --accent-bg:  rgba(201,137,74,.08);
+      --green:      #1A5C38;
+      --green-bg:   rgba(26,92,56,.08);
+      --red:        #B91C1C;
+      --red-bg:     rgba(185,28,28,.07);
+      --yellow:     #B45309;
+      --yellow-bg:  rgba(180,83,9,.07);
+      --bg:         #FAF7F2;
+      --surface:    #FFFFFF;
+      --text:       #1A1410;
+      --muted:      #7A6659;
+      --subtle:     #B5A899;
+      --border:     #DDD4C8;
+      --border-l:   #EDE8E1;
+    }
+
+    html, body { height: 100%; }
+    body {
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page { display: flex; height: 100vh; overflow: hidden; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 240px;
+      flex-shrink: 0;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      background: var(--primary-d);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sidebar::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(201,137,74,.1) 1px, transparent 1px);
+      background-size: 24px 24px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .sb-ring {
+      position: absolute; bottom: -100px; left: -100px;
+      width: 360px; height: 360px; border-radius: 50%;
+      border: 1px solid rgba(201,137,74,.12);
+      box-shadow: 0 0 0 50px rgba(201,137,74,.04), 0 0 0 100px rgba(201,137,74,.02);
+      pointer-events: none; z-index: 0;
+    }
+
+    .sidebar > *:not(.sb-ring) { position: relative; z-index: 1; }
+
+    .sb-brand {
+      display: flex; align-items: center; gap: 12px;
+      padding: 22px 20px 20px;
+      border-bottom: 1px solid rgba(201,137,74,.15);
+    }
+
+    .sb-brand-mark {
+      width: 36px; height: 36px;
+      border: 1.5px solid var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px; font-weight: 600; color: var(--accent); flex-shrink: 0;
+    }
+
+    .sb-brand-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 17px; font-weight: 600; letter-spacing: .06em;
+      text-transform: uppercase; color: rgba(250,247,242,.92);
+    }
+
+    .sb-nav { flex: 1; padding: 12px 0; overflow-y: auto; scrollbar-width: none; }
+    .sb-nav::-webkit-scrollbar { display: none; }
+
+    .sb-section-label {
+      font-size: 9.5px; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase; color: rgba(201,137,74,.55);
+      padding: 14px 20px 6px;
+    }
+
+    .sb-section-label.admin-label {
+      color: rgba(201,137,74,.9);
+      border-top: 1px solid rgba(201,137,74,.15);
+      margin-top: 4px;
+    }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 20px; font-size: 13.5px; font-weight: 500;
+      color: rgba(250,247,242,.55); text-decoration: none; cursor: pointer;
+      transition: background .12s, color .12s;
+      border-left: 3px solid transparent;
+    }
+
+    .nav-item:hover { background: rgba(250,247,242,.06); color: rgba(250,247,242,.85); }
+
+    .nav-item.active {
+      background: rgba(201,137,74,.1); color: var(--accent);
+      border-left-color: var(--accent); font-weight: 600;
+    }
+
+    .nav-item svg { width: 17px; height: 17px; flex-shrink: 0; }
+
+    .nav-badge {
+      margin-left: auto; min-width: 18px; height: 18px; padding: 0 5px;
+      background: var(--accent); color: var(--primary-dd);
+      font-size: 10px; font-weight: 700; border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .nav-badge.danger { background: var(--red); color: #fff; }
+
+    .sb-divider { height: 1px; background: rgba(201,137,74,.12); margin: 8px 0; }
+
+    .sb-user-section { border-top: 1px solid rgba(201,137,74,.15); padding: 14px 16px 10px; }
+
+    .sb-user { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 0 0 10px; }
+
+    .sb-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(201,137,74,.18); border: 1.5px solid rgba(201,137,74,.35);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 600; color: var(--accent); flex-shrink: 0;
+    }
+
+    .sb-avatar.admin-avatar {
+      background: rgba(185,28,28,.2); border-color: rgba(185,28,28,.4); color: #F87171;
+    }
+
+    .sb-user-info { flex: 1; min-width: 0; }
+
+    .sb-user-name {
+      font-size: 13px; font-weight: 600; color: rgba(250,247,242,.9);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    .sb-user-role { font-size: 11px; color: rgba(250,247,242,.4); margin-top: 1px; }
+
+    .sb-admin-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 8px; background: rgba(185,28,28,.15);
+      border: 1px solid rgba(185,28,28,.3); border-radius: 4px;
+      font-size: 10px; font-weight: 700; letter-spacing: .08em;
+      text-transform: uppercase; color: #F87171; margin-top: 4px; width: fit-content;
+    }
+
+    /* ── Main Area ── */
+    .main-area {
+      flex: 1; height: 100vh; overflow-y: auto;
+      display: flex; flex-direction: column;
+      scrollbar-width: none; -ms-overflow-style: none;
+    }
+    .main-area::-webkit-scrollbar { display: none; }
+
+    .topbar {
+      position: sticky; top: 0; z-index: 10;
+      background: rgba(250,247,242,.96); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 32px; display: flex; align-items: center; gap: 16px;
+    }
+
+    .topbar::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--yellow), rgba(180,83,9,.3), transparent);
+    }
+
+    .topbar-title {
+      font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600;
+      color: var(--text); letter-spacing: -.01em;
+    }
+
+    .topbar-count {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 12px; background: var(--yellow-bg);
+      border: 1px solid rgba(180,83,9,.2); border-radius: 6px;
+      font-size: 12px; font-weight: 700; color: var(--yellow);
+    }
+
+    .topbar-spacer { flex: 1; }
+
+    .search-bar {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 14px; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 10px;
+      width: 240px;
+    }
+
+    .search-bar svg { width: 15px; height: 15px; color: var(--subtle); flex-shrink: 0; }
+
+    .search-bar input {
+      border: none; background: transparent; outline: none;
+      font-family: 'DM Sans', sans-serif; font-size: 13.5px;
+      color: var(--text); width: 100%;
+    }
+
+    .search-bar input::placeholder { color: var(--subtle); }
+
+    .content { padding: 28px 32px 48px; flex: 1; }
+
+    /* ── Filter Tabs ── */
+    .filter-row {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 22px;
+    }
+
+    .filter-tabs {
+      display: flex; gap: 0;
+      border: 1px solid var(--border); background: var(--surface);
+      overflow: hidden; border-radius: 10px;
+    }
+
+    .filter-tab {
+      padding: 8px 18px; font-size: 13px; font-weight: 500;
+      color: var(--muted); cursor: pointer;
+      border-right: 1px solid var(--border-l);
+      transition: background .12s, color .12s; text-decoration: none;
+    }
+
+    .filter-tab:last-child { border-right: none; }
+    .filter-tab:hover { background: var(--bg); color: var(--text); }
+
+    .filter-tab.active {
+      background: var(--primary); color: rgba(250,247,242,.95); font-weight: 600;
+    }
+
+    .filter-spacer { flex: 1; }
+
+    .sort-select {
+      padding: 8px 14px; border: 1px solid var(--border);
+      background: var(--surface); border-radius: 10px;
+      font-family: 'DM Sans', sans-serif; font-size: 13px;
+      color: var(--muted); cursor: pointer; outline: none;
+    }
+
+    /* ── Alumni Cards Grid ── */
+    .alumni-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px;
+    }
+
+    .alumni-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; overflow: hidden;
+      transition: border-color .15s, box-shadow .2s;
+    }
+
+    .alumni-card:hover {
+      border-color: rgba(201,137,74,.4);
+      box-shadow: 0 4px 20px rgba(92,18,32,.06);
+    }
+
+    .alumni-card-header {
+      padding: 20px 22px 16px;
+      display: flex; align-items: flex-start; gap: 14px;
+      border-bottom: 1px solid var(--border-l);
+    }
+
+    .alumni-avatar {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: var(--primary-bg); border: 2px solid rgba(92,18,32,.15);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px; font-weight: 600; color: var(--primary); flex-shrink: 0;
+    }
+
+    .alumni-info { flex: 1; min-width: 0; }
+
+    .alumni-name {
+      font-size: 16px; font-weight: 700; color: var(--text);
+      margin-bottom: 3px; line-height: 1.2;
+    }
+
+    .alumni-meta {
+      font-size: 12.5px; color: var(--muted); margin-bottom: 5px;
+    }
+
+    .alumni-grad {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px; font-weight: 500;
+      padding: 3px 9px; border-radius: 5px;
+      background: var(--primary-bg); color: var(--primary);
+      border: 1px solid rgba(92,18,32,.12);
+    }
+
+    .alumni-submitted {
+      font-size: 11px; color: var(--subtle);
+      font-family: 'JetBrains Mono', monospace;
+      margin-top: 4px;
+    }
+
+    /* Info rows */
+    .alumni-details {
+      padding: 14px 22px; display: flex; flex-direction: column; gap: 9px;
+    }
+
+    .detail-row { display: flex; align-items: flex-start; gap: 10px; }
+
+    .detail-label {
+      font-size: 11.5px; font-weight: 700; letter-spacing: .06em;
+      text-transform: uppercase; color: var(--subtle);
+      min-width: 100px; flex-shrink: 0; padding-top: 1px;
+    }
+
+    .detail-value {
+      font-size: 13.5px; color: var(--text); line-height: 1.4;
+    }
+
+    .detail-value a { color: var(--primary); text-decoration: none; }
+    .detail-value a:hover { text-decoration: underline; }
+
+
+    /* Card footer with actions */
+    .alumni-card-footer {
+      padding: 14px 22px;
+      border-top: 1px solid var(--border-l);
+      background: #FDFBF8;
+      display: flex; align-items: center; gap: 10px;
+    }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 9px 20px; border-radius: 10px;
+      font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 600;
+      cursor: pointer; transition: background .15s, transform .1s;
+      border: none; letter-spacing: .02em;
+    }
+
+    .btn:active { transform: translateY(1px); }
+    .btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+    .btn-ghost {
+      background: transparent; border: 1px solid var(--border); color: var(--muted);
+    }
+    .btn-ghost:hover { background: var(--bg); color: var(--text); }
+
+    .btn-success { background: var(--green); color: #fff; }
+    .btn-success:hover { background: #14472B; }
+
+    .btn-danger { background: var(--red); color: #fff; }
+    .btn-danger:hover { background: #991B1B; }
+
+    .btn-outline-success {
+      background: var(--green-bg); border: 1px solid rgba(26,92,56,.2); color: var(--green);
+    }
+    .btn-outline-success:hover { background: rgba(26,92,56,.14); }
+
+    .btn-outline-danger {
+      background: var(--red-bg); border: 1px solid rgba(185,28,28,.18); color: var(--red);
+    }
+    .btn-outline-danger:hover { background: rgba(185,28,28,.12); }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center; padding: 64px 32px; color: var(--subtle);
+    }
+
+    .empty-state svg { width: 48px; height: 48px; margin: 0 auto 16px; opacity: .4; display: block; }
+
+    .empty-state-title { font-size: 18px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+    .empty-state-text { font-size: 14px; }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(26,20,16,.55);
+      backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+      z-index: 100; display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+    }
+
+    .modal-overlay.hidden { display: none; }
+
+    .modal {
+      background: var(--surface); border-radius: 20px;
+      box-shadow: 0 24px 64px rgba(26,20,16,.22);
+      width: 100%; max-width: 520px; overflow: hidden;
+    }
+
+    .modal-header {
+      padding: 24px 28px 20px;
+      border-bottom: 1px solid var(--border-l);
+      display: flex; align-items: flex-start; gap: 14px;
+    }
+
+    .modal-icon {
+      width: 42px; height: 42px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .modal-icon.approve { background: var(--green-bg); color: var(--green); }
+    .modal-icon.reject  { background: var(--red-bg);   color: var(--red);   }
+    .modal-icon.info    { background: var(--accent-bg); color: var(--accent); }
+    .modal-icon svg { width: 20px; height: 20px; }
+
+    .modal-title-group { flex: 1; }
+
+    .modal-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px; font-weight: 600; color: var(--text); line-height: 1.2;
+    }
+
+    .modal-subtitle { font-size: 13.5px; color: var(--muted); margin-top: 4px; line-height: 1.5; }
+
+    .modal-close {
+      width: 32px; height: 32px; border-radius: 8px;
+      border: 1px solid var(--border); background: transparent;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--muted); flex-shrink: 0;
+      transition: background .12s;
+    }
+    .modal-close:hover { background: var(--bg); }
+    .modal-close svg { width: 16px; height: 16px; }
+
+    .modal-body { padding: 22px 28px; }
+    .modal-footer { padding: 16px 28px 24px; display: flex; gap: 10px; justify-content: flex-end; }
+
+    .modal-user-block {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 16px; background: var(--bg);
+      border: 1px solid var(--border); border-radius: 12px; margin-bottom: 18px;
+    }
+
+    .modal-user-avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--primary-bg); border: 1.5px solid rgba(92,18,32,.2);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 17px; font-weight: 600; color: var(--primary); flex-shrink: 0;
+    }
+
+    .modal-user-name { font-size: 15px; font-weight: 600; color: var(--text); }
+    .modal-user-meta { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+    .form-group { margin-bottom: 16px; }
+
+    .form-label {
+      display: block; font-size: 12px; font-weight: 700;
+      letter-spacing: .06em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 7px;
+    }
+
+    .form-textarea {
+      width: 100%; padding: 11px 14px;
+      border: 1px solid var(--border); border-radius: 10px;
+      background: var(--surface); outline: none;
+      font-family: 'DM Sans', sans-serif; font-size: 14px;
+      color: var(--text); resize: vertical; min-height: 90px;
+      transition: border-color .15s;
+    }
+
+    .form-textarea:focus { border-color: var(--accent); }
+    .form-textarea::placeholder { color: var(--subtle); }
+
+
+
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ─── Sidebar ─── -->
+  <aside class="sidebar">
+    <div class="sb-ring"></div>
+
+    <div class="sb-brand">
+      <div class="sb-brand-mark">A</div>
+      <span class="sb-brand-name">Ascend</span>
+    </div>
+
+    <nav class="sb-nav">
+      <div class="sb-section-label">Discover</div>
+      <a href="feed.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Feed
+      </a>
+      <a href="questions.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Questions
+      </a>
+      <a href="resources.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        Resources
+      </a>
+      <div class="sb-divider"></div>
+      <div class="sb-section-label">Connect</div>
+      <a href="people.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        People
+      </a>
+      <a href="messages.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Messages
+      </a>
+      <div class="sb-divider"></div>
+      <a href="#" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        Notifications
+      </a>
+
+      <div class="sb-section-label admin-label">Administration</div>
+      <a href="admin.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </a>
+      <a href="admin-users.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Users
+      </a>
+      <a href="admin-alumni-verification.html" class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/><polyline points="9 11 11 13 15 9"/></svg>
+        Alumni Verification
+        <span class="nav-badge">8</span>
+      </a>
+      <a href="admin-reports.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Reports
+        <span class="nav-badge danger">14</span>
+      </a>
+    </nav>
+
+    <div class="sb-user-section">
+      <div class="sb-user">
+        <div class="sb-avatar admin-avatar">SA</div>
+        <div class="sb-user-info">
+          <div class="sb-user-name">Sana Arun</div>
+          <div class="sb-user-role">Platform Administrator</div>
+          <div class="sb-admin-badge">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Admin
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ─── Main Content ─── -->
+  <main class="main-area">
+
+    <div class="topbar">
+      <h1 class="topbar-title">Alumni Verification</h1>
+      <div class="topbar-count">8 pending</div>
+      <span class="topbar-spacer"></span>
+      <div class="search-bar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Search alumni requests…">
+      </div>
+    </div>
+
+    <div class="content">
+
+      <div class="filter-row">
+        <div class="filter-tabs">
+          <a href="#" class="filter-tab active">Pending (8)</a>
+          <a href="#" class="filter-tab">Approved</a>
+          <a href="#" class="filter-tab">Rejected</a>
+          <a href="#" class="filter-tab">All</a>
+        </div>
+        <span class="filter-spacer"></span>
+        <select class="sort-select">
+          <option>Newest first</option>
+          <option>Oldest first</option>
+          <option>Name A–Z</option>
+        </select>
+      </div>
+
+      <!-- Alumni Cards Grid -->
+      <div class="alumni-grid">
+
+        <!-- Card 1 -->
+        <div class="alumni-card">
+          <div class="alumni-card-header">
+            <div class="alumni-avatar">PN</div>
+            <div class="alumni-info">
+              <div class="alumni-name">Priya Nambiar</div>
+              <div class="alumni-meta">CSE · Graduated 2023 · KTU</div>
+              <span class="alumni-grad">Class of '23</span>
+              <div class="alumni-submitted">Submitted 2h ago</div>
+            </div>
+          </div>
+          <div class="alumni-details">
+            <div class="detail-row">
+              <span class="detail-label">LinkedIn</span>
+              <span class="detail-value"><a href="#">linkedin.com/in/priyanambiar</a></span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Company</span>
+              <span class="detail-value">Zoho Corporation, Chennai</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Designation</span>
+              <span class="detail-value">Software Development Engineer – I</span>
+            </div>
+          </div>
+          <div class="alumni-card-footer">
+            <button class="btn btn-outline-success" onclick="document.getElementById('approveModal').classList.remove('hidden')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Approve
+            </button>
+            <button class="btn btn-outline-danger" onclick="document.getElementById('rejectModal').classList.remove('hidden')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Reject
+            </button>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="alumni-card">
+          <div class="alumni-card-header">
+            <div class="alumni-avatar">AJ</div>
+            <div class="alumni-info">
+              <div class="alumni-name">Aditya Jose</div>
+              <div class="alumni-meta">ECE · Graduated 2022 · KTU</div>
+              <span class="alumni-grad">Class of '22</span>
+              <div class="alumni-submitted">Submitted 1d ago</div>
+            </div>
+          </div>
+          <div class="alumni-details">
+            <div class="detail-row">
+              <span class="detail-label">LinkedIn</span>
+              <span class="detail-value"><a href="#">linkedin.com/in/adityajose</a></span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Company</span>
+              <span class="detail-value">Intel, Bangalore</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Designation</span>
+              <span class="detail-value">VLSI Design Engineer</span>
+            </div>
+          </div>
+          <div class="alumni-card-footer">
+            <button class="btn btn-outline-success" onclick="document.getElementById('approveModal').classList.remove('hidden')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Approve
+            </button>
+            <button class="btn btn-outline-danger" onclick="document.getElementById('rejectModal').classList.remove('hidden')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Reject
+            </button>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="alumni-card">
+          <div class="alumni-card-header">
+            <div class="alumni-avatar" style="background:rgba(180,83,9,.07);border-color:rgba(180,83,9,.2);color:var(--yellow);">MV</div>
+            <div class="alumni-info">
+              <div class="alumni-name">Mohit Verma</div>
+              <div class="alumni-meta">ME · Graduated 2021 · KTU</div>
+              <span class="alumni-grad">Class of '21</span>
+              <div class="alumni-submitted">Submitted 2d ago</div>
+            </div>
+          </div>
+          <div class="alumni-details">
+            <div class="detail-row">
+              <span class="detail-label">LinkedIn</span>
+              <span class="detail-value"><a href="#">linkedin.com/in/mohitverma91</a></span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Company</span>
+              <span class="detail-value">BHEL, Trichy</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Designation</span>
+              <span class="detail-value">Mechanical Engineer</span>
+            </div>
+          </div>
+          <div class="alumni-card-footer">
+            <button class="btn btn-outline-success" onclick="document.getElementById('approveModal').classList.remove('hidden')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Approve
+            </button>
+            <button class="btn btn-outline-danger" onclick="document.getElementById('rejectModal').classList.remove('hidden')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Reject
+            </button>
+          </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="alumni-card">
+          <div class="alumni-card-header">
+            <div class="alumni-avatar" style="background:rgba(26,92,56,.07);border-color:rgba(26,92,56,.2);color:var(--green);">SL</div>
+            <div class="alumni-info">
+              <div class="alumni-name">Sneha Lakshmi</div>
+              <div class="alumni-meta">IT · Graduated 2023 · KTU</div>
+              <span class="alumni-grad">Class of '23</span>
+              <div class="alumni-submitted">Submitted 3d ago</div>
+            </div>
+          </div>
+          <div class="alumni-details">
+            <div class="detail-row">
+              <span class="detail-label">LinkedIn</span>
+              <span class="detail-value"><a href="#">linkedin.com/in/snehalakshmi</a></span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Company</span>
+              <span class="detail-value">Freshworks, Chennai</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Designation</span>
+              <span class="detail-value">Frontend Developer</span>
+            </div>
+          </div>
+          <div class="alumni-card-footer">
+            <button class="btn btn-outline-success" onclick="document.getElementById('approveModal').classList.remove('hidden')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Approve
+            </button>
+            <button class="btn btn-outline-danger" onclick="document.getElementById('rejectModal').classList.remove('hidden')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Reject
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ═══════════════════════════════════════
+     MODAL: Approve Alumni
+═══════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="approveModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-icon approve">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="modal-title-group">
+        <div class="modal-title">Approve Alumni Account</div>
+        <div class="modal-subtitle">This will grant Priya Nambiar full alumni privileges on the platform.</div>
+      </div>
+      <button class="modal-close" onclick="document.getElementById('approveModal').classList.add('hidden')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-user-block">
+        <div class="modal-user-avatar">PN</div>
+        <div>
+          <div class="modal-user-name">Priya Nambiar</div>
+          <div class="modal-user-meta">CSE · Class of 2023 · SDE-1 at Zoho</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Note to user (optional)</label>
+        <textarea class="form-textarea" placeholder="Add a welcome note or instructions (optional)…"></textarea>
+      </div>
+      <div style="padding:12px 14px;background:var(--green-bg);border:1px solid rgba(26,92,56,.2);border-radius:10px;font-size:13.5px;color:var(--green);">
+        <strong>What happens:</strong> The user's role will be updated to ALUMNI. They will receive an approval email and will gain the ability to answer any question and post experience updates.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="document.getElementById('approveModal').classList.add('hidden')">Cancel</button>
+      <button class="btn btn-success">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Approve Account
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     MODAL: Reject Alumni
+═══════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="rejectModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-icon reject">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </div>
+      <div class="modal-title-group">
+        <div class="modal-title">Reject Alumni Request</div>
+        <div class="modal-subtitle">Priya Nambiar will be notified and may re-apply with corrected information.</div>
+      </div>
+      <button class="modal-close" onclick="document.getElementById('rejectModal').classList.add('hidden')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-user-block">
+        <div class="modal-user-avatar">PN</div>
+        <div>
+          <div class="modal-user-name">Priya Nambiar</div>
+          <div class="modal-user-meta">CSE · Class of 2023</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Rejection Reason <span style="color:var(--red)">*</span></label>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13.5px;color:var(--text);">
+            <input type="radio" name="reject-reason" style="accent-color:var(--primary);"> Name does not match college graduation records
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13.5px;color:var(--text);">
+            <input type="radio" name="reject-reason" style="accent-color:var(--primary);"> Could not verify graduation year or department
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13.5px;color:var(--text);">
+            <input type="radio" name="reject-reason" style="accent-color:var(--primary);"> Name does not match college records
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13.5px;color:var(--text);">
+            <input type="radio" name="reject-reason" style="accent-color:var(--primary);"> Other (specify below)
+          </label>
+        </div>
+        <textarea class="form-textarea" placeholder="Additional notes to include in the rejection email…"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="document.getElementById('rejectModal').classList.add('hidden')">Cancel</button>
+      <button class="btn btn-danger">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Reject Request
+      </button>
+    </div>
+  </div>
+</div>
+
+
+</body>
+</html>

@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Question Detail — Ascend</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Design Tokens ── */
+    :root {
+      --primary:    #5C1220;
+      --primary-d:  #400C18;
+      --primary-dd: #2E0A11;
+      --primary-bg: rgba(92,18,32,.05);
+      --accent:     #C9894A;
+      --accent-bg:  rgba(201,137,74,.08);
+      --green:      #1A5C38;
+      --green-d:    #14472B;
+      --green-bg:   rgba(26,92,56,.08);
+      --bg:         #FAF7F2;
+      --surface:    #FFFFFF;
+      --text:       #1A1410;
+      --muted:      #7A6659;
+      --subtle:     #B5A899;
+      --border:     #DDD4C8;
+      --border-l:   #EDE8E1;
+    }
+
+    html, body { height: 100%; }
+    body {
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       PAGE SHELL
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .page { display: flex; height: 100vh; overflow: hidden; }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       LEFT SIDEBAR
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .sidebar {
+      width: 240px; flex-shrink: 0;
+      height: 100vh; position: sticky; top: 0;
+      background: var(--primary-d);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sidebar::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle, rgba(201,137,74,.1) 1px, transparent 1px);
+      background-size: 24px 24px;
+      pointer-events: none; z-index: 0;
+    }
+
+    .sb-ring {
+      position: absolute; bottom: -100px; left: -100px;
+      width: 360px; height: 360px; border-radius: 50%;
+      border: 1px solid rgba(201,137,74,.12);
+      box-shadow: 0 0 0 50px rgba(201,137,74,.04), 0 0 0 100px rgba(201,137,74,.02);
+      pointer-events: none; z-index: 0;
+    }
+
+    .sidebar > *:not(.sb-ring) { position: relative; z-index: 1; }
+
+    .sb-brand {
+      display: flex; align-items: center; gap: 12px;
+      padding: 22px 20px 20px;
+      border-bottom: 1px solid rgba(201,137,74,.15);
+    }
+
+    .sb-brand-mark {
+      width: 36px; height: 36px;
+      border: 1.5px solid var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px; font-weight: 600; color: var(--accent); flex-shrink: 0;
+    }
+
+    .sb-brand-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 17px; font-weight: 600;
+      letter-spacing: .06em; text-transform: uppercase;
+      color: rgba(250,247,242,.92);
+    }
+
+    .sb-nav { flex: 1; padding: 12px 0; overflow-y: auto; }
+
+    .sb-section-label {
+      font-size: 9.5px; font-weight: 700;
+      letter-spacing: .12em; text-transform: uppercase;
+      color: rgba(201,137,74,.55);
+      padding: 14px 20px 6px;
+    }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 20px;
+      font-size: 13.5px; font-weight: 500;
+      color: rgba(250,247,242,.55);
+      text-decoration: none; cursor: pointer;
+      transition: background .12s, color .12s;
+      border-left: 3px solid transparent;
+    }
+
+    .nav-item:hover { background: rgba(250,247,242,.06); color: rgba(250,247,242,.85); }
+
+    .nav-item.active {
+      background: rgba(201,137,74,.1); color: var(--accent);
+      border-left-color: var(--accent); font-weight: 600;
+    }
+
+    .nav-item svg { width: 17px; height: 17px; flex-shrink: 0; }
+
+    .nav-badge {
+      margin-left: auto; min-width: 18px; height: 18px; padding: 0 5px;
+      background: var(--accent); color: var(--primary-dd);
+      font-size: 10px; font-weight: 700; border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .sb-divider { height: 1px; background: rgba(201,137,74,.12); margin: 8px 0; }
+
+    .sb-user-section { border-top: 1px solid rgba(201,137,74,.15); padding: 14px 16px 10px; }
+
+    .sb-user { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 0 0 10px; }
+
+    .sb-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(201,137,74,.18); border: 1.5px solid rgba(201,137,74,.35);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 600; color: var(--accent); flex-shrink: 0;
+    }
+
+    .sb-user-info { flex: 1; min-width: 0; }
+    .sb-user-name { font-size: 13px; font-weight: 600; color: rgba(250,247,242,.9); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sb-user-role { font-size: 11px; color: rgba(250,247,242,.4); margin-top: 1px; }
+
+    .sb-profile-btn {
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      width: 100%; padding: 9px 16px;
+      border: 1px solid rgba(201,137,74,.35); background: rgba(201,137,74,.08);
+      font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600;
+      letter-spacing: .04em; text-transform: uppercase;
+      color: var(--accent); cursor: pointer;
+      transition: background .15s, border-color .15s; text-decoration: none;
+    }
+
+    .sb-profile-btn:hover { background: rgba(201,137,74,.18); border-color: var(--accent); }
+    .sb-profile-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       MAIN DETAIL AREA
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .detail-area {
+      flex: 1; height: 100vh; overflow-y: auto;
+      display: flex; flex-direction: column;
+      scrollbar-width: none; -ms-overflow-style: none;
+    }
+    .detail-area::-webkit-scrollbar { display: none; }
+
+    /* Topbar */
+    .topbar {
+      position: sticky; top: 0; z-index: 10;
+      background: rgba(250,247,242,.96);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      display: flex; align-items: stretch; gap: 0;
+      min-height: 56px;
+    }
+
+    .topbar::before {
+      content: ''; position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--accent), rgba(201,137,74,.3), transparent);
+    }
+
+    .topbar-back {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; font-weight: 600; color: var(--muted);
+      text-decoration: none; cursor: pointer;
+      padding: 0 20px 0 0;
+      border-right: 1px solid var(--border-l);
+      margin-right: 20px;
+      transition: color .15s;
+      white-space: nowrap; flex-shrink: 0;
+    }
+
+    .topbar-back:hover { color: var(--primary); }
+    .topbar-back svg { width: 15px; height: 15px; }
+
+    .topbar-crumb {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 13px; color: var(--subtle);
+      flex: 1; min-width: 0; overflow: hidden;
+    }
+
+    .topbar-crumb-sep { color: var(--border); flex-shrink: 0; }
+
+    .topbar-crumb-current {
+      color: var(--text); font-weight: 500;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       DETAIL CONTENT
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .detail-content { padding: 28px 36px 60px; flex: 1; }
+
+    /* ── Question Block ── */
+    .question-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 28px;
+    }
+
+    .question-body { padding: 26px 28px 20px; }
+
+    /* Meta row */
+    .question-meta {
+      display: flex; align-items: center; gap: 8px;
+      flex-wrap: wrap; margin-bottom: 14px;
+    }
+
+    .q-status-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 10.5px; font-weight: 700;
+      letter-spacing: .08em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 20px;
+    }
+
+    .q-status-badge svg { width: 10px; height: 10px; }
+
+    .q-status-badge.accepted { background: var(--green); color: rgba(250,247,242,.95); }
+    .q-status-badge.unanswered { background: var(--bg); color: var(--subtle); border: 1px solid var(--border-l); }
+
+    .q-meta-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 500;
+      padding: 3px 10px; border-radius: 20px;
+      background: var(--green-bg); color: var(--green);
+      border: 1px solid rgba(26,92,56,.15);
+      cursor: pointer; transition: background .12s;
+    }
+
+    .q-meta-tag:hover { background: rgba(26,92,56,.14); }
+
+    .q-meta-time { font-size: 12px; color: var(--subtle); margin-left: auto; }
+
+    /* Title */
+    .question-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 30px; font-weight: 600;
+      color: var(--text); letter-spacing: -.02em;
+      line-height: 1.25; margin-bottom: 16px;
+    }
+
+    /* Asker strip */
+    .asker-strip {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border-l);
+    }
+
+    .asker-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--accent-bg); border: 1.5px solid rgba(201,137,74,.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; color: var(--accent); flex-shrink: 0;
+    }
+
+    .asker-name { font-size: 14px; font-weight: 600; color: var(--text); }
+    .asker-role { font-size: 12.5px; color: var(--subtle); margin-top: 1px; }
+
+    .asker-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 10px; font-weight: 700;
+      letter-spacing: .06em; text-transform: uppercase;
+      padding: 2px 8px; border-radius: 20px;
+      background: var(--green-bg); color: var(--green);
+      border: 1px solid rgba(26,92,56,.15);
+      margin-left: 4px;
+    }
+
+    /* Question description */
+    .question-desc {
+      font-size: 15.5px; color: var(--text);
+      line-height: 1.75; margin-bottom: 8px;
+    }
+
+    .question-desc p + p { margin-top: 14px; }
+
+    /* Question footer: vote + actions */
+    .question-footer {
+      display: flex; align-items: center; gap: 4px;
+      padding: 12px 28px;
+      border-top: 1px solid var(--border-l);
+      background: #FDFBF8;
+    }
+
+    .vote-group {
+      display: flex; align-items: center; gap: 2px;
+      margin-right: 8px;
+    }
+
+    .vote-btn {
+      display: flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: 8px;
+      border: 1px solid var(--border);
+      background: transparent;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13.5px; font-weight: 600;
+      color: var(--muted); cursor: pointer;
+      transition: all .15s;
+    }
+
+    .vote-btn svg { width: 14px; height: 14px; }
+
+    .vote-btn.upvote:hover { border-color: var(--green); color: var(--green); background: var(--green-bg); }
+    .vote-btn.upvote.active { border-color: var(--green); color: var(--green); background: var(--green-bg); }
+
+    .vote-btn.downvote:hover { border-color: #C04040; color: #C04040; background: rgba(192,64,64,.06); }
+
+    .vote-divider { width: 1px; height: 20px; background: var(--border-l); margin: 0 4px; }
+
+    .q-action {
+      display: flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: 8px;
+      border: none; background: transparent;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px; color: var(--subtle);
+      cursor: pointer; transition: color .15s, background .15s;
+      text-decoration: none;
+    }
+
+    .q-action:hover { color: var(--muted); background: var(--bg); }
+    .q-action svg { width: 14px; height: 14px; }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       ANSWERS SECTION
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .answers-header {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .answers-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px; font-weight: 600;
+      color: var(--text); letter-spacing: -.01em;
+    }
+
+    .answers-count {
+      font-size: 13px; color: var(--subtle);
+      background: var(--bg); border: 1px solid var(--border-l);
+      padding: 2px 10px; border-radius: 20px;
+    }
+
+    .answers-sort {
+      margin-left: auto;
+      display: flex; align-items: center; gap: 6px;
+      padding: 6px 12px; border-radius: 8px;
+      border: 1px solid var(--border); background: var(--surface);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12.5px; color: var(--muted); cursor: pointer;
+    }
+
+    .answers-sort svg { width: 12px; height: 12px; }
+
+    /* ── Answer Card ── */
+    .answer-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--border-l);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 16px;
+      transition: border-color .15s;
+    }
+
+    .answer-card.accepted-ans {
+      border-left-color: var(--green);
+      box-shadow: 0 2px 12px rgba(26,92,56,.07);
+    }
+
+    .answer-card-body { padding: 22px 24px 16px; }
+
+    /* Answer author */
+    .answer-author {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .ans-avatar {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: var(--accent-bg); border: 1.5px solid rgba(201,137,74,.28);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; color: var(--accent); flex-shrink: 0;
+    }
+
+    .ans-avatar.alumni { background: var(--primary-bg); border-color: rgba(92,18,32,.2); color: var(--primary); }
+    .ans-avatar.faculty { background: var(--primary-bg); border-color: rgba(92,18,32,.2); color: var(--primary); }
+
+    .ans-author-info { flex: 1; }
+    .ans-author-name { font-size: 14px; font-weight: 600; color: var(--text); }
+    .ans-author-role { font-size: 12px; color: var(--subtle); margin-top: 1px; }
+    .ans-author-time { font-size: 12px; color: var(--subtle); margin-left: auto; flex-shrink: 0; }
+
+    .accepted-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 10.5px; font-weight: 700;
+      letter-spacing: .07em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 20px;
+      background: var(--green); color: rgba(250,247,242,.95);
+      flex-shrink: 0;
+    }
+
+    .accepted-badge svg { width: 10px; height: 10px; }
+
+    /* Answer body */
+    .answer-body {
+      font-size: 15px; color: var(--text);
+      line-height: 1.75; margin-bottom: 4px;
+    }
+
+    .answer-body p + p { margin-top: 12px; }
+
+    .answer-body strong { font-weight: 600; color: var(--text); }
+
+    .answer-body ul {
+      margin: 10px 0 10px 20px;
+      display: flex; flex-direction: column; gap: 5px;
+    }
+
+    .answer-body li { font-size: 15px; color: var(--text); line-height: 1.65; }
+
+    .answer-body code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px; background: var(--bg);
+      border: 1px solid var(--border-l);
+      padding: 1px 6px; border-radius: 4px;
+      color: var(--green);
+    }
+
+    /* Answer footer */
+    .answer-footer {
+      display: flex; align-items: center; gap: 4px;
+      padding: 10px 24px;
+      border-top: 1px solid var(--border-l);
+      background: #FDFBF8;
+    }
+
+    .ans-vote-btn {
+      display: flex; align-items: center; gap: 5px;
+      padding: 5px 12px; border-radius: 8px;
+      border: 1px solid var(--border); background: transparent;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px; font-weight: 600; color: var(--muted);
+      cursor: pointer; transition: all .15s;
+    }
+
+    .ans-vote-btn svg { width: 13px; height: 13px; }
+    .ans-vote-btn:hover { border-color: var(--green); color: var(--green); background: var(--green-bg); }
+    .ans-vote-btn.active { border-color: var(--green); color: var(--green); background: var(--green-bg); }
+
+    .ans-action {
+      display: flex; align-items: center; gap: 5px;
+      padding: 5px 12px; border-radius: 8px;
+      border: none; background: transparent;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px; color: var(--subtle);
+      cursor: pointer; transition: color .15s, background .15s;
+    }
+
+    .ans-action:hover { color: var(--muted); background: var(--bg); }
+    .ans-action svg { width: 13px; height: 13px; }
+
+    .ans-accept-btn {
+      margin-left: auto;
+      display: flex; align-items: center; gap: 5px;
+      padding: 5px 14px; border-radius: 8px;
+      border: 1.5px solid rgba(26,92,56,.25); background: transparent;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px; font-weight: 600; color: var(--green);
+      cursor: pointer; transition: all .15s;
+    }
+
+    .ans-accept-btn:hover { background: var(--green-bg); border-color: var(--green); }
+    .ans-accept-btn svg { width: 12px; height: 12px; }
+
+    /* ── Reply Thread ── */
+    .reply-thread {
+      border-top: 1px solid var(--border-l);
+      background: var(--bg);
+    }
+
+    .reply-item {
+      display: flex; gap: 12px;
+      padding: 12px 24px 12px 32px;
+      border-bottom: 1px solid var(--border-l);
+    }
+
+    .reply-item:last-child { border-bottom: none; }
+
+    .reply-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--accent-bg); border: 1.5px solid rgba(201,137,74,.22);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700; color: var(--accent); flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .reply-avatar.alumni { background: var(--primary-bg); border-color: rgba(92,18,32,.2); color: var(--primary); }
+
+    .reply-content { flex: 1; min-width: 0; }
+
+    .reply-meta {
+      display: flex; align-items: baseline; gap: 6px;
+      margin-bottom: 3px;
+    }
+
+    .reply-author { font-size: 13px; font-weight: 600; color: var(--text); }
+    .reply-role { font-size: 11.5px; color: var(--subtle); }
+    .reply-time { font-size: 11.5px; color: var(--subtle); margin-left: auto; }
+
+    .reply-text { font-size: 13.5px; color: var(--muted); line-height: 1.6; }
+
+    .reply-actions {
+      display: flex; align-items: center; gap: 12px;
+      margin-top: 5px;
+    }
+
+    .reply-action {
+      font-size: 12px; color: var(--subtle);
+      cursor: pointer; background: none; border: none;
+      font-family: 'DM Sans', sans-serif;
+      transition: color .12s;
+    }
+
+    .reply-action:hover { color: var(--primary); }
+
+    .more-replies {
+      display: flex; align-items: center; gap: 6px;
+      padding: 10px 24px 10px 32px;
+      font-size: 13px; font-weight: 600; color: var(--primary);
+      cursor: pointer; background: none; border: none;
+      font-family: 'DM Sans', sans-serif;
+      transition: color .12s;
+      width: 100%;
+    }
+
+    .more-replies:hover { color: var(--primary-d); }
+    .more-replies svg { width: 13px; height: 13px; }
+
+    /* Reply compose — inline */
+    .reply-compose {
+      display: flex; gap: 10px; align-items: flex-start;
+      padding: 12px 24px 14px 32px;
+      border-top: 1px solid var(--border-l);
+      background: var(--bg);
+    }
+
+    .reply-compose-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--primary-bg); border: 1.5px solid rgba(92,18,32,.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700; color: var(--primary); flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .reply-input-wrap { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+
+    .reply-input {
+      width: 100%; padding: 8px 12px;
+      border: 1px solid var(--border); border-radius: 8px;
+      background: var(--surface);
+      font-family: 'DM Sans', sans-serif; font-size: 13.5px; color: var(--text);
+      outline: none; resize: none;
+      transition: border-color .15s;
+      line-height: 1.55;
+    }
+
+    .reply-input:focus { border-color: var(--accent); }
+    .reply-input::placeholder { color: var(--subtle); }
+
+    .reply-submit {
+      align-self: flex-end;
+      padding: 6px 16px; border-radius: 8px;
+      background: var(--primary); color: rgba(250,247,242,.95);
+      border: none; font-family: 'DM Sans', sans-serif;
+      font-size: 12.5px; font-weight: 600;
+      cursor: pointer; transition: background .15s;
+    }
+
+    .reply-submit:hover { background: var(--primary-d); }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       ANSWER COMPOSE
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .compose-section {
+      margin-bottom: 28px;
+    }
+
+    .compose-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px; font-weight: 600;
+      color: var(--text); letter-spacing: -.01em;
+      margin-bottom: 14px;
+    }
+
+    .eligibility-note {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 14px; border-radius: 8px;
+      background: var(--green-bg);
+      border: 1px solid rgba(26,92,56,.18);
+      font-size: 13px; color: var(--green);
+      margin-bottom: 14px;
+    }
+
+    .eligibility-note svg { width: 14px; height: 14px; flex-shrink: 0; }
+    .eligibility-note strong { font-weight: 600; }
+
+    .compose-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    /* Toolbar */
+    .compose-toolbar {
+      display: flex; align-items: center; gap: 2px;
+      padding: 9px 16px;
+      border-bottom: 1px solid var(--border-l);
+      background: #FDFBF8;
+      flex-wrap: wrap;
+    }
+
+    .tb-sep { width: 1px; height: 18px; background: var(--border); margin: 0 5px; flex-shrink: 0; }
+
+    .tb-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 30px; height: 28px;
+      border: 1px solid transparent; background: transparent;
+      border-radius: 4px; color: var(--muted); cursor: pointer;
+      transition: color .12s, background .12s, border-color .12s;
+      font-family: 'DM Sans', sans-serif; font-size: 12.5px; font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .tb-btn:hover { color: var(--text); background: var(--border-l); border-color: var(--border); }
+    .tb-btn svg { width: 13px; height: 13px; }
+
+    .tb-btn-wide { width: auto; padding: 0 8px; gap: 4px; font-size: 11px; }
+
+    .compose-textarea {
+      display: block; width: 100%;
+      min-height: 180px; padding: 18px 20px;
+      border: none; outline: none; resize: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px; color: var(--text);
+      background: transparent; line-height: 1.72;
+    }
+
+    .compose-textarea::placeholder { color: #C5B8AE; }
+
+    .compose-footer {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 20px;
+      border-top: 1px solid var(--border-l);
+      background: #FDFBF8;
+    }
+
+    .compose-hint { flex: 1; font-size: 12px; color: var(--subtle); }
+    .compose-char { font-size: 12px; color: var(--subtle); }
+    .compose-char span { color: var(--muted); font-weight: 600; }
+
+    .btn-submit-answer {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 24px; border-radius: 8px;
+      background: var(--primary); color: rgba(250,247,242,.95);
+      border: none; font-family: 'DM Sans', sans-serif;
+      font-size: 13px; font-weight: 600;
+      letter-spacing: .05em; text-transform: uppercase;
+      cursor: pointer; transition: background .15s;
+    }
+
+    .btn-submit-answer:hover { background: var(--primary-d); }
+    .btn-submit-answer svg { width: 14px; height: 14px; transition: transform .18s; }
+    .btn-submit-answer:hover svg { transform: translateX(3px); }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       RIGHT PANEL
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .right-panel {
+      width: 280px; flex-shrink: 0;
+      height: 100vh; position: sticky; top: 0;
+      overflow-y: auto;
+      border-left: 1px solid var(--border);
+      background: var(--surface);
+      scrollbar-width: none; -ms-overflow-style: none;
+    }
+    .right-panel::-webkit-scrollbar { display: none; }
+
+    .rp-section { padding: 20px; border-bottom: 1px solid var(--border-l); }
+
+    .rp-heading {
+      font-size: 10.5px; font-weight: 700;
+      letter-spacing: .12em; text-transform: uppercase;
+      color: var(--subtle); margin-bottom: 14px;
+    }
+
+    /* Asker card */
+    .asker-card {
+      display: flex; align-items: center; gap: 11px;
+      padding: 12px 14px;
+      background: var(--bg); border: 1px solid var(--border-l);
+      border-radius: 10px; cursor: pointer;
+      transition: border-color .15s;
+    }
+
+    .asker-card:hover { border-color: var(--accent); }
+
+    .asker-card-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--accent-bg); border: 1.5px solid rgba(201,137,74,.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; color: var(--accent); flex-shrink: 0;
+    }
+
+    .asker-card-name { font-size: 13.5px; font-weight: 600; color: var(--text); }
+    .asker-card-role { font-size: 12px; color: var(--subtle); margin-top: 2px; }
+
+    .asker-card-arrow { margin-left: auto; color: var(--subtle); }
+    .asker-card-arrow svg { width: 14px; height: 14px; }
+
+    /* Asker stats row */
+    .asker-stats {
+      display: flex; gap: 0;
+      margin-top: 12px;
+      border: 1px solid var(--border-l);
+      border-radius: 8px; overflow: hidden;
+    }
+
+    .asker-stat {
+      flex: 1; padding: 10px 8px; text-align: center;
+      border-right: 1px solid var(--border-l);
+    }
+
+    .asker-stat:last-child { border-right: none; }
+
+    .asker-stat-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px; font-weight: 600; color: var(--green); line-height: 1;
+    }
+
+    .asker-stat-label { font-size: 10.5px; color: var(--subtle); margin-top: 2px; }
+
+    /* Related questions */
+    .related-item {
+      display: flex; gap: 10px;
+      padding: 9px 0; cursor: pointer;
+      border-bottom: 1px solid var(--border-l);
+    }
+
+    .related-item:last-child { border-bottom: none; }
+
+    .related-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      flex-shrink: 0; margin-top: 6px;
+    }
+
+    .related-dot.accepted { background: var(--green); }
+    .related-dot.unanswered { background: var(--border); border: 1px solid var(--subtle); }
+    .related-dot.answered { background: rgba(26,92,56,.4); }
+
+    .related-title {
+      font-size: 13px; font-weight: 500; color: var(--text);
+      line-height: 1.45; transition: color .15s;
+    }
+
+    .related-item:hover .related-title { color: var(--primary); }
+
+    .related-count { font-size: 11px; color: var(--subtle); margin-top: 3px; }
+
+    /* Tags sidebar */
+    .rp-tag {
+      display: inline-flex; align-items: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 500;
+      padding: 4px 10px; border-radius: 20px;
+      background: var(--green-bg); color: var(--green);
+      border: 1px solid rgba(26,92,56,.15);
+      cursor: pointer; transition: background .12s;
+      margin: 0 4px 6px 0;
+    }
+
+    .rp-tag:hover { background: rgba(26,92,56,.14); }
+
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ═══════════════════════════════════════
+       LEFT SIDEBAR
+  ═══════════════════════════════════════ -->
+  <aside class="sidebar">
+    <div class="sb-ring"></div>
+
+    <div class="sb-brand">
+      <div class="sb-brand-mark">A</div>
+      <span class="sb-brand-name">Ascend</span>
+    </div>
+
+    <nav class="sb-nav">
+      <div class="sb-section-label">Discover</div>
+
+      <a href="#" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Feed
+      </a>
+
+      <a href="#" class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Questions
+      </a>
+
+      <a href="#" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        Resources
+      </a>
+
+      <div class="sb-divider"></div>
+      <div class="sb-section-label">Connect</div>
+
+      <a href="#" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        People
+      </a>
+
+      <a href="#" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Messages
+      </a>
+
+      <div class="sb-divider"></div>
+
+      <a href="#" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        Notifications
+        <span class="nav-badge">3</span>
+      </a>
+    </nav>
+
+    <div class="sb-user-section">
+      <div class="sb-user">
+        <div class="sb-avatar">AK</div>
+        <div class="sb-user-info">
+          <div class="sb-user-name">Arjun K.</div>
+          <div class="sb-user-role">CSE · Sem 6</div>
+        </div>
+      </div>
+      <a href="#" class="sb-profile-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Open Profile
+      </a>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════════════════════
+       MAIN — QUESTION DETAIL
+  ═══════════════════════════════════════ -->
+  <main class="detail-area">
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <a href="#" class="topbar-back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Questions
+      </a>
+      <div class="topbar-crumb">
+        <span class="topbar-crumb-sep">/</span>
+        <span class="topbar-crumb-current">What's the best way to prepare for placements starting from Semester 5?</span>
+      </div>
+    </div>
+
+    <div class="detail-content">
+
+      <!-- ════ QUESTION ════ -->
+      <div class="question-block">
+        <div class="question-body">
+
+          <!-- Meta -->
+          <div class="question-meta">
+            <span class="q-status-badge accepted">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Answered
+            </span>
+            <span class="q-meta-tag">#placements</span>
+            <span class="q-meta-tag">#dsa</span>
+            <span class="q-meta-tag">#career</span>
+            <span class="q-meta-tag">#cse</span>
+            <span class="q-meta-time">2 days ago</span>
+          </div>
+
+          <!-- Title -->
+          <h1 class="question-title">What's the best way to prepare for placements starting from Semester 5?</h1>
+
+          <!-- Asker -->
+          <div class="asker-strip">
+            <div class="asker-avatar">RV</div>
+            <div>
+              <div class="asker-name">Riya Varghese <span class="asker-badge">Student</span></div>
+              <div class="asker-role">CS &amp; Engineering · Sem 4</div>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="question-desc">
+            <p>I'm currently in Semester 4, CSE, and I want to start preparing for placements early rather than scrambling in 7th or 8th semester like most people. I've seen seniors say things like "start DSA early" but I honestly don't know where to begin or what the actual priority should be.</p>
+            <p>Specifically, I'm wondering:</p>
+            <ul style="margin:12px 0 12px 22px;display:flex;flex-direction:column;gap:5px;">
+              <li style="font-size:15.5px;color:var(--text);line-height:1.65;">Should I start with DSA or build projects first?</li>
+              <li style="font-size:15.5px;color:var(--text);line-height:1.65;">What kind of companies typically recruit from Rajagiri and what do they look for?</li>
+              <li style="font-size:15.5px;color:var(--text);line-height:1.65;">Is CGPA something I should be worried about, or is it just a threshold?</li>
+              <li style="font-size:15.5px;color:var(--text);line-height:1.65;">Any specific resources — courses, platforms, books — that actually helped you?</li>
+            </ul>
+            <p>I'd especially love to hear from people who've been through placements at Rajagiri recently. What do you wish you'd started earlier?</p>
+          </div>
+
+        </div>
+
+        <!-- Question actions -->
+        <div class="question-footer">
+          <div class="vote-group">
+            <button class="vote-btn upvote active">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+              48
+            </button>
+            <div class="vote-divider"></div>
+            <button class="vote-btn downvote">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </div>
+          <button class="q-action">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+            Share
+          </button>
+          <button class="q-action">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            Save
+          </button>
+          <button class="q-action" style="margin-left:auto;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- ════ YOUR ANSWER ════ -->
+      <div class="compose-section">
+        <h2 class="compose-heading">Your Answer</h2>
+
+        <div class="eligibility-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <span>You can answer this question — <strong>Riya is in Sem 4</strong>, and you're in Sem 6.</span>
+        </div>
+
+        <div class="compose-card">
+          <div class="compose-toolbar">
+            <button class="tb-btn" title="Bold">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/></svg>
+            </button>
+            <button class="tb-btn" title="Italic">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/></svg>
+            </button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn tb-btn-wide" title="Heading">H2</button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn" title="Bullet list">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><circle cx="4" cy="6" r="1.5" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.5" fill="currentColor" stroke="none"/></svg>
+            </button>
+            <button class="tb-btn" title="Numbered list">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+            </button>
+            <div class="tb-sep"></div>
+            <button class="tb-btn" title="Inline code">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            </button>
+            <button class="tb-btn" title="Block quote">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
+            </button>
+            <button class="tb-btn" title="Link">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+            </button>
+          </div>
+
+          <textarea class="compose-textarea" placeholder="Share your experience or knowledge — be specific and helpful…"></textarea>
+
+          <div class="compose-footer">
+            <span class="compose-hint">Min. 20 characters</span>
+            <span class="compose-char"><span>0</span> / 5,000</span>
+            <button class="btn-submit-answer">
+              Post Answer
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════ ANSWERS ════ -->
+      <div class="answers-header">
+        <h2 class="answers-heading">Answers</h2>
+        <span class="answers-count">12 answers</span>
+        <div class="answers-sort">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="10" x2="7" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="21" y1="18" x2="7" y2="18"/></svg>
+          Best answer first
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:10px;height:10px;"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+
+      <!-- ── Accepted Answer ── -->
+      <div class="answer-card accepted-ans">
+        <div class="answer-card-body">
+          <div class="answer-author">
+            <div class="ans-avatar alumni">AP</div>
+            <div class="ans-author-info">
+              <div class="ans-author-name">Arun Pillai</div>
+              <div class="ans-author-role">CSE · Sem 8 · Top answerer</div>
+            </div>
+            <span class="accepted-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Accepted
+            </span>
+            <span class="ans-author-time">1 day ago</span>
+          </div>
+
+          <div class="answer-body">
+            <p>Having just finished placements last semester, here's the honest breakdown no one gave me clearly in Sem 4.</p>
+
+            <p><strong>Priority order:</strong></p>
+            <ul>
+              <li><strong>Sem 5:</strong> Pick one solid project. Build something end-to-end — doesn't matter what, matters that you can explain every decision you made. Simultaneously start <code>LeetCode Easy</code> — 20-30 minutes a day is enough.</li>
+              <li><strong>Sem 6:</strong> Ramp up DSA to Medium difficulty. Start reading about system design concepts (no need for formal prep yet). Revise your project and make sure you can talk about it for 20 minutes straight.</li>
+              <li><strong>Sem 7:</strong> Mock interviews, system design for product companies, competitive coding if targeting FAANG-adjacent roles. This is when intensity should peak.</li>
+            </ul>
+
+            <p>On CGPA — it matters as a cutoff, not as a ranking metric. Most companies visiting Rajagiri use 6.5 or 7.0 as a floor. Once you clear that, your technical performance is what separates you. Don't sacrifice project quality chasing CGPA points.</p>
+
+            <p>Resources that actually helped me: NeetCode for DSA, Alex Xu's <em>System Design Interview</em> book, and honestly — Ascend itself for finding seniors whose journeys matched mine.</p>
+          </div>
+        </div>
+
+        <div class="answer-footer">
+          <button class="ans-vote-btn active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+            31
+          </button>
+          <button class="ans-action">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Reply
+          </button>
+          <button class="ans-action">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+            Share
+          </button>
+        </div>
+
+        <!-- Reply thread -->
+        <div class="reply-thread">
+
+          <div class="reply-item">
+            <div class="reply-avatar">RV</div>
+            <div class="reply-content">
+              <div class="reply-meta">
+                <span class="reply-author">Riya Varghese</span>
+                <span class="reply-role">· CSE Sem 4 · OP</span>
+                <span class="reply-time">22 hours ago</span>
+              </div>
+              <div class="reply-text">Thank you so much! The semester-by-semester breakdown is exactly what I needed. One follow-up — for the project in Sem 5, does it need to be deployed or is GitHub enough?</div>
+              <div class="reply-actions">
+                <button class="reply-action">↑ 4</button>
+                <button class="reply-action">Reply</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="reply-item">
+            <div class="reply-avatar alumni">AP</div>
+            <div class="reply-content">
+              <div class="reply-meta">
+                <span class="reply-author">Arun Pillai</span>
+                <span class="reply-role">· CSE Sem 8</span>
+                <span class="reply-time">21 hours ago</span>
+              </div>
+              <div class="reply-text">Deployed is always better — a live URL in your resume is instant credibility. But even if you can't, a clean repo with a good README and a recorded demo video works well. Interviewers respect thoroughness over hosting.</div>
+              <div class="reply-actions">
+                <button class="reply-action">↑ 8</button>
+                <button class="reply-action">Reply</button>
+              </div>
+            </div>
+          </div>
+
+          <button class="more-replies">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            Show 4 more replies
+          </button>
+
+          <!-- Reply compose -->
+          <div class="reply-compose">
+            <div class="reply-compose-avatar">AK</div>
+            <div class="reply-input-wrap">
+              <textarea class="reply-input" rows="2" placeholder="Write a reply…"></textarea>
+              <button class="reply-submit">Reply</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── Answer 2 ── -->
+      <div class="answer-card">
+        <div class="answer-card-body">
+          <div class="answer-author">
+            <div class="ans-avatar alumni">RM</div>
+            <div class="ans-author-info">
+              <div class="ans-author-name">Rahul Menon</div>
+              <div class="ans-author-role">Alumni · SDE at Infosys · CSE '22</div>
+            </div>
+            <span class="ans-author-time">2 days ago</span>
+          </div>
+
+          <div class="answer-body">
+            <p>Adding a perspective from someone who's been in the industry for 2 years now — the thing that surprised me most after joining was how little LeetCode actually matters on the day-to-day. What matters is that you can read unfamiliar code, debug systematically, and communicate your thought process clearly.</p>
+            <p>So my advice: treat DSA as a vehicle to learn how to think algorithmically, not as a thing to memorize. And do <strong>at least one internship</strong> before your final placement season, even if it's unpaid or a small startup. The experience of working in a real codebase is worth more than 200 LeetCode problems.</p>
+          </div>
+        </div>
+
+        <div class="answer-footer">
+          <button class="ans-vote-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+            24
+          </button>
+          <button class="ans-action">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Reply
+          </button>
+          <button class="ans-action">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+            Share
+          </button>
+          <button class="ans-accept-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Accept
+          </button>
+        </div>
+
+        <!-- Reply thread (collapsed) -->
+        <div class="reply-thread">
+          <button class="more-replies">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            Show 2 replies
+          </button>
+          <div class="reply-compose">
+            <div class="reply-compose-avatar">AK</div>
+            <div class="reply-input-wrap">
+              <textarea class="reply-input" rows="2" placeholder="Write a reply…"></textarea>
+              <button class="reply-submit">Reply</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Answer 3 ── -->
+      <div class="answer-card">
+        <div class="answer-card-body">
+          <div class="answer-author">
+            <div class="ans-avatar faculty">DT</div>
+            <div class="ans-author-info">
+              <div class="ans-author-name">Dr. Divya Thomas</div>
+              <div class="ans-author-role">Faculty · CS &amp; Engineering Dept.</div>
+            </div>
+            <span class="ans-author-time">1 day ago</span>
+          </div>
+
+          <div class="answer-body">
+            <p>From a faculty perspective, I'd add one thing the other answers haven't emphasised: <strong>communication skills matter more than most students expect</strong>. Every year we see technically strong students stumble in interviews because they struggle to articulate their thought process.</p>
+            <p>Practice explaining your code out loud. Do mock interviews — even informal ones with a friend. The placement process at companies visiting Rajagiri almost always includes a communication-heavy round, especially for roles beyond pure coding.</p>
+          </div>
+        </div>
+
+        <div class="answer-footer">
+          <button class="ans-vote-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+            19
+          </button>
+          <button class="ans-action">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Reply
+          </button>
+          <button class="ans-action">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+            Share
+          </button>
+          <button class="ans-accept-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Accept
+          </button>
+        </div>
+
+        <div class="reply-thread">
+          <div class="reply-compose">
+            <div class="reply-compose-avatar">AK</div>
+            <div class="reply-input-wrap">
+              <textarea class="reply-input" rows="2" placeholder="Write a reply…"></textarea>
+              <button class="reply-submit">Reply</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /detail-content -->
+  </main>
+
+  <!-- ═══════════════════════════════════════
+       RIGHT PANEL
+  ═══════════════════════════════════════ -->
+  <aside class="right-panel">
+
+    <!-- Related questions -->
+    <div class="rp-section">
+      <div class="rp-heading">Related Questions</div>
+
+      <div class="related-item">
+        <div class="related-dot accepted"></div>
+        <div>
+          <div class="related-title">What CGPA is realistically needed to get shortlisted at product companies visiting Rajagiri?</div>
+          <div class="related-count">19 answers</div>
+        </div>
+      </div>
+
+      <div class="related-item">
+        <div class="related-dot answered"></div>
+        <div>
+          <div class="related-title">How I cracked the DSA round — a step-by-step breakdown for Sem 5 students</div>
+          <div class="related-count">8 answers</div>
+        </div>
+      </div>
+
+      <div class="related-item">
+        <div class="related-dot unanswered"></div>
+        <div>
+          <div class="related-title">Is there an internship cell or portal specific to Rajagiri that I'm not aware of?</div>
+          <div class="related-count">No answers yet</div>
+        </div>
+      </div>
+
+      <div class="related-item">
+        <div class="related-dot accepted"></div>
+        <div>
+          <div class="related-title">Which companies from Rajagiri placements offer the best work-life balance?</div>
+          <div class="related-count">11 answers</div>
+        </div>
+      </div>
+
+    </div>
+
+  </aside>
+
+</div><!-- /page -->
+</body>
+</html>

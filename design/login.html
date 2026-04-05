@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In — Ascend</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+  <style>
+
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Design Tokens ── */
+    :root {
+      --primary:   #5C1220;
+      --primary-d: #400C18;
+      --accent:    #C9894A;
+      --bg:        #FAF7F2;
+      --text:      #1A1410;
+      --muted:     #7A6659;
+      --subtle:    #B5A899;
+      --border:    #DDD4C8;
+    }
+
+    /* ── Base ── */
+    html, body { height: 100%; }
+    body {
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Page ── */
+    .page { display: flex; height: 100vh; overflow: hidden; }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       LEFT PANEL
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .l-panel {
+      width: 44%;
+      background: var(--primary);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      padding: 32px 48px 28px;
+    }
+
+    /* Dot-grid texture */
+    .l-panel::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(201,137,74,.15) 1.5px, transparent 1.5px);
+      background-size: 28px 28px;
+    }
+
+    /* Decorative concentric rings — bottom right */
+    .l-ring {
+      position: absolute;
+      bottom: -120px;
+      right: -120px;
+      width: 460px;
+      height: 460px;
+      border-radius: 50%;
+      border: 1px solid rgba(201,137,74,.18);
+      box-shadow:
+        0 0 0 55px  rgba(201,137,74,.05),
+        0 0 0 110px rgba(201,137,74,.03),
+        0 0 0 165px rgba(201,137,74,.015);
+      pointer-events: none;
+    }
+
+    /* All direct children above the decorations (ring stays absolute) */
+    .l-panel > *:not(.l-ring) { position: relative; z-index: 1; }
+
+    /* Brand mark */
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-mark {
+      width: 44px;
+      height: 44px;
+      border: 1.5px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--accent);
+      flex-shrink: 0;
+      letter-spacing: -.02em;
+    }
+
+    .brand-text { display: flex; flex-direction: column; gap: 3px; }
+
+    .brand-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: rgba(250,247,242,.95);
+      line-height: 1;
+    }
+
+    .brand-college {
+      font-size: 10.5px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: rgba(250,247,242,.4);
+    }
+
+    /* Three-row panel layout — equal thirds */
+    .l-row {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+      flex: 1;
+    }
+
+    .l-row-2 { justify-content: center; }
+
+    .l-row-3 { justify-content: flex-end; }
+
+    .l-kicker {
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 18px;
+    }
+
+    .l-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 62px;
+      font-weight: 300;
+      line-height: 1.02;
+      color: var(--bg);
+      letter-spacing: -.02em;
+      margin-bottom: 20px;
+    }
+    .l-heading em { font-style: italic; }
+
+    .l-desc {
+      font-size: 15.5px;
+      color: rgba(250,247,242,.58);
+      line-height: 1.6;
+      max-width: 280px;
+      margin-bottom: 24px;
+    }
+
+    .gold-rule {
+      width: 52px;
+      height: 1.5px;
+      background: var(--accent);
+      opacity: .5;
+      margin-bottom: 20px;
+    }
+
+    .l-features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .l-features li {
+      font-size: 14px;
+      color: rgba(250,247,242,.6);
+      line-height: 1.45;
+      padding-left: 18px;
+      position: relative;
+    }
+
+    .l-features li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 7px;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: .65;
+    }
+
+    /* Testimonial */
+    .testimonial {
+      border-top: 1px solid rgba(201,137,74,.2);
+      padding-top: 22px;
+    }
+
+    .t-quote {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 17px;
+      font-weight: 400;
+      color: rgba(250,247,242,.76);
+      line-height: 1.58;
+      margin-bottom: 16px;
+    }
+
+    .t-author { display: flex; align-items: center; gap: 10px; }
+
+    .t-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(201,137,74,.18);
+      border: 1px solid rgba(201,137,74,.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .t-info { display: flex; flex-direction: column; }
+    .t-name { font-size: 12.5px; font-weight: 500; color: rgba(250,247,242,.7); }
+    .t-role { font-size: 10.5px; color: rgba(250,247,242,.38); margin-top: 2px; }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       RIGHT PANEL
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .r-panel {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 56px;
+    }
+
+    .form-wrap { width: 100%; max-width: 420px; }
+
+    /* Form header */
+    .f-kicker {
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+
+    .f-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 48px;
+      font-weight: 500;
+      line-height: 1.07;
+      color: var(--text);
+      margin-bottom: 28px;
+    }
+
+    /* Field */
+    .field { margin-bottom: 18px; }
+
+    .field-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .lbl {
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .req { color: var(--accent); }
+
+    .lbl-link {
+      font-size: 12px;
+      color: var(--subtle);
+      text-decoration: none;
+      transition: color .15s;
+    }
+    .lbl-link:hover { color: var(--primary); }
+
+    input[type="email"],
+    input[type="password"] {
+      display: block;
+      width: 100%;
+      padding: 13px 16px;
+      border: 1px solid var(--border);
+      background: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15.5px;
+      color: var(--text);
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      border-radius: 0;
+      transition: border-color .16s, box-shadow .16s;
+    }
+
+    input::placeholder { color: #C5B8AE; }
+
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(201,137,74,.12);
+    }
+
+    /* Submit button */
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 15px 24px;
+      background: var(--primary);
+      color: rgba(250,247,242,.95);
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12.5px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background .18s;
+      margin-top: 4px;
+    }
+    .btn:hover { background: var(--primary-d); }
+
+    .btn svg { flex-shrink: 0; transition: transform .18s; }
+    .btn:hover svg { transform: translateX(3px); }
+
+    /* Secure note */
+    .secure-note {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      margin-top: 14px;
+      font-size: 12.5px;
+      color: var(--subtle);
+    }
+
+    /* Footer */
+    .form-foot {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 14.5px;
+      color: var(--muted);
+    }
+
+    .form-foot a {
+      color: var(--primary);
+      font-weight: 500;
+      text-decoration: none;
+    }
+    .form-foot a:hover { text-decoration: underline; }
+
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ─────────────── LEFT PANEL ─────────────── -->
+  <aside class="l-panel">
+    <div class="l-ring"></div>
+
+    <div class="l-row l-row-1">
+      <div class="brand">
+        <div class="brand-mark">A</div>
+        <div class="brand-text">
+          <span class="brand-name">Ascend</span>
+          <span class="brand-college">Rajagiri School of Engineering and Technology</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="l-row l-row-2">
+      <p class="l-kicker">Your college, connected</p>
+      <h1 class="l-heading">
+        Knowledge<br>
+        <em>flows</em><br>
+        upward.
+      </h1>
+      <p class="l-desc">
+        A platform where students, seniors, and alumni share what matters most — real experience.
+      </p>
+    </div>
+
+    <div class="l-row l-row-3">
+      <div class="gold-rule"></div>
+      <ul class="l-features">
+        <li>Get answers from seniors who've faced the same challenges</li>
+        <li>Access curated resources and placement roadmaps</li>
+        <li>Share knowledge through posts and open Q&amp;A</li>
+        <li>Build your professional network before graduation</li>
+      </ul>
+    </div>
+
+  </aside>
+
+  <!-- ─────────────── RIGHT PANEL ─────────────── -->
+  <main class="r-panel">
+    <div class="form-wrap">
+
+      <p class="f-kicker">Welcome back</p>
+      <h2 class="f-title">Sign in to<br>Ascend</h2>
+
+      <form action="#" method="post" novalidate>
+
+        <div class="field">
+          <div class="field-top">
+            <span class="lbl">Email address <span class="req">*</span></span>
+          </div>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="you@rajagiri.edu.in"
+            autocomplete="email"
+          >
+        </div>
+
+        <div class="field">
+          <div class="field-top">
+            <span class="lbl">Password <span class="req">*</span></span>
+            <a href="#" class="lbl-link">Forgot password?</a>
+          </div>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Enter your password"
+            autocomplete="current-password"
+          >
+        </div>
+
+        <button type="submit" class="btn">
+          Sign in
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </button>
+
+      </form>
+
+      <div class="form-foot">
+        New to Ascend? <a href="register.html">Create your account</a>
+      </div>
+
+    </div>
+  </main>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Questions — Ascend</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Design Tokens ── */
+    :root {
+      --primary:    #5C1220;
+      --primary-d:  #400C18;
+      --primary-dd: #2E0A11;
+      --primary-bg: rgba(92,18,32,.05);
+      --accent:     #C9894A;
+      --accent-bg:  rgba(201,137,74,.08);
+      --green:      #1A5C38;
+      --green-d:    #14472B;
+      --green-bg:   rgba(26,92,56,.08);
+      --bg:         #FAF7F2;
+      --surface:    #FFFFFF;
+      --text:       #1A1410;
+      --muted:      #7A6659;
+      --subtle:     #B5A899;
+      --border:     #DDD4C8;
+      --border-l:   #EDE8E1;
+    }
+
+    html, body { height: 100%; }
+    body {
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       PAGE SHELL
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .page {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       LEFT SIDEBAR
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .sidebar {
+      width: 240px;
+      flex-shrink: 0;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      background: var(--primary-d);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sidebar::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(201,137,74,.1) 1px, transparent 1px);
+      background-size: 24px 24px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .sb-ring {
+      position: absolute;
+      bottom: -100px; left: -100px;
+      width: 360px; height: 360px;
+      border-radius: 50%;
+      border: 1px solid rgba(201,137,74,.12);
+      box-shadow: 0 0 0 50px rgba(201,137,74,.04), 0 0 0 100px rgba(201,137,74,.02);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .sidebar > *:not(.sb-ring) { position: relative; z-index: 1; }
+
+    .sb-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 22px 20px 20px;
+      border-bottom: 1px solid rgba(201,137,74,.15);
+    }
+
+    .sb-brand-mark {
+      width: 36px; height: 36px;
+      border: 1.5px solid var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px; font-weight: 600;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .sb-brand-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 17px; font-weight: 600;
+      letter-spacing: .06em; text-transform: uppercase;
+      color: rgba(250,247,242,.92);
+    }
+
+    .sb-nav { flex: 1; padding: 12px 0; overflow-y: auto; }
+
+    .sb-section-label {
+      font-size: 9.5px; font-weight: 700;
+      letter-spacing: .12em; text-transform: uppercase;
+      color: rgba(201,137,74,.55);
+      padding: 14px 20px 6px;
+    }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 20px;
+      font-size: 13.5px; font-weight: 500;
+      color: rgba(250,247,242,.55);
+      text-decoration: none; cursor: pointer;
+      transition: background .12s, color .12s;
+      border-left: 3px solid transparent;
+    }
+
+    .nav-item:hover { background: rgba(250,247,242,.06); color: rgba(250,247,242,.85); }
+
+    .nav-item.active {
+      background: rgba(201,137,74,.1);
+      color: var(--accent);
+      border-left-color: var(--accent);
+      font-weight: 600;
+    }
+
+    .nav-item svg { width: 17px; height: 17px; flex-shrink: 0; }
+
+    .nav-badge {
+      margin-left: auto;
+      min-width: 18px; height: 18px; padding: 0 5px;
+      background: var(--accent);
+      color: var(--primary-dd);
+      font-size: 10px; font-weight: 700;
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .sb-divider { height: 1px; background: rgba(201,137,74,.12); margin: 8px 0; }
+
+    .sb-user-section {
+      border-top: 1px solid rgba(201,137,74,.15);
+      padding: 14px 16px 10px;
+    }
+
+    .sb-user {
+      display: flex; align-items: center; gap: 10px;
+      cursor: pointer; padding: 0 0 10px;
+    }
+
+    .sb-avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: rgba(201,137,74,.18);
+      border: 1.5px solid rgba(201,137,74,.35);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 600;
+      color: var(--accent); flex-shrink: 0;
+    }
+
+    .sb-user-info { flex: 1; min-width: 0; }
+
+    .sb-user-name {
+      font-size: 13px; font-weight: 600;
+      color: rgba(250,247,242,.9);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    .sb-user-role { font-size: 11px; color: rgba(250,247,242,.4); margin-top: 1px; }
+
+    .sb-profile-btn {
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      width: 100%; padding: 9px 16px;
+      border: 1px solid rgba(201,137,74,.35);
+      background: rgba(201,137,74,.08);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px; font-weight: 600;
+      letter-spacing: .04em; text-transform: uppercase;
+      color: var(--accent); cursor: pointer;
+      transition: background .15s, border-color .15s;
+      text-decoration: none;
+    }
+
+    .sb-profile-btn:hover { background: rgba(201,137,74,.18); border-color: var(--accent); }
+    .sb-profile-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       MAIN QUESTIONS AREA
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .q-area {
+      flex: 1;
+      height: 100vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .q-area::-webkit-scrollbar { display: none; }
+
+    /* Topbar */
+    .topbar {
+      position: sticky; top: 0; z-index: 10;
+      background: rgba(250,247,242,.96);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 32px;
+      display: flex; align-items: center; gap: 16px;
+    }
+
+    .topbar::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--accent), rgba(201,137,74,.3), transparent);
+    }
+
+    .topbar-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px; font-weight: 600;
+      color: var(--text); letter-spacing: -.01em;
+      flex-shrink: 0;
+    }
+
+    /* Topbar search — centre slot */
+    .topbar-search {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 8px;
+      max-width: 520px;
+      margin: 0 auto;
+      transition: border-color .15s;
+    }
+
+    .topbar-search:focus-within { border-color: var(--accent); }
+    .topbar-search svg { width: 13px; height: 13px; color: var(--subtle); flex-shrink: 0; }
+
+    .topbar-search-input {
+      border: none; outline: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px; color: var(--text);
+      background: transparent;
+      width: 100%;
+    }
+
+    .topbar-search-input::placeholder { color: var(--subtle); }
+
+    .ask-btn {
+      display: flex; align-items: center; gap: 8px;
+      padding: 9px 20px;
+      background: var(--primary);
+      color: rgba(250,247,242,.95);
+      border: none; border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px; font-weight: 600;
+      letter-spacing: .05em; text-transform: uppercase;
+      cursor: pointer;
+      transition: background .15s;
+      white-space: nowrap; flex-shrink: 0;
+    }
+
+    .ask-btn:hover { background: var(--primary-d); }
+    .ask-btn svg { width: 14px; height: 14px; }
+
+    /* Toolbar */
+    .q-toolbar {
+      padding: 16px 32px 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .filter-tabs {
+      display: flex;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      overflow: hidden;
+      border-radius: 8px;
+    }
+
+    .filter-tab {
+      padding: 8px 18px;
+      font-size: 13px; font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      border-right: 1px solid var(--border-l);
+      transition: background .12s, color .12s;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .filter-tab:last-child { border-right: none; }
+    .filter-tab:hover { background: var(--bg); color: var(--text); }
+
+    .filter-tab.active {
+      background: var(--primary);
+      color: rgba(250,247,242,.95);
+      font-weight: 600;
+    }
+
+    .sort-select {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      color: var(--muted);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .sort-select svg { width: 13px; height: 13px; }
+
+    /* Question list */
+    .q-content { padding: 18px 32px 40px; flex: 1; }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       QUESTION CARD
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .q-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 14px;
+      overflow: hidden;
+      transition: border-color .15s, box-shadow .2s;
+      cursor: pointer;
+    }
+
+    .q-card:hover {
+      border-color: var(--accent);
+      border-left-color: var(--accent);
+      box-shadow: 0 3px 18px rgba(92,18,32,.06);
+    }
+
+    .q-card.accepted { border-left-color: var(--green); }
+    .q-card.answered { border-left-color: rgba(26,92,56,.45); }
+    .q-card.unanswered { border-left-color: var(--border); }
+
+    .q-card.accepted:hover { border-color: var(--green); border-left-color: var(--green); }
+    .q-card.answered:hover  { border-color: var(--green); border-left-color: rgba(26,92,56,.65); }
+
+    .q-body { padding: 18px 20px 14px; }
+
+    /* Top row: status badge + time */
+    .q-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .q-status {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 10.5px; font-weight: 700;
+      letter-spacing: .08em; text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 20px;
+    }
+
+    .q-status svg { width: 10px; height: 10px; }
+
+    .q-status.accepted {
+      background: var(--green);
+      color: rgba(250,247,242,.95);
+    }
+
+    .q-status.answered {
+      background: var(--green-bg);
+      color: var(--green);
+      border: 1px solid rgba(26,92,56,.2);
+    }
+
+    .q-status.unanswered {
+      background: var(--bg);
+      color: var(--subtle);
+      border: 1px solid var(--border-l);
+    }
+
+    .q-meta-time {
+      font-size: 12px; color: var(--subtle);
+      margin-left: auto;
+    }
+
+    /* Title */
+    .q-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px; font-weight: 600;
+      color: var(--text); letter-spacing: -.01em;
+      line-height: 1.3; margin-bottom: 8px;
+    }
+
+    .q-card:hover .q-title { color: var(--primary); }
+
+    /* Excerpt */
+    .q-excerpt {
+      font-size: 14px; color: var(--muted);
+      line-height: 1.62;
+      margin-bottom: 12px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Tags */
+    .q-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+
+    .q-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 500;
+      padding: 3px 10px; border-radius: 20px;
+      background: var(--green-bg); color: var(--green);
+      border: 1px solid rgba(26,92,56,.15);
+      cursor: pointer; transition: background .12s;
+    }
+
+    .q-tag:hover { background: rgba(26,92,56,.14); }
+
+    /* Card footer */
+    .q-footer {
+      display: flex; align-items: center; gap: 0;
+      padding: 10px 20px;
+      border-top: 1px solid var(--border-l);
+      background: #FDFBF8;
+    }
+
+    /* Author */
+    .q-author {
+      display: flex; align-items: center; gap: 8px;
+      flex: 1; min-width: 0;
+    }
+
+    .q-avatar {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: var(--accent-bg);
+      border: 1.5px solid rgba(201,137,74,.25);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9.5px; font-weight: 700;
+      color: var(--accent); flex-shrink: 0;
+    }
+
+    .q-avatar.anon {
+      background: var(--bg);
+      border-color: var(--border);
+      color: var(--subtle);
+    }
+
+    .q-avatar.alumni {
+      background: var(--primary-bg);
+      border-color: rgba(92,18,32,.2);
+      color: var(--primary);
+    }
+
+    .q-author-name { font-size: 12.5px; font-weight: 600; color: var(--muted); }
+    .q-author-role { font-size: 11.5px; color: var(--subtle); }
+    .q-author-sep { color: var(--border); margin: 0 3px; }
+
+    /* Stats */
+    .q-stats {
+      display: flex; align-items: center; gap: 18px;
+      flex-shrink: 0;
+    }
+
+    .q-stat {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 12.5px; color: var(--subtle);
+    }
+
+    .q-stat svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+    .q-stat.votes { color: var(--muted); }
+    .q-stat.answers { color: var(--green); font-weight: 600; }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       RIGHT PANEL
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .right-panel {
+      width: 280px; flex-shrink: 0;
+      height: 100vh; position: sticky; top: 0;
+      overflow-y: auto;
+      border-left: 1px solid var(--border);
+      background: var(--surface);
+      scrollbar-width: none; -ms-overflow-style: none;
+    }
+    .right-panel::-webkit-scrollbar { display: none; }
+
+    .rp-section {
+      padding: 20px;
+      border-bottom: 1px solid var(--border-l);
+    }
+
+    .rp-heading {
+      font-size: 10.5px; font-weight: 700;
+      letter-spacing: .12em; text-transform: uppercase;
+      color: var(--subtle); margin-bottom: 14px;
+    }
+
+    /* Popular tags */
+    .tag-cloud {
+      display: flex; flex-wrap: wrap; gap: 7px;
+    }
+
+    .rp-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 500;
+      padding: 4px 10px; border-radius: 20px;
+      background: var(--green-bg); color: var(--green);
+      border: 1px solid rgba(26,92,56,.15);
+      cursor: pointer; transition: background .12s;
+      display: flex; align-items: center; gap: 5px;
+    }
+
+    .rp-tag:hover { background: rgba(26,92,56,.14); }
+
+    .rp-tag-count {
+      font-size: 10px; color: var(--subtle);
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    /* How it works */
+    .how-list {
+      list-style: none;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+
+    .how-item {
+      display: flex; align-items: flex-start; gap: 10px;
+    }
+
+    .how-num {
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: var(--accent-bg);
+      border: 1px solid rgba(201,137,74,.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10.5px; font-weight: 700;
+      color: var(--accent); flex-shrink: 0;
+    }
+
+    .how-text {
+      font-size: 12.5px; color: var(--muted);
+      line-height: 1.5; padding-top: 1px;
+    }
+
+    .how-text strong { color: var(--text); font-weight: 600; }
+
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ═══════════════════════════════════════
+       LEFT SIDEBAR
+  ═══════════════════════════════════════ -->
+  <aside class="sidebar">
+    <div class="sb-ring"></div>
+
+    <div class="sb-brand">
+      <div class="sb-brand-mark">A</div>
+      <span class="sb-brand-name">Ascend</span>
+    </div>
+
+    <nav class="sb-nav">
+
+      <div class="sb-section-label">Discover</div>
+
+      <a href="#" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Feed
+      </a>
+
+      <a href="#" class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Questions
+      </a>
+
+      <a href="#" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        Resources
+      </a>
+
+      <div class="sb-divider"></div>
+      <div class="sb-section-label">Connect</div>
+
+      <a href="#" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        People
+      </a>
+
+      <a href="#" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Messages
+      </a>
+
+      <div class="sb-divider"></div>
+
+      <a href="#" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        Notifications
+        <span class="nav-badge">3</span>
+      </a>
+
+    </nav>
+
+    <div class="sb-user-section">
+      <div class="sb-user">
+        <div class="sb-avatar">AK</div>
+        <div class="sb-user-info">
+          <div class="sb-user-name">Arjun K.</div>
+          <div class="sb-user-role">CSE · Sem 6</div>
+        </div>
+      </div>
+      <a href="#" class="sb-profile-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Open Profile
+      </a>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════════════════════
+       MAIN — QUESTIONS
+  ═══════════════════════════════════════ -->
+  <main class="q-area">
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <h1 class="topbar-title">Questions</h1>
+      <div class="topbar-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="topbar-search-input" type="text" placeholder="Search questions…">
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="q-toolbar">
+      <button class="ask-btn" style="font-size:12px;padding:8px 16px;border-radius:8px;text-transform:none;letter-spacing:.02em;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Ask a Question
+      </button>
+      <div style="flex:1;"></div>
+      <div class="filter-tabs">
+        <a href="#" class="filter-tab active">All</a>
+        <a href="#" class="filter-tab">Unanswered</a>
+        <a href="#" class="filter-tab">My Questions</a>
+      </div>
+      <div class="sort-select">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="10" x2="7" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="3" y2="14"/><line x1="21" y1="18" x2="7" y2="18"/></svg>
+        Latest
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:10px;height:10px;margin-left:4px;"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+    </div>
+
+    <!-- Question list -->
+    <div class="q-content">
+
+      <!-- ── Q1: Accepted answer ── -->
+      <div class="q-card accepted">
+        <div class="q-body">
+          <div class="q-top">
+            <span class="q-status accepted">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Accepted
+            </span>
+            <span class="q-meta-time">2 days ago</span>
+          </div>
+          <div class="q-title">What's the best way to prepare for placements starting from Semester 5?</div>
+          <div class="q-excerpt">I'm currently in Sem 4 CSE and want to start prepping for placements early. Should I focus on DSA first or build projects? How do seniors at Rajagiri typically approach this?</div>
+          <div class="q-tags">
+            <span class="q-tag">#placements</span>
+            <span class="q-tag">#dsa</span>
+            <span class="q-tag">#career</span>
+            <span class="q-tag">#cse</span>
+          </div>
+        </div>
+        <div class="q-footer">
+          <div class="q-author">
+            <div class="q-avatar">RV</div>
+            <span class="q-author-name">Riya Varghese</span>
+            <span class="q-author-sep">·</span>
+            <span class="q-author-role">CSE · Sem 4</span>
+          </div>
+          <div class="q-stats">
+            <div class="q-stat votes">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+              48
+            </div>
+            <div class="q-stat answers">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              12
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Q2: Answered ── -->
+      <div class="q-card answered">
+        <div class="q-body">
+          <div class="q-top">
+            <span class="q-status answered">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              Answered
+            </span>
+            <span class="q-meta-time">4 days ago</span>
+          </div>
+          <div class="q-title">How does the KTU grading system handle arrear exams for backlog students?</div>
+          <div class="q-excerpt">I have a backlog from S4 and I'm not sure how supplementary exams affect my CGPA calculation. Does the original mark get replaced or is it averaged? Faculty or seniors who've been through this please help.</div>
+          <div class="q-tags">
+            <span class="q-tag">#ktu</span>
+            <span class="q-tag">#academics</span>
+            <span class="q-tag">#grading</span>
+          </div>
+        </div>
+        <div class="q-footer">
+          <div class="q-author">
+            <div class="q-avatar anon">?</div>
+            <span class="q-author-name">Student – CS &amp; Eng</span>
+            <span class="q-author-sep">·</span>
+            <span class="q-author-role">Anonymous</span>
+          </div>
+          <div class="q-stats">
+            <div class="q-stat votes">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+              31
+            </div>
+            <div class="q-stat answers">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              5
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Q3: Unanswered ── -->
+      <div class="q-card unanswered">
+        <div class="q-body">
+          <div class="q-top">
+            <span class="q-status unanswered">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Unanswered
+            </span>
+            <span class="q-meta-time">6 hours ago</span>
+          </div>
+          <div class="q-title">Is there an internship cell or portal specific to Rajagiri that I'm not aware of?</div>
+          <div class="q-excerpt">I keep hearing seniors talk about internships they got through college but I can only find the general placement cell info. Is there a separate process for internship applications, especially for 4th and 6th semester students?</div>
+          <div class="q-tags">
+            <span class="q-tag">#internship</span>
+            <span class="q-tag">#placement-cell</span>
+            <span class="q-tag">#college-specific</span>
+          </div>
+        </div>
+        <div class="q-footer">
+          <div class="q-author">
+            <div class="q-avatar">NJ</div>
+            <span class="q-author-name">Nidhi Jose</span>
+            <span class="q-author-sep">·</span>
+            <span class="q-author-role">ECE · Sem 4</span>
+          </div>
+          <div class="q-stats">
+            <div class="q-stat votes">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+              7
+            </div>
+            <div class="q-stat answers" style="color:var(--subtle);font-weight:400;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              0
+            </div>
+            <div class="q-stat views">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              89
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Q4: Accepted, alumni asked ── -->
+      <div class="q-card accepted">
+        <div class="q-body">
+          <div class="q-top">
+            <span class="q-status accepted">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Accepted
+            </span>
+            <span class="q-meta-time">1 week ago</span>
+          </div>
+          <div class="q-title">What CGPA is realistically needed to get shortlisted at product companies visiting Rajagiri?</div>
+          <div class="q-excerpt">I've seen cutoffs ranging from 6.5 to 8.0 mentioned online. What's the actual bar for companies like Juspay, UST, and TCS Digital that come to campus? Does department matter?</div>
+          <div class="q-tags">
+            <span class="q-tag">#cgpa</span>
+            <span class="q-tag">#campus-recruitment</span>
+            <span class="q-tag">#placements</span>
+          </div>
+        </div>
+        <div class="q-footer">
+          <div class="q-author">
+            <div class="q-avatar alumni">SM</div>
+            <span class="q-author-name">Sreejith Mohan</span>
+            <span class="q-author-sep">·</span>
+            <span class="q-author-role">CSE · Sem 2</span>
+          </div>
+          <div class="q-stats">
+            <div class="q-stat votes">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+              72
+            </div>
+            <div class="q-stat answers">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              19
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Q5: Unanswered ── -->
+      <div class="q-card unanswered">
+        <div class="q-body">
+          <div class="q-top">
+            <span class="q-status unanswered">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Unanswered
+            </span>
+            <span class="q-meta-time">3 hours ago</span>
+          </div>
+          <div class="q-title">How do I approach a faculty member for a research publication collaboration as an undergrad?</div>
+          <div class="q-excerpt">I want to co-author a paper with a faculty member in the ML department but I don't know the right way to initiate the conversation. Should I cold-email or approach after class? What do they typically expect from students?</div>
+          <div class="q-tags">
+            <span class="q-tag">#research</span>
+            <span class="q-tag">#faculty</span>
+            <span class="q-tag">#publication</span>
+            <span class="q-tag">#ml</span>
+          </div>
+        </div>
+        <div class="q-footer">
+          <div class="q-author">
+            <div class="q-avatar">PK</div>
+            <span class="q-author-name">Pranav Kumar</span>
+            <span class="q-author-sep">·</span>
+            <span class="q-author-role">CSE · Sem 6</span>
+          </div>
+          <div class="q-stats">
+            <div class="q-stat votes">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+              14
+            </div>
+            <div class="q-stat answers" style="color:var(--subtle);font-weight:400;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              0
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /q-content -->
+  </main>
+
+  <!-- ═══════════════════════════════════════
+       RIGHT PANEL
+  ═══════════════════════════════════════ -->
+  <aside class="right-panel">
+
+    <!-- Popular tags -->
+    <div class="rp-section">
+      <div class="rp-heading">Popular Tags</div>
+      <div class="tag-cloud">
+        <span class="rp-tag">#placements <span class="rp-tag-count">214</span></span>
+        <span class="rp-tag">#dsa <span class="rp-tag-count">187</span></span>
+        <span class="rp-tag">#ktu <span class="rp-tag-count">143</span></span>
+        <span class="rp-tag">#internship <span class="rp-tag-count">98</span></span>
+        <span class="rp-tag">#career <span class="rp-tag-count">91</span></span>
+        <span class="rp-tag">#academics <span class="rp-tag-count">76</span></span>
+        <span class="rp-tag">#ml <span class="rp-tag-count">64</span></span>
+        <span class="rp-tag">#web-dev <span class="rp-tag-count">58</span></span>
+        <span class="rp-tag">#research <span class="rp-tag-count">41</span></span>
+      </div>
+    </div>
+
+    <!-- How it works -->
+    <div class="rp-section">
+      <div class="rp-heading">How it works</div>
+      <ul class="how-list">
+        <li class="how-item">
+          <div class="how-num">1</div>
+          <div class="how-text"><strong>Ask</strong> — post your question with context and relevant tags</div>
+        </li>
+        <li class="how-item">
+          <div class="how-num">2</div>
+          <div class="how-text"><strong>Seniors answer</strong> — students in higher semesters, alumni, and faculty can respond</div>
+        </li>
+        <li class="how-item">
+          <div class="how-num">3</div>
+          <div class="how-text"><strong>Accept</strong> — mark the most helpful answer to help others</div>
+        </li>
+      </ul>
+    </div>
+
+  </aside>
+
+</div><!-- /page -->
+</body>
+</html>

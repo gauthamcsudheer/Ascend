@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account Under Review — Ascend</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Design Tokens ── */
+    :root {
+      --primary:    #5C1220;
+      --primary-d:  #400C18;
+      --primary-dd: #2E0A11;
+      --primary-bg: rgba(92,18,32,.05);
+      --accent:     #C9894A;
+      --accent-bg:  rgba(201,137,74,.08);
+      --yellow:     #B45309;
+      --yellow-bg:  rgba(180,83,9,.07);
+      --green:      #1A5C38;
+      --green-bg:   rgba(26,92,56,.07);
+      --bg:         #FAF7F2;
+      --surface:    #FFFFFF;
+      --text:       #1A1410;
+      --muted:      #7A6659;
+      --subtle:     #B5A899;
+      --border:     #DDD4C8;
+      --border-l:   #EDE8E1;
+    }
+
+    html, body { min-height: 100%; }
+    body {
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       BACKGROUND TEXTURE
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(92,18,32,.035) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       TOP HEADER
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .header {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 48px;
+      border-bottom: 1px solid var(--border-l);
+      background: rgba(250,247,242,.85);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    /* Gold accent line */
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary-d) 0%, var(--accent) 40%, rgba(201,137,74,.2) 100%);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 34px;
+      border: 1.5px solid var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 19px;
+      font-weight: 600;
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+
+    .brand-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--primary);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .header-help {
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color .15s;
+    }
+
+    .header-help:hover { color: var(--primary); }
+    .header-help svg { width: 14px; height: 14px; }
+
+    .signout-btn {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 14px;
+      border: 1px solid var(--border);
+      background: transparent;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      transition: border-color .15s, color .15s;
+      text-decoration: none;
+    }
+
+    .signout-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .signout-btn svg { width: 14px; height: 14px; }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       MAIN CONTENT
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .main {
+      flex: 1;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 52px 24px 60px;
+    }
+
+    .content-wrap {
+      width: 100%;
+      max-width: 640px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* ── Status Hero ── */
+    .status-hero {
+      text-align: center;
+      padding: 0 16px 8px;
+    }
+
+    .status-icon-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 22px;
+    }
+
+    .status-icon-ring {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: var(--yellow-bg);
+      border: 1.5px solid rgba(180,83,9,.18);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* Pulsing ring effect */
+    .status-icon-ring::before {
+      content: '';
+      position: absolute;
+      inset: -10px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(180,83,9,.12);
+      animation: pulse-ring 2.4s ease-out infinite;
+    }
+
+    .status-icon-ring::after {
+      content: '';
+      position: absolute;
+      inset: -22px;
+      border-radius: 50%;
+      border: 1px solid rgba(180,83,9,.06);
+      animation: pulse-ring 2.4s ease-out 0.6s infinite;
+    }
+
+    @keyframes pulse-ring {
+      0%   { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(1.08); }
+    }
+
+    .status-icon-ring svg {
+      width: 34px;
+      height: 34px;
+      color: var(--yellow);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 14px;
+      background: var(--yellow-bg);
+      border: 1px solid rgba(180,83,9,.2);
+      border-radius: 20px;
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--yellow);
+      margin-bottom: 14px;
+    }
+
+    .status-badge svg { width: 11px; height: 11px; }
+
+    .status-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 34px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -.02em;
+      line-height: 1.15;
+      margin-bottom: 12px;
+    }
+
+    .status-desc {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.65;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* ── Submitted Details Card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 18px 24px 16px;
+      border-bottom: 1px solid var(--border-l);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-header-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--primary-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .card-header-icon svg {
+      width: 15px;
+      height: 15px;
+      color: var(--primary);
+    }
+
+    .card-heading {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--subtle);
+    }
+
+    .card-heading-action {
+      margin-left: auto;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--primary);
+      cursor: pointer;
+      text-decoration: none;
+      transition: color .15s;
+    }
+
+    .card-heading-action:hover { color: var(--primary-d); text-decoration: underline; }
+
+    /* Submitted info rows */
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      padding: 6px 0;
+    }
+
+    .info-row {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      padding: 14px 24px;
+    }
+
+    .info-row + .info-row {
+      border-left: 1px solid var(--border-l);
+    }
+
+    .info-row:nth-child(3) {
+      border-top: 1px solid var(--border-l);
+      border-left: none;
+    }
+
+    .info-row:nth-child(4) {
+      border-top: 1px solid var(--border-l);
+    }
+
+    .info-row.full {
+      grid-column: 1 / -1;
+      border-left: none;
+      border-top: 1px solid var(--border-l);
+    }
+
+    .info-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--subtle);
+    }
+
+    .info-value {
+      font-size: 14.5px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .info-value.mono {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+    }
+
+
+    /* ── Review Progress ── */
+    .steps-wrap {
+      padding: 20px 24px;
+    }
+
+    .step {
+      display: flex;
+      gap: 16px;
+      position: relative;
+    }
+
+    /* Vertical connector line */
+    .step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 15px;
+      top: 32px;
+      bottom: -12px;
+      width: 2px;
+      background: var(--border-l);
+    }
+
+    .step.done:not(:last-child)::after { background: var(--green); opacity: .35; }
+    .step.current:not(:last-child)::after { background: var(--border-l); }
+
+    .step + .step { margin-top: 24px; }
+
+    /* Step circle */
+    .step-dot {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      border: 2px solid var(--border);
+      background: var(--surface);
+      position: relative;
+      z-index: 1;
+    }
+
+    .step-dot svg { width: 14px; height: 14px; }
+
+    .step.done .step-dot {
+      background: var(--green);
+      border-color: var(--green);
+      color: #fff;
+    }
+
+    .step.current .step-dot {
+      background: var(--yellow-bg);
+      border-color: var(--yellow);
+      color: var(--yellow);
+    }
+
+    .step.upcoming .step-dot {
+      background: var(--surface);
+      border-color: var(--border);
+      color: var(--subtle);
+    }
+
+    .step-body { flex: 1; padding-top: 4px; }
+
+    .step-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.2;
+      margin-bottom: 3px;
+    }
+
+    .step.upcoming .step-title { color: var(--subtle); }
+
+    .step-desc {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .step.upcoming .step-desc { color: var(--subtle); }
+
+    .step-time {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--subtle);
+      margin-top: 4px;
+    }
+
+    .step-time svg { width: 11px; height: 11px; }
+
+    .step-time.done { color: var(--green); }
+    .step-time.current { color: var(--yellow); }
+
+    /* Current step pulse indicator */
+    .current-pulse {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--yellow);
+      margin-top: 6px;
+    }
+
+    .current-pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--yellow);
+      animation: dot-pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes dot-pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: .35; }
+    }
+
+    /* ── Info Banner ── */
+    .info-banner {
+      background: var(--accent-bg);
+      border: 1px solid rgba(201,137,74,.2);
+      border-radius: 12px;
+      padding: 14px 18px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .info-banner svg {
+      width: 17px;
+      height: 17px;
+      color: var(--accent);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .info-banner-text {
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .info-banner-text strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    /* ── Help & Contact card ── */
+    .contact-row {
+      display: flex;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .contact-card {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: border-color .15s, box-shadow .2s;
+    }
+
+    .contact-card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 4px 16px rgba(92,18,32,.06);
+    }
+
+    .contact-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .contact-icon svg {
+      width: 17px;
+      height: 17px;
+      color: var(--accent);
+    }
+
+    .contact-body { flex: 1; min-width: 0; }
+
+    .contact-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .contact-meta {
+      font-size: 12px;
+      color: var(--subtle);
+    }
+
+    .contact-arrow {
+      color: var(--subtle);
+      transition: color .15s, transform .15s;
+    }
+
+    .contact-card:hover .contact-arrow {
+      color: var(--accent);
+      transform: translateX(2px);
+    }
+
+    .contact-arrow svg { width: 15px; height: 15px; }
+
+    /* ── Sign out footer ── */
+    .footer {
+      text-align: center;
+      padding: 0 0 4px;
+    }
+
+    .footer-text {
+      font-size: 13.5px;
+      color: var(--muted);
+    }
+
+    .footer-link {
+      font-weight: 600;
+      color: var(--primary);
+      text-decoration: none;
+      transition: color .15s;
+    }
+
+    .footer-link:hover { color: var(--primary-d); text-decoration: underline; }
+
+    .footer-sep {
+      display: inline-block;
+      width: 1px;
+      height: 12px;
+      background: var(--border);
+      margin: 0 12px;
+      vertical-align: middle;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════
+       HEADER
+  ═══════════════════════════════ -->
+  <header class="header">
+    <a href="#" class="brand">
+      <div class="brand-mark">A</div>
+      <span class="brand-name">Ascend</span>
+    </a>
+    <div class="header-right">
+      <a href="mailto:admin@rcet.edu.in" class="header-help">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        Help
+      </a>
+      <a href="login.html" class="signout-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        Sign out
+      </a>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════
+       MAIN
+  ═══════════════════════════════ -->
+  <main class="main">
+    <div class="content-wrap">
+
+      <!-- ── Status Hero ── -->
+      <div class="status-hero">
+        <div class="status-icon-wrap">
+          <div class="status-icon-ring">
+            <!-- Hourglass / clock icon -->
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+        </div>
+
+        <div class="status-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+          Under Review
+        </div>
+
+        <h1 class="status-title">Your account is being reviewed</h1>
+        <p class="status-desc">
+          Thank you for registering as an alumni of Rajagiri College of Engineering.
+          Our team is verifying your credentials — you'll receive an email once your
+          account is approved and ready to use.
+        </p>
+      </div>
+
+      <!-- ── Submitted Details ── -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <span class="card-heading">Submitted Information</span>
+          <a href="#" class="card-heading-action">Edit details</a>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-row">
+            <span class="info-label">Full Name</span>
+            <span class="info-value">Meera Rajan</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Email Address</span>
+            <span class="info-value">meera.rajan@gmail.com</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Department</span>
+            <span class="info-value">Electronics &amp; Communication Engg.</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Graduation Year</span>
+            <span class="info-value">2022</span>
+          </div>
+          <div class="info-row full">
+            <span class="info-label">LinkedIn Profile</span>
+            <span class="info-value">linkedin.com/in/meera-rajan</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Company</span>
+            <span class="info-value">Infosys, Bangalore</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Designation</span>
+            <span class="info-value">Systems Engineer</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── Review Progress ── -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+          </div>
+          <span class="card-heading">Review Progress</span>
+        </div>
+
+        <div class="steps-wrap">
+
+          <!-- Step 1: Registration submitted -->
+          <div class="step done">
+            <div class="step-dot">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
+            <div class="step-body">
+              <div class="step-title">Registration submitted</div>
+              <div class="step-desc">Your account details and verification document have been received.</div>
+              <div class="step-time done">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                Sun, 05 Apr 2026 · 9:14 AM
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2: Admin review (current) -->
+          <div class="step current">
+            <div class="step-dot">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </div>
+            <div class="step-body">
+              <div class="step-title">Admin review</div>
+              <div class="step-desc">An admin is cross-checking your name, department, and graduation year against RCET records. This typically takes 1–2 business days.</div>
+              <div class="current-pulse">
+                <div class="current-pulse-dot"></div>
+                In progress
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3: Access granted -->
+          <div class="step upcoming">
+            <div class="step-dot">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+            </div>
+            <div class="step-body">
+              <div class="step-title">Full access granted</div>
+              <div class="step-desc">You'll receive an email and can log in to Ascend with complete alumni privileges — post experiences, answer questions, connect with students.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── Info Banner ── -->
+      <div class="info-banner">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <p class="info-banner-text">
+          If your application is not approved within <strong>3 business days</strong>, please reach out to us
+          directly. Make sure your <strong>name</strong>, department, and graduation year match your college
+          records exactly — mismatches are the most common cause of delays.
+        </p>
+      </div>
+
+      <!-- ── Contact / Help ── -->
+      <div class="contact-row">
+        <a href="mailto:admin@rcet.edu.in" class="contact-card">
+          <div class="contact-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+          </div>
+          <div class="contact-body">
+            <div class="contact-label">Email Support</div>
+            <div class="contact-meta">admin@rcet.edu.in</div>
+          </div>
+          <div class="contact-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </div>
+        </a>
+
+        <a href="#" class="contact-card">
+          <div class="contact-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+          </div>
+          <div class="contact-body">
+            <div class="contact-label">Update Details</div>
+            <div class="contact-meta">Correct register number or department</div>
+          </div>
+          <div class="contact-arrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </div>
+        </a>
+      </div>
+
+      <!-- ── Footer ── -->
+      <div class="footer">
+        <span class="footer-text">
+          Submitted as <strong>meera.rajan@gmail.com</strong>
+          <span class="footer-sep"></span>
+          <a href="login.html" class="footer-link">Sign out</a>
+          <span class="footer-sep"></span>
+          <a href="#" class="footer-link">Update email</a>
+        </span>
+      </div>
+
+    </div>
+  </main>
+
+</body>
+</html>

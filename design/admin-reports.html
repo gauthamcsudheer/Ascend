@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reports — Admin — Ascend</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary:    #5C1220;
+      --primary-d:  #400C18;
+      --primary-dd: #2E0A11;
+      --primary-bg: rgba(92,18,32,.05);
+      --accent:     #C9894A;
+      --accent-bg:  rgba(201,137,74,.08);
+      --green:      #1A5C38;
+      --green-bg:   rgba(26,92,56,.08);
+      --red:        #B91C1C;
+      --red-bg:     rgba(185,28,28,.07);
+      --yellow:     #B45309;
+      --yellow-bg:  rgba(180,83,9,.07);
+      --bg:         #FAF7F2;
+      --surface:    #FFFFFF;
+      --text:       #1A1410;
+      --muted:      #7A6659;
+      --subtle:     #B5A899;
+      --border:     #DDD4C8;
+      --border-l:   #EDE8E1;
+    }
+
+    html, body { height: 100%; }
+    body { font-family: 'DM Sans', -apple-system, sans-serif; color: var(--text); background: var(--bg); -webkit-font-smoothing: antialiased; }
+
+    .page { display: flex; height: 100vh; overflow: hidden; }
+
+    /* ── Sidebar ── */
+    .sidebar { width: 240px; flex-shrink: 0; height: 100vh; position: sticky; top: 0; background: var(--primary-d); display: flex; flex-direction: column; overflow: hidden; }
+    .sidebar::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(circle, rgba(201,137,74,.1) 1px, transparent 1px); background-size: 24px 24px; pointer-events: none; z-index: 0; }
+    .sb-ring { position: absolute; bottom: -100px; left: -100px; width: 360px; height: 360px; border-radius: 50%; border: 1px solid rgba(201,137,74,.12); box-shadow: 0 0 0 50px rgba(201,137,74,.04), 0 0 0 100px rgba(201,137,74,.02); pointer-events: none; z-index: 0; }
+    .sidebar > *:not(.sb-ring) { position: relative; z-index: 1; }
+    .sb-brand { display: flex; align-items: center; gap: 12px; padding: 22px 20px 20px; border-bottom: 1px solid rgba(201,137,74,.15); }
+    .sb-brand-mark { width: 36px; height: 36px; border: 1.5px solid var(--accent); display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; color: var(--accent); flex-shrink: 0; }
+    .sb-brand-name { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: rgba(250,247,242,.92); }
+    .sb-nav { flex: 1; padding: 12px 0; overflow-y: auto; scrollbar-width: none; }
+    .sb-nav::-webkit-scrollbar { display: none; }
+    .sb-section-label { font-size: 9.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: rgba(201,137,74,.55); padding: 14px 20px 6px; }
+    .sb-section-label.admin-label { color: rgba(201,137,74,.9); border-top: 1px solid rgba(201,137,74,.15); margin-top: 4px; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 20px; font-size: 13.5px; font-weight: 500; color: rgba(250,247,242,.55); text-decoration: none; cursor: pointer; transition: background .12s, color .12s; border-left: 3px solid transparent; }
+    .nav-item:hover { background: rgba(250,247,242,.06); color: rgba(250,247,242,.85); }
+    .nav-item.active { background: rgba(201,137,74,.1); color: var(--accent); border-left-color: var(--accent); font-weight: 600; }
+    .nav-item svg { width: 17px; height: 17px; flex-shrink: 0; }
+    .nav-badge { margin-left: auto; min-width: 18px; height: 18px; padding: 0 5px; background: var(--accent); color: var(--primary-dd); font-size: 10px; font-weight: 700; border-radius: 9px; display: flex; align-items: center; justify-content: center; }
+    .nav-badge.danger { background: var(--red); color: #fff; }
+    .sb-divider { height: 1px; background: rgba(201,137,74,.12); margin: 8px 0; }
+    .sb-user-section { border-top: 1px solid rgba(201,137,74,.15); padding: 14px 16px 10px; }
+    .sb-user { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 0 0 10px; }
+    .sb-avatar { width: 36px; height: 36px; border-radius: 50%; background: rgba(201,137,74,.18); border: 1.5px solid rgba(201,137,74,.35); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: var(--accent); flex-shrink: 0; }
+    .sb-avatar.admin-avatar { background: rgba(185,28,28,.2); border-color: rgba(185,28,28,.4); color: #F87171; }
+    .sb-user-info { flex: 1; min-width: 0; }
+    .sb-user-name { font-size: 13px; font-weight: 600; color: rgba(250,247,242,.9); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sb-user-role { font-size: 11px; color: rgba(250,247,242,.4); margin-top: 1px; }
+    .sb-admin-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; background: rgba(185,28,28,.15); border: 1px solid rgba(185,28,28,.3); border-radius: 4px; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #F87171; margin-top: 4px; width: fit-content; }
+
+    /* ── Main Area ── */
+    .main-area { flex: 1; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; scrollbar-width: none; -ms-overflow-style: none; }
+    .main-area::-webkit-scrollbar { display: none; }
+
+    .topbar { position: sticky; top: 0; z-index: 10; background: rgba(250,247,242,.96); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 14px 32px; display: flex; align-items: center; gap: 16px; }
+    .topbar::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--red), rgba(185,28,28,.3), transparent); }
+    .topbar-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600; color: var(--text); letter-spacing: -.01em; }
+    .topbar-count { display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; background: var(--red-bg); border: 1px solid rgba(185,28,28,.2); border-radius: 6px; font-size: 12px; font-weight: 700; color: var(--red); }
+    .topbar-spacer { flex: 1; }
+    .search-bar { display: flex; align-items: center; gap: 10px; padding: 8px 14px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; width: 240px; }
+    .search-bar svg { width: 15px; height: 15px; color: var(--subtle); flex-shrink: 0; }
+    .search-bar input { border: none; background: transparent; outline: none; font-family: 'DM Sans', sans-serif; font-size: 13.5px; color: var(--text); width: 100%; }
+    .search-bar input::placeholder { color: var(--subtle); }
+
+    .content { padding: 28px 32px 48px; flex: 1; }
+
+    /* Filter row */
+    .filter-row { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; flex-wrap: wrap; }
+    .filter-tabs { display: flex; gap: 0; border: 1px solid var(--border); background: var(--surface); overflow: hidden; border-radius: 10px; }
+    .filter-tab { padding: 8px 18px; font-size: 13px; font-weight: 500; color: var(--muted); cursor: pointer; border-right: 1px solid var(--border-l); transition: background .12s, color .12s; text-decoration: none; }
+    .filter-tab:last-child { border-right: none; }
+    .filter-tab:hover { background: var(--bg); color: var(--text); }
+    .filter-tab.active { background: var(--primary); color: rgba(250,247,242,.95); font-weight: 600; }
+    .filter-spacer { flex: 1; }
+    .sort-select { padding: 8px 14px; border: 1px solid var(--border); background: var(--surface); border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--muted); cursor: pointer; outline: none; }
+
+    /* Content type filter pills */
+    .type-filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+
+    .type-pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 5px 13px; border-radius: 20px;
+      font-size: 12.5px; font-weight: 600; cursor: pointer;
+      border: 1px solid var(--border); background: var(--surface); color: var(--muted);
+      transition: background .12s, border-color .12s, color .12s;
+    }
+
+    .type-pill:hover { background: var(--bg); color: var(--text); }
+
+    .type-pill.active { background: var(--primary-bg); border-color: rgba(92,18,32,.2); color: var(--primary); }
+
+    .type-pill svg { width: 13px; height: 13px; }
+
+    /* ── Reports List ── */
+    .reports-list { display: flex; flex-direction: column; gap: 14px; }
+
+    .report-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 14px; overflow: hidden;
+      transition: border-color .15s, box-shadow .15s;
+    }
+
+    .report-card:hover { border-color: rgba(201,137,74,.35); box-shadow: 0 3px 16px rgba(92,18,32,.05); }
+
+    .report-card.priority { border-left: 3px solid var(--red); }
+
+    .report-card-body { padding: 18px 22px; display: flex; align-items: flex-start; gap: 16px; }
+
+    /* Type icon */
+    .report-type-icon {
+      width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .report-type-icon svg { width: 18px; height: 18px; }
+    .report-type-icon.question { background: var(--primary-bg); color: var(--primary); }
+    .report-type-icon.post { background: var(--green-bg); color: var(--green); }
+    .report-type-icon.resource { background: var(--yellow-bg); color: var(--yellow); }
+    .report-type-icon.answer { background: var(--accent-bg); color: var(--accent); }
+
+    .report-main { flex: 1; min-width: 0; }
+
+    .report-row1 { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
+
+    .report-type-tag {
+      font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 500;
+      padding: 2px 8px; border-radius: 4px;
+    }
+
+    .report-type-tag.question { background: var(--primary-bg); color: var(--primary); }
+    .report-type-tag.post { background: var(--green-bg); color: var(--green); }
+    .report-type-tag.resource { background: var(--yellow-bg); color: var(--yellow); }
+    .report-type-tag.answer { background: var(--accent-bg); color: var(--accent); }
+
+    .report-id { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--subtle); }
+
+    .report-date { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--subtle); margin-left: auto; }
+
+    .report-title { font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.35; margin-bottom: 5px; }
+
+    .report-content-preview {
+      font-size: 13px; color: var(--muted); line-height: 1.5;
+      overflow: hidden; text-overflow: ellipsis;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+      margin-bottom: 10px;
+    }
+
+    .report-meta { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+
+    .report-meta-item { display: flex; align-items: center; gap: 5px; font-size: 12.5px; color: var(--muted); }
+    .report-meta-item svg { width: 13px; height: 13px; color: var(--subtle); }
+    .report-meta-item strong { font-weight: 600; color: var(--text); }
+
+    /* Status + actions */
+    .report-side { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; flex-shrink: 0; }
+
+    .status-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 600; padding: 4px 10px; border-radius: 20px; }
+    .status-badge::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+    .status-badge.pending { background: var(--yellow-bg); color: var(--yellow); }
+    .status-badge.resolved { background: var(--green-bg); color: var(--green); }
+    .status-badge.dismissed { background: rgba(0,0,0,.05); color: var(--muted); }
+
+    .report-count-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 12px; font-weight: 700; color: var(--red);
+      padding: 3px 9px; background: var(--red-bg);
+      border-radius: 20px; border: 1px solid rgba(185,28,28,.15);
+    }
+
+    .report-count-badge svg { width: 12px; height: 12px; }
+
+    .action-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 7px 16px; border-radius: 8px;
+      font-family: 'DM Sans', sans-serif; font-size: 12.5px; font-weight: 600;
+      cursor: pointer; transition: background .12s; text-decoration: none; border: none;
+    }
+
+    .action-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+    .action-btn.review { background: var(--primary-bg); color: var(--primary); border: 1px solid rgba(92,18,32,.15); }
+    .action-btn.review:hover { background: rgba(92,18,32,.1); }
+
+    /* ── Buttons ── */
+    .btn { display: inline-flex; align-items: center; gap: 7px; padding: 10px 22px; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: background .15s, transform .1s; border: none; letter-spacing: .02em; }
+    .btn:active { transform: translateY(1px); }
+    .btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+    .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+    .btn-ghost:hover { background: var(--bg); color: var(--text); }
+    .btn-primary { background: var(--primary); color: rgba(250,247,242,.95); }
+    .btn-primary:hover { background: var(--primary-dd); }
+    .btn-danger { background: var(--red); color: #fff; }
+    .btn-danger:hover { background: #991B1B; }
+    .btn-success { background: var(--green); color: #fff; }
+    .btn-success:hover { background: #14472B; }
+    .btn-warning { background: var(--yellow); color: #fff; }
+    .btn-warning:hover { background: #92400E; }
+
+    /* ── Modal ── */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(26,20,16,.55); backdrop-filter: blur(4px); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .modal-overlay.hidden { display: none; }
+    .modal { background: var(--surface); border-radius: 20px; box-shadow: 0 24px 64px rgba(26,20,16,.22); width: 100%; max-width: 560px; overflow: hidden; }
+    .modal-header { padding: 24px 28px 20px; border-bottom: 1px solid var(--border-l); display: flex; align-items: flex-start; gap: 14px; }
+    .modal-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .modal-icon.danger { background: var(--red-bg); color: var(--red); }
+    .modal-icon.warning { background: var(--yellow-bg); color: var(--yellow); }
+    .modal-icon.info { background: var(--accent-bg); color: var(--accent); }
+    .modal-icon svg { width: 20px; height: 20px; }
+    .modal-title-group { flex: 1; }
+    .modal-title { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: var(--text); line-height: 1.2; }
+    .modal-subtitle { font-size: 13.5px; color: var(--muted); margin-top: 4px; line-height: 1.5; }
+    .modal-close { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: transparent; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--muted); flex-shrink: 0; transition: background .12s; }
+    .modal-close:hover { background: var(--bg); }
+    .modal-close svg { width: 16px; height: 16px; }
+    .modal-body { padding: 22px 28px; }
+    .modal-footer { padding: 16px 28px 24px; display: flex; gap: 10px; justify-content: flex-end; }
+
+    .modal-user-block { display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 18px; }
+    .modal-user-avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--accent-bg); border: 1.5px solid rgba(201,137,74,.3); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: var(--accent); flex-shrink: 0; }
+    .modal-user-name { font-size: 15px; font-weight: 600; color: var(--text); }
+    .modal-user-meta { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+    .content-preview { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 18px; }
+    .content-preview-label { font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--subtle); margin-bottom: 8px; }
+    .content-preview-title { font-size: 14.5px; font-weight: 600; color: var(--text); margin-bottom: 6px; line-height: 1.35; }
+    .content-preview-text { font-size: 13.5px; color: var(--muted); line-height: 1.55; }
+
+    .form-label { display: block; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; }
+    .form-textarea { width: 100%; padding: 11px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); outline: none; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); resize: vertical; min-height: 80px; transition: border-color .15s; }
+    .form-textarea:focus { border-color: var(--accent); }
+    .form-textarea::placeholder { color: var(--subtle); }
+
+    /* Action radios */
+    .action-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+
+    .action-option {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 12px 14px;
+      border: 1.5px solid var(--border); border-radius: 10px; cursor: pointer;
+      transition: border-color .12s, background .12s;
+    }
+
+    .action-option:hover { border-color: rgba(92,18,32,.2); background: var(--bg); }
+
+    .action-option input[type="radio"] { margin-top: 2px; accent-color: var(--primary); flex-shrink: 0; }
+
+    .action-option-title { font-size: 14px; font-weight: 600; color: var(--text); }
+    .action-option-desc { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+
+    .action-option.danger-opt { border-color: rgba(185,28,28,.2); background: var(--red-bg); }
+    .action-option.danger-opt .action-option-title { color: var(--red); }
+
+    /* Confirm action modal */
+    .confirm-info {
+      padding: 14px 16px; background: var(--bg);
+      border: 1px solid var(--border); border-radius: 12px; margin-bottom: 18px;
+    }
+
+    .confirm-info-row { display: flex; align-items: center; gap: 10px; font-size: 13.5px; }
+    .confirm-info-row + .confirm-info-row { margin-top: 8px; }
+    .confirm-info-label { color: var(--subtle); font-size: 12px; font-weight: 700; min-width: 90px; }
+    .confirm-info-value { color: var(--text); font-weight: 500; }
+
+    /* Ban duration select */
+    .form-select { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); outline: none; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); cursor: pointer; margin-bottom: 14px; }
+    .form-select:focus { border-color: var(--accent); }
+
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ─── Sidebar ─── -->
+  <aside class="sidebar">
+    <div class="sb-ring"></div>
+    <div class="sb-brand">
+      <div class="sb-brand-mark">A</div>
+      <span class="sb-brand-name">Ascend</span>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-section-label">Discover</div>
+      <a href="feed.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Feed</a>
+      <a href="questions.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Questions</a>
+      <a href="resources.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>Resources</a>
+      <div class="sb-divider"></div>
+      <div class="sb-section-label">Connect</div>
+      <a href="people.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>People</a>
+      <a href="messages.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Messages</a>
+      <div class="sb-divider"></div>
+      <a href="#" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Notifications</a>
+      <div class="sb-section-label admin-label">Administration</div>
+      <a href="admin.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
+      <a href="admin-users.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Users</a>
+      <a href="admin-alumni-verification.html" class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/><polyline points="9 11 11 13 15 9"/></svg>Alumni Verification<span class="nav-badge">8</span></a>
+      <a href="admin-reports.html" class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Reports<span class="nav-badge danger">14</span></a>
+    </nav>
+    <div class="sb-user-section">
+      <div class="sb-user">
+        <div class="sb-avatar admin-avatar">SA</div>
+        <div class="sb-user-info">
+          <div class="sb-user-name">Sana Arun</div>
+          <div class="sb-user-role">Platform Administrator</div>
+          <div class="sb-admin-badge"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Admin</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ─── Main Content ─── -->
+  <main class="main-area">
+
+    <div class="topbar">
+      <h1 class="topbar-title">Reports</h1>
+      <div class="topbar-count">14 open</div>
+      <span class="topbar-spacer"></span>
+      <div class="search-bar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Search reports…">
+      </div>
+    </div>
+
+    <div class="content">
+
+      <div class="filter-row">
+        <div class="filter-tabs">
+          <a href="#" class="filter-tab active">Open (14)</a>
+          <a href="#" class="filter-tab">Resolved</a>
+          <a href="#" class="filter-tab">Dismissed</a>
+          <a href="#" class="filter-tab">All</a>
+        </div>
+        <span class="filter-spacer"></span>
+        <select class="sort-select">
+          <option>Newest first</option>
+          <option>Oldest first</option>
+          <option>Most reports</option>
+        </select>
+      </div>
+
+      <div class="type-filters">
+        <button class="type-pill active">
+          All types
+        </button>
+        <button class="type-pill">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/></svg>
+          Questions
+        </button>
+        <button class="type-pill">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
+          Posts
+        </button>
+        <button class="type-pill">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Answers
+        </button>
+        <button class="type-pill">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          Resources
+        </button>
+      </div>
+
+      <!-- Reports List -->
+      <div class="reports-list">
+
+        <!-- Report 1: High priority / multiple reports -->
+        <div class="report-card priority">
+          <div class="report-card-body">
+            <div class="report-type-icon question">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div class="report-main">
+              <div class="report-row1">
+                <span class="report-type-tag question">Question</span>
+                <span class="report-id">#1042</span>
+                <span class="report-date">2h ago</span>
+              </div>
+              <div class="report-title">"Why is everyone at this college so useless and unable to help?"</div>
+              <div class="report-content-preview">Original content: Why is everyone at this college so useless? Can't believe none of you basic things. Seniors are a complete waste of time at Rajagiri...</div>
+              <div class="report-meta">
+                <div class="report-meta-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  Posted by <strong>Sree Kumar</strong>
+                </div>
+                <div class="report-meta-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+                  Reason: Inappropriate language
+                </div>
+                <div class="report-meta-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                  Reported by Arjun K., Meera S.
+                </div>
+              </div>
+            </div>
+            <div class="report-side">
+              <span class="status-badge pending">Pending</span>
+              <span class="report-count-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                4 reports
+              </span>
+              <button class="action-btn review" onclick="document.getElementById('reviewModal').classList.remove('hidden')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                Review
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Report 2 -->
+        <div class="report-card">
+          <div class="report-card-body">
+            <div class="report-type-icon post">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            </div>
+            <div class="report-main">
+              <div class="report-row1">
+                <span class="report-type-tag post">Post</span>
+                <span class="report-id">#1041</span>
+                <span class="report-date">5h ago</span>
+              </div>
+              <div class="report-title">Promotional post: "Buy premium placement notes — guaranteed results!"</div>
+              <div class="report-content-preview">Join my Telegram channel for exclusive placement prep material. Only ₹499 for a full package. 100+ students already cracked their interviews using my notes. Link in bio...</div>
+              <div class="report-meta">
+                <div class="report-meta-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  Posted by <strong>Ravi Shankar</strong>
+                </div>
+                <div class="report-meta-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+                  Reason: Spam / commercial promotion
+                </div>
+              </div>
+            </div>
+            <div class="report-side">
+              <span class="status-badge pending">Pending</span>
+              <span class="report-count-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                2 reports
+              </span>
+              <button class="action-btn review" onclick="document.getElementById('reviewModal').classList.remove('hidden')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                Review
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Report 3 -->
+        <div class="report-card">
+          <div class="report-card-body">
+            <div class="report-type-icon resource">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            </div>
+            <div class="report-main">
+              <div class="report-row1">
+                <span class="report-type-tag resource">Resource</span>
+                <span class="report-id">#1040</span>
+                <span class="report-date">1d ago</span>
+              </div>
+              <div class="report-title">"KTU S5 Module Notes — Full Syllabus"</div>
+              <div class="report-content-preview">The link shared in this resource post no longer works and redirects to a suspicious website. The original Drive link has expired or been deleted...</div>
+              <div class="report-meta">
+                <div class="report-meta-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  Posted by <strong>Preethi R.</strong>
+                </div>
+                <div class="report-meta-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+                  Reason: Broken or malicious link
+                </div>
+              </div>
+            </div>
+            <div class="report-side">
+              <span class="status-badge pending">Pending</span>
+              <span class="report-count-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                1 report
+              </span>
+              <button class="action-btn review" onclick="document.getElementById('reviewModal').classList.remove('hidden')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                Review
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Report 4: Resolved -->
+        <div class="report-card">
+          <div class="report-card-body">
+            <div class="report-type-icon answer">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <div class="report-main">
+              <div class="report-row1">
+                <span class="report-type-tag answer">Answer</span>
+                <span class="report-id">#1039</span>
+                <span class="report-date">2d ago</span>
+              </div>
+              <div class="report-title">Answer to: "How do I prepare for GATE exam in 6th semester?"</div>
+              <div class="report-content-preview">The answer contained factually incorrect information about GATE eligibility criteria, claiming students need a minimum 60% in all semesters which is no longer accurate...</div>
+              <div class="report-meta">
+                <div class="report-meta-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  Answered by <strong>Keerthi S.</strong>
+                </div>
+                <div class="report-meta-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+                  Reason: Incorrect / misleading content
+                </div>
+                <div class="report-meta-item" style="color:var(--green);">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                  Action: User warned, content flagged
+                </div>
+              </div>
+            </div>
+            <div class="report-side">
+              <span class="status-badge resolved">Resolved</span>
+              <button class="action-btn review" onclick="document.getElementById('reviewModal').classList.remove('hidden')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                View
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Report 5: Dismissed -->
+        <div class="report-card">
+          <div class="report-card-body">
+            <div class="report-type-icon post">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+            <div class="report-main">
+              <div class="report-row1">
+                <span class="report-type-tag post">Post</span>
+                <span class="report-id">#1038</span>
+                <span class="report-date">3d ago</span>
+              </div>
+              <div class="report-title">"My honest review of 3rd semester — it's brutal but survivable"</div>
+              <div class="report-content-preview">A candid post about academic stress and difficulty in semester 3. Reporter felt the post was "demoralizing" — on review no community guidelines were violated...</div>
+              <div class="report-meta">
+                <div class="report-meta-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  Posted by <strong>Rahul M.</strong>
+                </div>
+                <div class="report-meta-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+                  Reason: Harassment / negativity
+                </div>
+                <div class="report-meta-item" style="color:var(--muted);">
+                  No violation found — dismissed
+                </div>
+              </div>
+            </div>
+            <div class="report-side">
+              <span class="status-badge dismissed">Dismissed</span>
+              <button class="action-btn review" onclick="document.getElementById('reviewModal').classList.remove('hidden')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                View
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ═══════════════════════════════════════
+     MODAL: Review Report
+═══════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="reviewModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-icon danger">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </div>
+      <div class="modal-title-group">
+        <div class="modal-title">Review Report #1042</div>
+        <div class="modal-subtitle">Question · 4 reports · Submitted 2h ago</div>
+      </div>
+      <button class="modal-close" onclick="document.getElementById('reviewModal').classList.add('hidden')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" style="max-height:70vh;overflow-y:auto;">
+
+      <!-- Reported user -->
+      <div style="font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--subtle);margin-bottom:8px;">Reported User</div>
+      <div class="modal-user-block">
+        <div class="modal-user-avatar">SK</div>
+        <div style="flex:1;">
+          <div class="modal-user-name">Sree Kumar</div>
+          <div class="modal-user-meta">Student · CSE · 6th Semester</div>
+        </div>
+        <a href="#" style="font-size:12.5px;font-weight:600;color:var(--primary);text-decoration:none;">View profile →</a>
+      </div>
+
+      <!-- Reported content -->
+      <div class="content-preview">
+        <div class="content-preview-label">Reported Question</div>
+        <div class="content-preview-title">"Why is everyone at this college so useless and unable to help?"</div>
+        <div class="content-preview-text">Can't believe none of you know basic things here. Seniors are a complete waste of time at Rajagiri. I've been asking for help for three days and no one cares.</div>
+      </div>
+
+      <!-- Report reasons summary -->
+      <div style="margin-bottom:18px;">
+        <div style="font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--subtle);margin-bottom:8px;">Reports Received (4)</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);padding:8px 12px;background:var(--bg);border-radius:8px;border:1px solid var(--border-l);">
+            <span style="font-weight:600;color:var(--text);">Arjun K.</span> — Inappropriate / offensive language
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);padding:8px 12px;background:var(--bg);border-radius:8px;border:1px solid var(--border-l);">
+            <span style="font-weight:600;color:var(--text);">Meera S.</span> — Bullying or harassment
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);padding:8px 12px;background:var(--bg);border-radius:8px;border:1px solid var(--border-l);">
+            <span style="font-weight:600;color:var(--text);">Priya N.</span> — Disrespectful to community
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted);padding:8px 12px;background:var(--bg);border-radius:8px;border:1px solid var(--border-l);">
+            <span style="font-weight:600;color:var(--text);">Vishnu R.</span> — Violates community guidelines
+          </div>
+        </div>
+      </div>
+
+      <!-- Action selection -->
+      <div style="font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--subtle);margin-bottom:10px;">Take Action</div>
+      <div class="action-options">
+        <label class="action-option">
+          <input type="radio" name="r-action" value="dismiss">
+          <div>
+            <div class="action-option-title">Dismiss report</div>
+            <div class="action-option-desc">No violation found — close all reports on this content.</div>
+          </div>
+        </label>
+        <label class="action-option">
+          <input type="radio" name="r-action" value="delete">
+          <div>
+            <div class="action-option-title">Remove content only</div>
+            <div class="action-option-desc">Delete the reported question. The user is not penalized.</div>
+          </div>
+        </label>
+        <label class="action-option">
+          <input type="radio" name="r-action" value="warn">
+          <div>
+            <div class="action-option-title">Remove content + warn user</div>
+            <div class="action-option-desc">Delete content and send an official community warning email.</div>
+          </div>
+        </label>
+        <label class="action-option danger-opt">
+          <input type="radio" name="r-action" value="ban" style="accent-color:var(--red);">
+          <div>
+            <div class="action-option-title">Suspend user account</div>
+            <div class="action-option-desc">Remove content and temporarily or permanently restrict this account.</div>
+          </div>
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Admin note (internal)</label>
+        <textarea class="form-textarea" placeholder="Add a note for the admin log…"></textarea>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="document.getElementById('reviewModal').classList.add('hidden')">Cancel</button>
+      <button class="btn btn-primary" onclick="document.getElementById('reviewModal').classList.add('hidden');document.getElementById('confirmModal').classList.remove('hidden')">Proceed</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     MODAL: Confirm Action
+═══════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="confirmModal">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-header">
+      <div class="modal-icon warning">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </div>
+      <div class="modal-title-group">
+        <div class="modal-title">Confirm Action</div>
+        <div class="modal-subtitle">This action will be logged and cannot be fully undone.</div>
+      </div>
+      <button class="modal-close" onclick="document.getElementById('confirmModal').classList.add('hidden')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="confirm-info">
+        <div class="confirm-info-row">
+          <span class="confirm-info-label">Action</span>
+          <span class="confirm-info-value" style="color:var(--red);font-weight:700;">Remove content + warn user</span>
+        </div>
+        <div class="confirm-info-row">
+          <span class="confirm-info-label">User</span>
+          <span class="confirm-info-value">Sree Kumar (CSE · 6th Semester)</span>
+        </div>
+        <div class="confirm-info-row">
+          <span class="confirm-info-label">Content</span>
+          <span class="confirm-info-value">Question #1042 (4 reports)</span>
+        </div>
+      </div>
+      <div style="font-size:13.5px;color:var(--muted);line-height:1.55;">
+        The reported question will be removed and the user will receive a warning email. This will also resolve all 4 reports on this content. Are you sure?
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="document.getElementById('confirmModal').classList.add('hidden')">Go back</button>
+      <button class="btn btn-danger">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Confirm & Execute
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     MODAL: Suspend User
+═══════════════════════════════════════ -->
+<div class="modal-overlay hidden" id="suspendModal">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header">
+      <div class="modal-icon danger">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+      </div>
+      <div class="modal-title-group">
+        <div class="modal-title">Suspend Account</div>
+        <div class="modal-subtitle">Set the suspension duration and reason for the user.</div>
+      </div>
+      <button class="modal-close" onclick="document.getElementById('suspendModal').classList.add('hidden')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-user-block">
+        <div class="modal-user-avatar">SK</div>
+        <div>
+          <div class="modal-user-name">Sree Kumar</div>
+          <div class="modal-user-meta">Student · CSE · 6th Semester · 0 prior warnings</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Suspension Duration</label>
+        <select class="form-select">
+          <option value="7">7 days</option>
+          <option value="14">14 days</option>
+          <option value="30">30 days</option>
+          <option value="90">90 days</option>
+          <option value="0">Permanent</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Reason (shown to user)</label>
+        <textarea class="form-textarea" placeholder="Explain the reason for suspension to the user…">Your account has been temporarily suspended due to repeated violations of Ascend's community guidelines, specifically posting content that is disrespectful to other community members.</textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="document.getElementById('suspendModal').classList.add('hidden')">Cancel</button>
+      <button class="btn btn-danger">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+        Suspend Account
+      </button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

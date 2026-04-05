@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notifications — Ascend</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Design Tokens ── */
+    :root {
+      --primary:    #5C1220;
+      --primary-d:  #400C18;
+      --primary-dd: #2E0A11;
+      --primary-bg: rgba(92,18,32,.05);
+      --accent:     #C9894A;
+      --accent-bg:  rgba(201,137,74,.08);
+      --green:      #1A5C38;
+      --bg:         #FAF7F2;
+      --surface:    #FFFFFF;
+      --text:       #1A1410;
+      --muted:      #7A6659;
+      --subtle:     #B5A899;
+      --border:     #DDD4C8;
+      --border-l:   #EDE8E1;
+    }
+
+    html, body { height: 100%; }
+    body {
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       PAGE SHELL — 3 column layout
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .page {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       LEFT SIDEBAR — Deep Maroon
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .sidebar {
+      width: 240px;
+      flex-shrink: 0;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      background: var(--primary-d);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sidebar::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(201,137,74,.1) 1px, transparent 1px);
+      background-size: 24px 24px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .sb-ring {
+      position: absolute;
+      bottom: -100px;
+      left: -100px;
+      width: 360px;
+      height: 360px;
+      border-radius: 50%;
+      border: 1px solid rgba(201,137,74,.12);
+      box-shadow:
+        0 0 0 50px  rgba(201,137,74,.04),
+        0 0 0 100px rgba(201,137,74,.02);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .sidebar > *:not(.sb-ring) { position: relative; z-index: 1; }
+
+    .sb-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 22px 20px 20px;
+      border-bottom: 1px solid rgba(201,137,74,.15);
+    }
+
+    .sb-brand-mark {
+      width: 36px;
+      height: 36px;
+      border: 1.5px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .sb-brand-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: rgba(250,247,242,.92);
+    }
+
+    .sb-nav {
+      flex: 1;
+      padding: 12px 0;
+      overflow-y: auto;
+    }
+
+    .sb-section-label {
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: rgba(201,137,74,.55);
+      padding: 14px 20px 6px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 20px;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: rgba(250,247,242,.55);
+      text-decoration: none;
+      cursor: pointer;
+      transition: background .12s, color .12s;
+      position: relative;
+      border-left: 3px solid transparent;
+    }
+
+    .nav-item:hover {
+      background: rgba(250,247,242,.06);
+      color: rgba(250,247,242,.85);
+    }
+
+    .nav-item.active {
+      background: rgba(201,137,74,.1);
+      color: var(--accent);
+      border-left-color: var(--accent);
+      font-weight: 600;
+    }
+
+    .nav-item svg {
+      width: 17px;
+      height: 17px;
+      flex-shrink: 0;
+    }
+
+    .nav-badge {
+      margin-left: auto;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 5px;
+      background: var(--accent);
+      color: var(--primary-dd);
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sb-divider {
+      height: 1px;
+      background: rgba(201,137,74,.12);
+      margin: 8px 0;
+    }
+
+    .sb-user-section {
+      border-top: 1px solid rgba(201,137,74,.15);
+      padding: 14px 16px 10px;
+    }
+
+    .sb-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      padding: 0 0 10px;
+    }
+
+    .sb-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(201,137,74,.18);
+      border: 1.5px solid rgba(201,137,74,.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .sb-user-info { flex: 1; min-width: 0; }
+
+    .sb-user-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(250,247,242,.9);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sb-user-role {
+      font-size: 11px;
+      color: rgba(250,247,242,.4);
+      margin-top: 1px;
+    }
+
+    .sb-profile-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      width: 100%;
+      padding: 9px 16px;
+      border: 1px solid rgba(201,137,74,.35);
+      background: rgba(201,137,74,.08);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: var(--accent);
+      cursor: pointer;
+      transition: background .15s, border-color .15s;
+      text-decoration: none;
+    }
+
+    .sb-profile-btn:hover {
+      background: rgba(201,137,74,.18);
+      border-color: var(--accent);
+    }
+
+    .sb-profile-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       MAIN NOTIFICATIONS AREA
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .notif-area {
+      flex: 1;
+      height: 100vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .notif-area::-webkit-scrollbar { display: none; }
+
+    /* Topbar */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(250,247,242,.96);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .topbar::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), rgba(201,137,74,.3), transparent);
+    }
+
+    .topbar-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -.01em;
+    }
+
+    .topbar-unread-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      background: var(--primary-bg);
+      border: 1px solid rgba(92,18,32,.14);
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--primary);
+      letter-spacing: .02em;
+    }
+
+    .topbar-spacer { flex: 1; }
+
+    .mark-read-btn {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--primary);
+      background: transparent;
+      border: 1.5px solid rgba(92,18,32,.25);
+      border-radius: 8px;
+      padding: 7px 16px;
+      cursor: pointer;
+      transition: background .15s, border-color .15s;
+      letter-spacing: .02em;
+    }
+
+    .mark-read-btn:hover {
+      background: var(--primary-bg);
+      border-color: var(--primary);
+    }
+
+    /* ── Filter toolbar ── */
+    .notif-toolbar {
+      padding: 16px 32px 0;
+    }
+
+    .filter-tabs {
+      display: flex;
+      gap: 0;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      overflow: hidden;
+      border-radius: 10px;
+      width: fit-content;
+    }
+
+    .filter-tab {
+      padding: 8px 18px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      border-right: 1px solid var(--border-l);
+      transition: background .12s, color .12s;
+      text-decoration: none;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .filter-tab:last-child { border-right: none; }
+
+    .filter-tab:hover {
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .filter-tab.active {
+      background: var(--primary);
+      color: rgba(250,247,242,.95);
+      font-weight: 600;
+    }
+
+    .tab-count {
+      min-width: 16px;
+      height: 16px;
+      padding: 0 4px;
+      background: rgba(201,137,74,.75);
+      color: var(--primary-dd);
+      font-size: 9.5px;
+      font-weight: 700;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .filter-tab.active .tab-count {
+      background: rgba(250,247,242,.2);
+      color: rgba(250,247,242,.9);
+    }
+
+    /* ── Notification content ── */
+    .notif-content {
+      padding: 20px 32px 48px;
+      flex: 1;
+    }
+
+    /* Notification group */
+    .notif-group {
+      margin-bottom: 28px;
+    }
+
+    .notif-group-label {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--subtle);
+      padding-bottom: 10px;
+      margin-bottom: 0;
+      border-bottom: 1px solid var(--border-l);
+    }
+
+    /* Notification list card */
+    .notif-list {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    /* Individual notification row */
+    .notif-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 16px 20px 16px 18px;
+      border-bottom: 1px solid var(--border-l);
+      transition: background .12s;
+      cursor: pointer;
+      position: relative;
+      border-left: 3px solid transparent;
+    }
+
+    .notif-item:last-child { border-bottom: none; }
+
+    .notif-item:hover { background: rgba(92,18,32,.018); }
+
+    .notif-item.unread {
+      background: rgba(92,18,32,.022);
+      border-left-color: var(--accent);
+    }
+
+    .notif-item.unread:hover { background: rgba(92,18,32,.04); }
+
+    /* Avatar with type badge */
+    .notif-avatar-wrap {
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .notif-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--accent-bg);
+      border: 1.5px solid rgba(201,137,74,.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .notif-avatar.alumni {
+      background: rgba(92,18,32,.07);
+      border-color: rgba(92,18,32,.2);
+      color: var(--primary);
+    }
+
+    .notif-avatar.faculty {
+      background: rgba(92,18,32,.07);
+      border-color: rgba(92,18,32,.2);
+      color: var(--primary);
+    }
+
+    .notif-avatar.system {
+      background: var(--bg);
+      border-color: var(--border);
+      color: var(--muted);
+    }
+
+    /* Type icon badge */
+    .type-badge {
+      position: absolute;
+      bottom: -3px;
+      right: -3px;
+      width: 19px;
+      height: 19px;
+      border-radius: 50%;
+      border: 2px solid var(--surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .type-badge.answer  { background: var(--primary); }
+    .type-badge.vote    { background: #C04040; }
+    .type-badge.connect { background: var(--green); }
+    .type-badge.mention { background: #2A6E8C; }
+    .type-badge.post    { background: var(--accent); }
+    .type-badge.system  { background: var(--subtle); }
+
+    .type-badge svg {
+      width: 9px;
+      height: 9px;
+      flex-shrink: 0;
+      stroke: rgba(255,255,255,.95);
+    }
+
+    /* Notification body */
+    .notif-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .notif-text {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.5;
+      margin-bottom: 3px;
+    }
+
+    .notif-text strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .notif-text .content-ref {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .notif-preview {
+      font-size: 13px;
+      color: var(--subtle);
+      line-height: 1.45;
+      margin: 5px 0 0;
+      padding: 8px 12px;
+      border-left: 2px solid var(--border);
+      background: var(--bg);
+      border-radius: 0 6px 6px 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Accept / Decline for connection requests */
+    .notif-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .btn-accept {
+      padding: 6px 18px;
+      background: var(--primary);
+      color: rgba(250,247,242,.95);
+      border: none;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s;
+    }
+
+    .btn-accept:hover { background: var(--primary-d); }
+
+    .btn-decline {
+      padding: 6px 18px;
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: border-color .15s, color .15s;
+    }
+
+    .btn-decline:hover {
+      border-color: var(--subtle);
+      color: var(--text);
+    }
+
+    /* Meta (time + unread dot) */
+    .notif-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+      flex-shrink: 0;
+      padding-top: 2px;
+    }
+
+    .notif-time {
+      font-size: 12px;
+      color: var(--subtle);
+      white-space: nowrap;
+    }
+
+    .unread-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+    }
+
+    /* Milestone badge */
+    .milestone-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 9px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(201,137,74,.12);
+      color: var(--accent);
+      border: 1px solid rgba(201,137,74,.22);
+      margin-top: 5px;
+    }
+
+    .milestone-badge svg { width: 10px; height: 10px; }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       RIGHT PANEL — Notification Settings
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .right-panel {
+      width: 280px;
+      flex-shrink: 0;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+      border-left: 1px solid var(--border);
+      background: var(--surface);
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .right-panel::-webkit-scrollbar { display: none; }
+
+    .rp-section {
+      padding: 20px;
+      border-bottom: 1px solid var(--border-l);
+    }
+
+    .rp-heading {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--subtle);
+      margin-bottom: 14px;
+    }
+
+    /* Summary card */
+    .summary-card {
+      background: var(--primary-bg);
+      border: 1px solid rgba(92,18,32,.1);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .summary-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+    }
+
+    .summary-row + .summary-row {
+      border-top: 1px solid rgba(92,18,32,.07);
+    }
+
+    .summary-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .summary-label svg {
+      width: 13px;
+      height: 13px;
+      color: var(--subtle);
+    }
+
+    .summary-count {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--primary);
+      line-height: 1;
+    }
+
+    /* Preference toggles */
+    .pref-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 0;
+    }
+
+    .pref-item + .pref-item {
+      border-top: 1px solid var(--border-l);
+    }
+
+    .pref-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .pref-icon svg {
+      width: 15px;
+      height: 15px;
+      color: var(--muted);
+    }
+
+    .pref-info { flex: 1; min-width: 0; }
+
+    .pref-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .pref-desc {
+      font-size: 11px;
+      color: var(--subtle);
+      margin-top: 2px;
+    }
+
+    /* Toggle switch */
+    .toggle {
+      width: 34px;
+      height: 19px;
+      border-radius: 10px;
+      background: var(--border);
+      position: relative;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background .2s;
+    }
+
+    .toggle.on { background: var(--primary); }
+
+    .toggle::after {
+      content: '';
+      position: absolute;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: white;
+      top: 3px;
+      left: 3px;
+      transition: transform .2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,.18);
+    }
+
+    .toggle.on::after { transform: translateX(15px); }
+
+    /* Clear all link */
+    .rp-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      text-decoration: none;
+      transition: color .15s;
+      padding: 4px 0;
+    }
+
+    .rp-link:hover { color: var(--primary); }
+    .rp-link svg { width: 13px; height: 13px; }
+
+    .rp-link.danger { color: #C04040; }
+    .rp-link.danger:hover { color: #A03030; }
+
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ═══════════════════════════════════════
+       LEFT SIDEBAR
+  ═══════════════════════════════════════ -->
+  <aside class="sidebar">
+    <div class="sb-ring"></div>
+
+    <!-- Brand -->
+    <div class="sb-brand">
+      <div class="sb-brand-mark">A</div>
+      <span class="sb-brand-name">Ascend</span>
+    </div>
+
+    <!-- Nav -->
+    <nav class="sb-nav">
+
+      <div class="sb-section-label">Discover</div>
+
+      <a href="#" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        Feed
+      </a>
+
+      <a href="#" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        Questions
+      </a>
+
+      <a href="#" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+        </svg>
+        Resources
+      </a>
+
+      <div class="sb-divider"></div>
+      <div class="sb-section-label">Connect</div>
+
+      <a href="#" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        People
+      </a>
+
+      <a href="#" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+        Messages
+        <span class="nav-badge">2</span>
+      </a>
+
+      <div class="sb-divider"></div>
+
+      <!-- ── Notifications — ACTIVE ── -->
+      <a href="#" class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        Notifications
+        <span class="nav-badge">3</span>
+      </a>
+
+    </nav>
+
+    <!-- User section -->
+    <div class="sb-user-section">
+      <div class="sb-user">
+        <div class="sb-avatar">AK</div>
+        <div class="sb-user-info">
+          <div class="sb-user-name">Arjun K.</div>
+          <div class="sb-user-role">CSE · 4th Semester</div>
+        </div>
+      </div>
+      <a href="#" class="sb-profile-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        Open Profile
+      </a>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════════════════════
+       MAIN NOTIFICATIONS
+  ═══════════════════════════════════════ -->
+  <main class="notif-area">
+
+    <!-- Sticky topbar -->
+    <div class="topbar">
+      <h1 class="topbar-title">Notifications</h1>
+      <span class="topbar-unread-pill">3 unread</span>
+      <div class="topbar-spacer"></div>
+      <button class="mark-read-btn">Mark all as read</button>
+    </div>
+
+    <!-- Filter tabs -->
+    <div class="notif-toolbar">
+      <div class="filter-tabs">
+        <a href="#" class="filter-tab active">
+          All
+          <span class="tab-count">3</span>
+        </a>
+        <a href="#" class="filter-tab">Unread</a>
+        <a href="#" class="filter-tab">Q&amp;A</a>
+        <a href="#" class="filter-tab">Connections</a>
+        <a href="#" class="filter-tab">Mentions</a>
+      </div>
+    </div>
+
+    <div class="notif-content">
+
+      <!-- ══════════════════
+           GROUP: TODAY
+      ══════════════════ -->
+      <div class="notif-group">
+        <div class="notif-group-label">Today</div>
+
+        <div class="notif-list">
+
+          <!-- ── 1. Connection Request (unread) ── -->
+          <div class="notif-item unread">
+            <div class="notif-avatar-wrap">
+              <div class="notif-avatar alumni">RM</div>
+              <div class="type-badge connect">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                  <circle cx="9" cy="7" r="4"/>
+                  <line x1="19" y1="8" x2="19" y2="14"/>
+                  <line x1="16" y1="11" x2="22" y2="11"/>
+                </svg>
+              </div>
+            </div>
+            <div class="notif-body">
+              <div class="notif-text">
+                <strong>Rahul Menon</strong> sent you a connection request
+              </div>
+              <div class="notif-preview">Alumni · SDE at Infosys · CSE '22 — "Would love to connect and share placement tips!"</div>
+              <div class="notif-actions">
+                <button class="btn-accept">Accept</button>
+                <button class="btn-decline">Decline</button>
+              </div>
+            </div>
+            <div class="notif-meta">
+              <span class="notif-time">2h ago</span>
+              <div class="unread-dot"></div>
+            </div>
+          </div>
+
+          <!-- ── 2. Senior Answered Your Question (unread) ── -->
+          <div class="notif-item unread">
+            <div class="notif-avatar-wrap">
+              <div class="notif-avatar alumni">AN</div>
+              <div class="type-badge answer">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+              </div>
+            </div>
+            <div class="notif-body">
+              <div class="notif-text">
+                <strong>Arun Nair</strong> answered your question
+              </div>
+              <div class="notif-preview">"What system design topics should a 3rd year CSE student focus on first?"</div>
+            </div>
+            <div class="notif-meta">
+              <span class="notif-time">5h ago</span>
+              <div class="unread-dot"></div>
+            </div>
+          </div>
+
+          <!-- ── 3. Upvotes (unread) ── -->
+          <div class="notif-item unread">
+            <div class="notif-avatar-wrap">
+              <div class="notif-avatar">PV</div>
+              <div class="type-badge vote">
+                <svg viewBox="0 0 24 24" fill="white" stroke="none">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+              </div>
+            </div>
+            <div class="notif-body">
+              <div class="notif-text">
+                <strong>Priya V.</strong> and <strong>4 others</strong> upvoted your answer on
+                <span class="content-ref">"How to crack placements at RCET as a 6th semester student?"</span>
+              </div>
+            </div>
+            <div class="notif-meta">
+              <span class="notif-time">6h ago</span>
+              <div class="unread-dot"></div>
+            </div>
+          </div>
+
+          <!-- ── 4. Mention in comment (read) ── -->
+          <div class="notif-item">
+            <div class="notif-avatar-wrap">
+              <div class="notif-avatar">KS</div>
+              <div class="type-badge mention">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="4"/>
+                  <path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"/>
+                </svg>
+              </div>
+            </div>
+            <div class="notif-body">
+              <div class="notif-text">
+                <strong>Keerthi S.</strong> mentioned you in a comment on
+                <span class="content-ref">"My placement journey — what I wish someone had told me in 4th semester"</span>
+              </div>
+              <div class="notif-preview">"@Arjun this is exactly what you were asking about last week!"</div>
+            </div>
+            <div class="notif-meta">
+              <span class="notif-time">8h ago</span>
+            </div>
+          </div>
+
+          <!-- ── 5. Connection Accepted (read) ── -->
+          <div class="notif-item">
+            <div class="notif-avatar-wrap">
+              <div class="notif-avatar faculty">AJ</div>
+              <div class="type-badge connect">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </div>
+            </div>
+            <div class="notif-body">
+              <div class="notif-text">
+                <strong>Dr. Anjali Kumar</strong> accepted your connection request
+              </div>
+              <div class="notif-preview">Faculty · Head of Department, CSE — You can now message her directly</div>
+            </div>
+            <div class="notif-meta">
+              <span class="notif-time">11h ago</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ══════════════════
+           GROUP: YESTERDAY
+      ══════════════════ -->
+      <div class="notif-group">
+        <div class="notif-group-label">Yesterday</div>
+
+        <div class="notif-list">
+
+          <!-- ── 6. New post from connection ── -->
+          <div class="notif-item">
+            <div class="notif-avatar-wrap">
+              <div class="notif-avatar alumni">MR</div>
+              <div class="type-badge post">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+              </div>
+            </div>
+            <div class="notif-body">
+              <div class="notif-text">
+                <strong>Meera Rajan</strong> published a new post in your department
+              </div>
+              <div class="notif-preview">"GATE 2025 preparation resources — curated list of the best free materials for ECE"</div>
+            </div>
+            <div class="notif-meta">
+              <span class="notif-time">Yesterday</span>
+            </div>
+          </div>
+
+          <!-- ── 7. Milestone — question upvotes ── -->
+          <div class="notif-item">
+            <div class="notif-avatar-wrap">
+              <div class="notif-avatar system">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+              </div>
+              <div class="type-badge vote">
+                <svg viewBox="0 0 24 24" fill="white" stroke="none">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+              </div>
+            </div>
+            <div class="notif-body">
+              <div class="notif-text">
+                Your question reached <strong>25 upvotes</strong>
+              </div>
+              <div class="notif-preview">"Best free resources to learn DSA for placement season?"</div>
+              <div class="milestone-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+                Milestone reached
+              </div>
+            </div>
+            <div class="notif-meta">
+              <span class="notif-time">Yesterday</span>
+            </div>
+          </div>
+
+          <!-- ── 8. Reply to answer ── -->
+          <div class="notif-item">
+            <div class="notif-avatar-wrap">
+              <div class="notif-avatar">SP</div>
+              <div class="type-badge answer">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 14 4 9 9 4"/>
+                  <path d="M20 20v-7a4 4 0 0 0-4-4H4"/>
+                </svg>
+              </div>
+            </div>
+            <div class="notif-body">
+              <div class="notif-text">
+                <strong>Sanjay P.</strong> replied to your answer on
+                <span class="content-ref">"What was your internship experience at TCS like?"</span>
+              </div>
+              <div class="notif-preview">"This matches exactly what I went through during my stint there — the onboarding is..."</div>
+            </div>
+            <div class="notif-meta">
+              <span class="notif-time">Yesterday</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ══════════════════
+           GROUP: EARLIER THIS WEEK
+      ══════════════════ -->
+      <div class="notif-group">
+        <div class="notif-group-label">Earlier this week</div>
+
+        <div class="notif-list">
+
+          <!-- ── 9. Answer accepted ── -->
+          <div class="notif-item">
+            <div class="notif-avatar-wrap">
+              <div class="notif-avatar">NJ</div>
+              <div class="type-badge answer">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </div>
+            </div>
+            <div class="notif-body">
+              <div class="notif-text">
+                <strong>Nithya J.</strong> marked your answer as accepted
+              </div>
+              <div class="notif-preview">"How do I choose between CSE and IT branch for better placement prospects?"</div>
+            </div>
+            <div class="notif-meta">
+              <span class="notif-time">3 days ago</span>
+            </div>
+          </div>
+
+          <!-- ── 10. System — answer eligibility unlocked ── -->
+          <div class="notif-item">
+            <div class="notif-avatar-wrap">
+              <div class="notif-avatar system">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:17px;height:17px;">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+              </div>
+              <div class="type-badge system">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+              </div>
+            </div>
+            <div class="notif-body">
+              <div class="notif-text">
+                You can now <strong>answer questions</strong> from students in lower semesters
+              </div>
+              <div class="notif-preview">As a 4th semester student, you're eligible to answer questions posted by 1st and 2nd semester students.</div>
+            </div>
+            <div class="notif-meta">
+              <span class="notif-time">4 days ago</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div><!-- /notif-content -->
+  </main>
+
+  <!-- ═══════════════════════════════════════
+       RIGHT PANEL — Settings & Summary
+  ═══════════════════════════════════════ -->
+  <aside class="right-panel">
+
+    <!-- Unread summary -->
+    <div class="rp-section">
+      <div class="rp-heading">Unread Summary</div>
+      <div class="summary-card">
+        <div class="summary-row">
+          <span class="summary-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            Q&amp;A
+          </span>
+          <span class="summary-count">1</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            Connections
+          </span>
+          <span class="summary-count">1</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+            Votes
+          </span>
+          <span class="summary-count">1</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notification preferences -->
+    <div class="rp-section">
+      <div class="rp-heading">Preferences</div>
+
+      <!-- Answers & Q&A -->
+      <div class="pref-item">
+        <div class="pref-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+        <div class="pref-info">
+          <div class="pref-label">Answers &amp; replies</div>
+          <div class="pref-desc">New answers to your questions</div>
+        </div>
+        <div class="toggle on"></div>
+      </div>
+
+      <!-- Votes -->
+      <div class="pref-item">
+        <div class="pref-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/>
+            <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
+          </svg>
+        </div>
+        <div class="pref-info">
+          <div class="pref-label">Votes on my content</div>
+          <div class="pref-desc">Upvotes on questions, answers, posts</div>
+        </div>
+        <div class="toggle on"></div>
+      </div>
+
+      <!-- Connections -->
+      <div class="pref-item">
+        <div class="pref-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+        <div class="pref-info">
+          <div class="pref-label">Connection requests</div>
+          <div class="pref-desc">New requests &amp; acceptances</div>
+        </div>
+        <div class="toggle on"></div>
+      </div>
+
+      <!-- Mentions -->
+      <div class="pref-item">
+        <div class="pref-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"/>
+          </svg>
+        </div>
+        <div class="pref-info">
+          <div class="pref-label">Mentions</div>
+          <div class="pref-desc">When someone @mentions you</div>
+        </div>
+        <div class="toggle on"></div>
+      </div>
+
+      <!-- Posts from connections -->
+      <div class="pref-item">
+        <div class="pref-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+        </div>
+        <div class="pref-info">
+          <div class="pref-label">Posts from connections</div>
+          <div class="pref-desc">New posts from people you follow</div>
+        </div>
+        <div class="toggle"></div>
+      </div>
+
+    </div>
+
+    <!-- Actions -->
+    <div class="rp-section">
+      <div class="rp-heading">Actions</div>
+      <a href="#" class="rp-link" style="margin-bottom:10px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        Mark all as read
+      </a>
+      <a href="#" class="rp-link danger" style="margin-top:8px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 6 5 6 21 6"/>
+          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+          <path d="M10 11v6"/>
+          <path d="M14 11v6"/>
+          <path d="M9 6V4h6v2"/>
+        </svg>
+        Clear all notifications
+      </a>
+    </div>
+
+  </aside>
+
+</div>
+</body>
+</html>

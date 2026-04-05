@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify Email — Ascend</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+  <style>
+
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Design Tokens ── */
+    :root {
+      --primary:   #5C1220;
+      --primary-d: #400C18;
+      --accent:    #C9894A;
+      --bg:        #FAF7F2;
+      --text:      #1A1410;
+      --muted:     #7A6659;
+      --subtle:    #B5A899;
+      --border:    #DDD4C8;
+    }
+
+    /* ── Base ── */
+    html, body { height: 100%; }
+    body {
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Page ── */
+    .page { display: flex; height: 100vh; overflow: hidden; }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       LEFT PANEL
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .l-panel {
+      width: 38%;
+      background: var(--primary);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      padding: 28px 42px 22px;
+    }
+
+    /* Dot-grid texture */
+    .l-panel::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(201,137,74,.15) 1.5px, transparent 1.5px);
+      background-size: 28px 28px;
+    }
+
+    /* Decorative concentric rings — centre left */
+    .l-ring {
+      position: absolute;
+      top: 50%;
+      left: -160px;
+      transform: translateY(-50%);
+      width: 420px;
+      height: 420px;
+      border-radius: 50%;
+      border: 1px solid rgba(201,137,74,.14);
+      box-shadow:
+        0 0 0 55px  rgba(201,137,74,.04),
+        0 0 0 110px rgba(201,137,74,.025),
+        0 0 0 165px rgba(201,137,74,.01);
+      pointer-events: none;
+    }
+
+    .l-panel > *:not(.l-ring) { position: relative; z-index: 1; }
+
+    /* Brand */
+    .brand { display: flex; align-items: center; gap: 14px; }
+
+    .brand-mark {
+      width: 44px;
+      height: 44px;
+      border: 1.5px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .brand-text { display: flex; flex-direction: column; gap: 3px; }
+
+    .brand-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: rgba(250,247,242,.95);
+      line-height: 1;
+    }
+
+    .brand-college {
+      font-size: 10.5px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: rgba(250,247,242,.4);
+    }
+
+    /* Three-row panel layout */
+    .l-row {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+      flex: 1;
+    }
+
+    .l-row-2 { justify-content: center; }
+    .l-row-3 { justify-content: flex-end; }
+
+    .l-kicker {
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+
+    .l-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 54px;
+      font-weight: 300;
+      line-height: 1.04;
+      color: var(--bg);
+      letter-spacing: -.02em;
+      margin-bottom: 14px;
+    }
+    .l-heading em { font-style: italic; }
+
+    .l-desc {
+      font-size: 15px;
+      color: rgba(250,247,242,.55);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       STEP PROGRESS (left panel)
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border-top: 1px solid rgba(201,137,74,.2);
+      padding-top: 20px;
+    }
+
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 10px 0;
+    }
+
+    .step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 600;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* Completed step */
+    .step-done .step-num {
+      background: rgba(201,137,74,.15);
+      border: 1px solid rgba(201,137,74,.35);
+      color: var(--accent);
+    }
+
+    /* Active step */
+    .step-active .step-num {
+      background: var(--accent);
+      border: 1px solid var(--accent);
+      color: #fff;
+    }
+
+    /* Inactive step */
+    .step-inactive .step-num {
+      background: transparent;
+      border: 1px solid rgba(250,247,242,.15);
+      color: rgba(250,247,242,.3);
+    }
+
+    /* Checkmark for done */
+    .step-done .step-num::after {
+      content: '';
+      display: block;
+      width: 8px;
+      height: 5px;
+      border-left: 1.5px solid var(--accent);
+      border-bottom: 1.5px solid var(--accent);
+      transform: rotate(-45deg) translate(1px, -1px);
+    }
+    .step-done .step-num { font-size: 0; } /* hide the number, show checkmark */
+
+    .step-info { display: flex; flex-direction: column; gap: 3px; }
+
+    .step-title {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: rgba(250,247,242,.75);
+    }
+    .step-done   .step-title { color: rgba(250,247,242,.5); }
+    .step-active .step-title { color: rgba(250,247,242,.9); }
+    .step-inactive .step-title { color: rgba(250,247,242,.3); }
+
+    .step-status {
+      font-size: 11px;
+      letter-spacing: .04em;
+    }
+    .step-done   .step-status { color: rgba(201,137,74,.55); }
+    .step-active .step-status { color: var(--accent); }
+    .step-inactive .step-status { color: rgba(250,247,242,.22); }
+
+    .step-connector {
+      width: 1px;
+      height: 12px;
+      background: rgba(201,137,74,.2);
+      margin-left: 13px; /* aligns with centre of step-num (28/2 - 1 + 14gap) */
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       RIGHT PANEL
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .r-panel {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 56px;
+    }
+
+    .form-wrap { width: 100%; max-width: 420px; }
+
+    /* Form header */
+    .f-kicker {
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+
+    .f-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 46px;
+      font-weight: 500;
+      line-height: 1.07;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+
+    /* Delivery info note */
+    .delivery-note {
+      display: flex;
+      gap: 10px;
+      background: #F4EEE7;
+      border: 1px solid rgba(201,137,74,.28);
+      border-left: 3px solid var(--accent);
+      padding: 12px 14px;
+      margin-bottom: 28px;
+    }
+
+    .delivery-note-icon {
+      font-size: 14px;
+      color: var(--accent);
+      flex-shrink: 0;
+      line-height: 1.55;
+    }
+
+    .delivery-note-text {
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .delivery-note-text strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    /* OTP input row */
+    .otp-label {
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .otp-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .otp-cell {
+      width: 0;
+      flex: 1;
+      min-width: 0;
+      height: 58px;
+      text-align: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px;
+      font-weight: 500;
+      letter-spacing: .02em;
+      border: 1.5px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      outline: none;
+      appearance: none;
+      -webkit-appearance: none;
+      border-radius: 0;
+      padding: 0;
+      caret-color: var(--accent);
+      transition: border-color .16s, box-shadow .16s;
+    }
+
+    .otp-cell::placeholder { color: #DDD4C8; }
+
+    .otp-cell:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(201,137,74,.12);
+    }
+
+    /* Separator dash between groups of 3 */
+    .otp-sep {
+      display: flex;
+      align-items: center;
+      padding: 0 1px;
+      flex-shrink: 0;
+    }
+
+    .otp-sep::after {
+      content: '–';
+      font-size: 18px;
+      color: var(--border);
+      line-height: 1;
+    }
+
+    /* Expiry notice */
+    .expiry-note {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 22px;
+      font-size: 12.5px;
+      color: var(--subtle);
+    }
+
+    .expiry-note svg { flex-shrink: 0; }
+
+    /* Submit button */
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 15px 24px;
+      background: var(--primary);
+      color: rgba(250,247,242,.95);
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12.5px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background .18s;
+      margin-bottom: 14px;
+    }
+    .btn:hover { background: var(--primary-d); }
+    .btn svg { flex-shrink: 0; transition: transform .18s; }
+    .btn:hover svg { transform: translateX(3px); }
+
+    /* Resend row */
+    .resend-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 13.5px;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    .resend-link {
+      color: var(--primary);
+      font-weight: 500;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .resend-link:hover { text-decoration: underline; }
+
+    .resend-timer {
+      font-size: 12px;
+      color: var(--subtle);
+      font-variant-numeric: tabular-nums;
+    }
+
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ─────────────── LEFT PANEL ─────────────── -->
+  <aside class="l-panel">
+    <div class="l-ring"></div>
+
+    <div class="l-row l-row-1">
+      <div class="brand">
+        <div class="brand-mark">A</div>
+        <div class="brand-text">
+          <span class="brand-name">Ascend</span>
+          <span class="brand-college">Rajagiri School of Engineering and Technology</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="l-row l-row-2">
+      <p class="l-kicker">Step 2 of 2</p>
+      <h1 class="l-heading">
+        Almost<br>
+        <em>there.</em>
+      </h1>
+      <p class="l-desc">
+        A quick verification to keep the Ascend community trusted and secure.
+      </p>
+    </div>
+
+    <div class="l-row l-row-3">
+      <div class="steps">
+
+        <div class="step step-done">
+          <div class="step-num">1</div>
+          <div class="step-info">
+            <span class="step-title">Create account</span>
+            <span class="step-status">Completed</span>
+          </div>
+        </div>
+
+        <div class="step-connector"></div>
+
+        <div class="step step-active">
+          <div class="step-num">2</div>
+          <div class="step-info">
+            <span class="step-title">Verify email</span>
+            <span class="step-status">Enter the code we sent you</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ─────────────── RIGHT PANEL ─────────────── -->
+  <main class="r-panel">
+    <div class="form-wrap">
+
+      <p class="f-kicker">Email verification</p>
+      <h2 class="f-title">Check your inbox</h2>
+
+      <div class="delivery-note">
+        <span class="delivery-note-icon">
+          <!-- Envelope icon -->
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="4" width="20" height="16" rx="2"/>
+            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+          </svg>
+        </span>
+        <p class="delivery-note-text">
+          We've sent a 6-digit verification code to <strong>arjun.k@rajagiri.edu.in</strong>
+        </p>
+      </div>
+
+      <form action="#" method="post" novalidate>
+
+        <p class="otp-label">Verification code <span style="color:var(--accent)">*</span></p>
+
+        <!-- 6 OTP cells split 3+3 with a visual separator -->
+        <div class="otp-row">
+          <input class="otp-cell" type="text" name="otp_1" maxlength="1" inputmode="numeric" pattern="[0-9]" placeholder="·" autocomplete="one-time-code">
+          <input class="otp-cell" type="text" name="otp_2" maxlength="1" inputmode="numeric" pattern="[0-9]" placeholder="·">
+          <input class="otp-cell" type="text" name="otp_3" maxlength="1" inputmode="numeric" pattern="[0-9]" placeholder="·">
+          <div class="otp-sep"></div>
+          <input class="otp-cell" type="text" name="otp_4" maxlength="1" inputmode="numeric" pattern="[0-9]" placeholder="·">
+          <input class="otp-cell" type="text" name="otp_5" maxlength="1" inputmode="numeric" pattern="[0-9]" placeholder="·">
+          <input class="otp-cell" type="text" name="otp_6" maxlength="1" inputmode="numeric" pattern="[0-9]" placeholder="·">
+        </div>
+
+        <div class="expiry-note">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+          Code expires in 10 minutes
+        </div>
+
+        <button type="submit" class="btn">
+          Verify &amp; Continue
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </button>
+
+      </form>
+
+      <div class="resend-row">
+        Didn't receive a code?
+        <a href="#" class="resend-link">Resend</a>
+        <span class="resend-timer">in 0:45 seconds</span>
+      </div>
+
+    </div>
+  </main>
+
+</div>
+</body>
+</html>

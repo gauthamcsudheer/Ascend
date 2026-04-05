@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Post — Ascend</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Design Tokens ── */
+    :root {
+      --primary:    #5C1220;
+      --primary-d:  #400C18;
+      --primary-dd: #2E0A11;
+      --primary-bg: rgba(92,18,32,.05);
+      --accent:     #C9894A;
+      --accent-bg:  rgba(201,137,74,.08);
+      --green:      #1A5C38;
+      --green-d:    #14472B;
+      --green-bg:   rgba(26,92,56,.08);
+      --bg:         #FAF7F2;
+      --surface:    #FFFFFF;
+      --text:       #1A1410;
+      --muted:      #7A6659;
+      --subtle:     #B5A899;
+      --border:     #DDD4C8;
+      --border-l:   #EDE8E1;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       SIMULATED PAGE BACKDROP
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .page-bg {
+      position: fixed;
+      inset: 0;
+      display: flex;
+    }
+
+    .bg-sidebar {
+      width: 240px;
+      flex-shrink: 0;
+      background: var(--primary-d);
+    }
+
+    .bg-main { flex: 1; background: var(--bg); }
+
+    .bg-right {
+      width: 284px;
+      flex-shrink: 0;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       MODAL OVERLAY
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(26,20,16,.6);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      z-index: 100;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       MODAL PANEL
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .modal {
+      background: var(--surface);
+      width: 100%;
+      max-width: 880px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      border-radius: 2px;
+      box-shadow:
+        0 24px 80px rgba(26,20,16,.28),
+        0 8px 24px rgba(26,20,16,.14);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Gold accent line at top */
+    .modal::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), rgba(201,137,74,.4), transparent);
+      z-index: 1;
+    }
+
+    /* ── Modal Header ── */
+    .modal-header {
+      padding: 22px 28px 18px;
+      border-bottom: 1px solid var(--border-l);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+
+    .modal-kicker {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 5px;
+    }
+
+    .modal-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 30px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -.02em;
+      line-height: 1.1;
+      margin-bottom: 3px;
+    }
+
+    .modal-subtitle {
+      font-size: 13.5px;
+      color: var(--muted);
+    }
+
+    .modal-close {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--subtle);
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: border-color .15s, color .15s, background .15s;
+    }
+
+    .modal-close:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-bg);
+    }
+
+    .modal-close svg { width: 15px; height: 15px; }
+
+    /* ── Two-column body ── */
+    .modal-body {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      min-height: 0;
+    }
+
+    /* Left panel — metadata */
+    .modal-left {
+      width: 232px;
+      flex-shrink: 0;
+      background: #FDFBF8;
+      border-right: 1px solid var(--border-l);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+    .modal-left::-webkit-scrollbar { display: none; }
+
+    /* Right column — editor */
+    .modal-right {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+    .modal-right::-webkit-scrollbar { width: 5px; }
+    .modal-right::-webkit-scrollbar-track { background: transparent; }
+    .modal-right::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    /* ── Sections ── */
+    .modal-section {
+      padding: 20px 22px;
+      border-bottom: 1px solid var(--border-l);
+    }
+
+    .modal-section:last-child { border-bottom: none; }
+
+    .section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border-l);
+    }
+
+    /* ── Field base ── */
+    .field { display: flex; flex-direction: column; gap: 6px; }
+
+    .field-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .req { color: var(--accent); }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       AUTHOR STRIP
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .author-strip {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+
+    .author-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(201,137,74,.15);
+      border: 1.5px solid rgba(201,137,74,.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .author-info { display: flex; flex-direction: column; gap: 2px; }
+
+    .author-name {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .author-meta {
+      font-size: 11.5px;
+      color: var(--subtle);
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       ANONYMOUS TOGGLE
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .anon-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 11px 13px;
+      border: 1.5px solid var(--border-l);
+      background: var(--bg);
+      margin-top: 12px;
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+    }
+
+    .anon-row:hover { border-color: var(--border); }
+
+    .anon-row.on {
+      border-color: rgba(92,18,32,.2);
+      background: var(--primary-bg);
+    }
+
+    .anon-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .anon-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--border-l);
+      border: 1.5px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--subtle);
+      flex-shrink: 0;
+      transition: background .15s, border-color .15s, color .15s;
+    }
+
+    .anon-row.on .anon-icon {
+      background: var(--primary-bg);
+      border-color: rgba(92,18,32,.25);
+      color: var(--primary);
+    }
+
+    .anon-icon svg { width: 13px; height: 13px; }
+
+    .anon-text { display: flex; flex-direction: column; gap: 2px; }
+
+    .anon-title {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1;
+      transition: color .15s;
+    }
+
+    .anon-desc {
+      font-size: 11px;
+      color: var(--subtle);
+      line-height: 1.35;
+    }
+
+    /* Toggle switch */
+    .toggle {
+      width: 34px;
+      height: 20px;
+      border-radius: 10px;
+      background: var(--border);
+      border: none;
+      cursor: pointer;
+      position: relative;
+      flex-shrink: 0;
+      transition: background .2s;
+      padding: 0;
+    }
+
+    .toggle::after {
+      content: '';
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #fff;
+      top: 3px;
+      left: 3px;
+      transition: transform .2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,.18);
+    }
+
+    .toggle.on { background: var(--primary); }
+    .toggle.on::after { transform: translateX(14px); }
+
+    /* Author preview strip when anonymous */
+    .author-strip.anon .author-avatar {
+      background: var(--border-l);
+      border-color: var(--border);
+      color: var(--subtle);
+    }
+
+    .author-strip.anon .author-name {
+      color: var(--muted);
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       TAGS (PILL EDITOR)
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .tags-field {
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 9px 11px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      cursor: text;
+      transition: border-color .16s, box-shadow .16s;
+      min-height: 44px;
+    }
+
+    .tags-field:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(201,137,74,.12);
+    }
+
+    .tag-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 8px 3px 9px;
+      background: var(--green-bg);
+      color: var(--green);
+      border: 1px solid rgba(26,92,56,.2);
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .tag-pill-remove {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: rgba(26,92,56,.15);
+      color: var(--green-d);
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      transition: background .12s, color .12s;
+      flex-shrink: 0;
+    }
+
+    .tag-pill-remove:hover { background: var(--green); color: rgba(250,247,242,.95); }
+    .tag-pill-remove svg { width: 7px; height: 7px; }
+
+    .tag-input {
+      border: none;
+      outline: none;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      color: var(--text);
+      background: transparent;
+      min-width: 80px;
+      flex: 1;
+      padding: 2px 0;
+    }
+
+    .tag-input::placeholder { color: #C5B8AE; font-family: 'DM Sans', sans-serif; font-size: 12px; }
+
+    .tags-hint {
+      font-size: 11.5px;
+      color: var(--subtle);
+      margin-top: 5px;
+      line-height: 1.45;
+    }
+
+    .tags-count {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent);
+      float: right;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       WRITING TIPS
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .tips-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .tips-list li {
+      font-size: 12px;
+      color: var(--subtle);
+      line-height: 1.5;
+      padding-left: 14px;
+      position: relative;
+    }
+
+    .tips-list li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 7px;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: .6;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       EDITOR ZONE (right column)
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .editor-zone {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Title input */
+    .title-section {
+      padding: 22px 26px 0;
+    }
+
+    .title-input {
+      display: block;
+      width: 100%;
+      border: none;
+      outline: none;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px;
+      font-weight: 500;
+      color: var(--text);
+      letter-spacing: -.02em;
+      line-height: 1.2;
+      background: transparent;
+      padding: 0;
+      border-bottom: 1.5px solid var(--border-l);
+      padding-bottom: 14px;
+      transition: border-color .16s;
+    }
+
+    .title-input::placeholder {
+      color: #C8BBB2;
+      font-weight: 300;
+      font-style: italic;
+    }
+
+    .title-input:focus { border-bottom-color: var(--accent); }
+
+    /* Formatting toolbar */
+    .toolbar-section {
+      padding: 0 26px;
+      border-bottom: 1px solid var(--border-l);
+      background: #FDFBF8;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding: 8px 0;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-sep {
+      width: 1px;
+      height: 18px;
+      background: var(--border);
+      margin: 0 5px;
+      flex-shrink: 0;
+    }
+
+    .tb-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 28px;
+      border: 1px solid transparent;
+      background: transparent;
+      border-radius: 4px;
+      color: var(--muted);
+      cursor: pointer;
+      transition: color .12s, background .12s, border-color .12s;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12.5px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .tb-btn:hover {
+      color: var(--text);
+      background: var(--border-l);
+      border-color: var(--border);
+    }
+
+    .tb-btn.active {
+      color: var(--primary);
+      background: var(--primary-bg);
+      border-color: rgba(92,18,32,.15);
+    }
+
+    .tb-btn svg { width: 13px; height: 13px; }
+
+    .tb-btn-wide {
+      width: auto;
+      padding: 0 8px;
+      gap: 4px;
+      font-size: 11px;
+    }
+
+    /* Content textarea */
+    .content-section {
+      flex: 1;
+      padding: 0 26px 18px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .content-textarea {
+      display: block;
+      width: 100%;
+      flex: 1;
+      min-height: 220px;
+      border: none;
+      outline: none;
+      resize: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      color: var(--text);
+      background: transparent;
+      line-height: 1.72;
+      padding: 16px 0 0;
+    }
+
+    .content-textarea::placeholder { color: #C5B8AE; }
+
+    .content-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 10px;
+      border-top: 1px solid var(--border-l);
+      margin-top: 10px;
+    }
+
+    .content-min-note {
+      font-size: 11.5px;
+      color: var(--subtle);
+    }
+
+    .char-count {
+      font-size: 11.5px;
+      color: var(--subtle);
+    }
+
+    .char-count span { color: var(--muted); font-weight: 600; }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       MODAL FOOTER
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .modal-footer {
+      padding: 14px 28px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+      background: #FDFBF8;
+    }
+
+    .footer-note {
+      flex: 1;
+      font-size: 12px;
+      color: var(--subtle);
+    }
+
+    .footer-note span { color: var(--accent); }
+
+    .btn-cancel {
+      padding: 10px 22px;
+      border: 1.5px solid var(--border);
+      background: transparent;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      transition: border-color .15s, color .15s;
+      border-radius: 0;
+    }
+
+    .btn-cancel:hover { border-color: var(--muted); color: var(--text); }
+
+    .btn-publish {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 24px;
+      background: var(--primary);
+      color: rgba(250,247,242,.95);
+      border: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background .18s;
+      border-radius: 0;
+    }
+
+    .btn-publish:hover { background: var(--primary-d); }
+    .btn-publish svg { width: 14px; height: 14px; transition: transform .18s; }
+    .btn-publish:hover svg { transform: translateX(3px); }
+
+    .btn-draft {
+      padding: 10px 18px;
+      border: 1.5px solid var(--border);
+      background: transparent;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      cursor: pointer;
+      transition: border-color .15s, color .15s;
+      border-radius: 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-draft:hover { border-color: var(--muted); color: var(--text); }
+    .btn-draft svg { width: 13px; height: 13px; }
+
+  </style>
+</head>
+<body>
+
+  <!-- Simulated page backdrop -->
+  <div class="page-bg">
+    <div class="bg-sidebar"></div>
+    <div class="bg-main"></div>
+    <div class="bg-right"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       MODAL OVERLAY
+  ═══════════════════════════════════════ -->
+  <div class="modal-overlay">
+    <div class="modal">
+
+      <!-- ── Header ── -->
+      <div class="modal-header">
+        <div class="modal-header-text">
+          <p class="modal-kicker">Feed</p>
+          <h2 class="modal-title">Create Post</h2>
+          <p class="modal-subtitle">Share knowledge, experiences, or insights with your college</p>
+        </div>
+        <button class="modal-close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- ── Two-column body ── -->
+      <div class="modal-body">
+
+        <!-- ════ LEFT PANEL — metadata ════ -->
+        <div class="modal-left">
+
+          <!-- Author -->
+          <div class="modal-section">
+            <div class="section-label">Posting as</div>
+            <div class="author-strip" id="authorStrip">
+              <div class="author-avatar" id="authorAvatar">AK</div>
+              <div class="author-info">
+                <span class="author-name" id="authorName">Arjun Krishnan</span>
+                <span class="author-meta">CS &amp; Eng · Sem 6</span>
+              </div>
+            </div>
+
+            <!-- Anonymous toggle -->
+            <div class="anon-row" id="anonRow">
+              <div class="anon-label">
+                <div class="anon-icon" id="anonIcon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                </div>
+                <div class="anon-text">
+                  <span class="anon-title">Post anonymously</span>
+                </div>
+              </div>
+              <button class="toggle" id="anonToggle" aria-pressed="false"></button>
+            </div>
+          </div>
+
+          <!-- Tags -->
+          <div class="modal-section">
+            <div class="section-label">
+              Tags
+              <span style="font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:none;color:var(--accent);margin-left:auto;" class="tags-count">2 / 5</span>
+            </div>
+            <div class="field">
+              <div class="tags-field">
+                <span class="tag-pill">#system-design <button class="tag-pill-remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></span>
+                <span class="tag-pill">#placements <button class="tag-pill-remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></span>
+                <input class="tag-input" type="text" placeholder="+ Add tag">
+              </div>
+              <p class="tags-hint">1–5 tags required &middot; Press Enter to add</p>
+            </div>
+          </div>
+
+          <!-- Tips -->
+          <div class="modal-section">
+            <div class="section-label">Tips</div>
+            <ul class="tips-list">
+              <li>Be specific — niche posts get more helpful responses</li>
+              <li>Share context: year, branch, and what you've already tried</li>
+              <li>Use tags to reach the right audience</li>
+              <li>Min. 100 characters for the body</li>
+            </ul>
+          </div>
+
+        </div><!-- /modal-left -->
+
+        <!-- ════ RIGHT COLUMN — editor ════ -->
+        <div class="modal-right">
+          <div class="editor-zone">
+
+            <!-- Title -->
+            <div class="title-section">
+              <input
+                class="title-input"
+                type="text"
+                placeholder="Give your post a clear, descriptive title…"
+                value="How I cracked the system design round at Juspay — a 6th sem perspective"
+              >
+            </div>
+
+            <!-- Formatting Toolbar -->
+            <div class="toolbar-section">
+              <div class="toolbar">
+
+                <!-- Text style -->
+                <button class="tb-btn active" title="Bold">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/></svg>
+                </button>
+                <button class="tb-btn" title="Italic">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/></svg>
+                </button>
+                <button class="tb-btn" title="Strikethrough">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.3 12H6.7"/><path d="M10 6.3C10 5.0 11.1 4 12.5 4s2.5 1.0 2.5 2.3c0 1.0-.6 1.8-1.5 2.2"/><path d="M14 17.7C14 19.0 12.9 20 11.5 20S9 19.0 9 17.7c0-1.0.6-1.8 1.5-2.2"/></svg>
+                </button>
+
+                <div class="toolbar-sep"></div>
+
+                <!-- Headings -->
+                <button class="tb-btn tb-btn-wide" title="Heading 2">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h8"/><path d="M4 6v12"/><path d="M12 6v12"/></svg>
+                  H2
+                </button>
+                <button class="tb-btn tb-btn-wide" title="Heading 3">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h8"/><path d="M4 6v12"/><path d="M12 6v12"/></svg>
+                  H3
+                </button>
+
+                <div class="toolbar-sep"></div>
+
+                <!-- Lists -->
+                <button class="tb-btn" title="Bullet list">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><circle cx="4" cy="6" r="1.5" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.5" fill="currentColor" stroke="none"/></svg>
+                </button>
+                <button class="tb-btn" title="Numbered list">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+                </button>
+
+                <div class="toolbar-sep"></div>
+
+                <!-- Block types -->
+                <button class="tb-btn" title="Inline code">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                </button>
+                <button class="tb-btn" title="Block quote">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
+                </button>
+                <button class="tb-btn" title="Hyperlink">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                </button>
+
+              </div>
+            </div>
+
+            <!-- Content -->
+            <div class="content-section">
+              <textarea
+                class="content-textarea"
+                placeholder="Write something worth sharing…"
+              >Got my Juspay offer last week and a few juniors asked me to write this up, so here goes.
+
+The system design round was the part I was most nervous about going in. I hadn't done any "formal" prep — no Grokking the System Design Interview, nothing. What I did have was a semester of building stuff: a real-time chat app, a URL shortener I wrote from scratch when I was bored, and a lot of late nights reading architecture blogs.
+
+Here's the thing nobody tells you: Juspay's system design round is less about knowing the "right" answer and more about how you think through trade-offs. They gave me "Design a payment retry system" — very on-brand for them.
+
+What worked for me:
+- Start with the problem constraints before touching any architecture
+- Talk through your assumptions out loud — they want to see your reasoning
+- Bring up failure modes early. I mentioned idempotency keys before they asked, and I could see the interviewer's expression shift
+- Don't design for scale you can't justify. I said "10M transactions/day" and then had to defend the number
+
+The part I fumbled: I didn't handle the dead letter queue elegantly. I knew what it was but my explanation came out muddled under pressure. They moved past it — probably because everything else was solid.
+
+If you're in Sem 5 or 6 and targeting product companies, start building. Reading won't get you there.</textarea>
+              <div class="content-footer">
+                <span class="content-min-note">Minimum 100 characters</span>
+                <span class="char-count"><span>1,247</span> / 5,000</span>
+              </div>
+            </div>
+
+          </div>
+        </div><!-- /modal-right -->
+
+      </div><!-- /modal-body -->
+
+      <!-- ── Footer ── -->
+      <div class="modal-footer">
+        <p class="footer-note">
+          Fields marked <span>*</span> are required &middot; At least 1 tag needed to publish
+        </p>
+        <button class="btn-draft">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Save Draft
+        </button>
+        <button class="btn-cancel">Cancel</button>
+        <button class="btn-publish">
+          Publish
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"/>
+            <polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </button>
+      </div>
+
+    </div><!-- /modal -->
+  </div><!-- /modal-overlay -->
+
+  <script>
+    // Anonymous toggle
+    const anonRow    = document.getElementById('anonRow');
+    const anonToggle = document.getElementById('anonToggle');
+    const anonIcon   = document.getElementById('anonIcon');
+    const authorStrip = document.getElementById('authorStrip');
+    const authorAvatar = document.getElementById('authorAvatar');
+    const authorName   = document.getElementById('authorName');
+
+    let anon = false;
+
+    function setAnon(on) {
+      anon = on;
+      anonToggle.classList.toggle('on', on);
+      anonToggle.setAttribute('aria-pressed', on);
+      anonRow.classList.toggle('on', on);
+      anonIcon.classList.toggle('on', on);
+      authorStrip.classList.toggle('anon', on);
+      if (on) {
+        authorAvatar.textContent = '?';
+        authorName.textContent   = 'Student – CS & Eng';
+      } else {
+        authorAvatar.textContent = 'AK';
+        authorName.textContent   = 'Arjun Krishnan';
+      }
+    }
+
+    anonRow.addEventListener('click', () => setAnon(!anon));
+    anonToggle.addEventListener('click', e => { e.stopPropagation(); setAnon(!anon); });
+  </script>
+
+</body>
+</html>

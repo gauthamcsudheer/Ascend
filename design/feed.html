@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feed — Ascend</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Design Tokens ── */
+    :root {
+      --primary:    #5C1220;
+      --primary-d:  #400C18;
+      --primary-dd: #2E0A11;
+      --primary-bg: rgba(92,18,32,.05);
+      --accent:     #C9894A;
+      --accent-bg:  rgba(201,137,74,.08);
+      --bg:         #FAF7F2;
+      --surface:    #FFFFFF;
+      --text:       #1A1410;
+      --muted:      #7A6659;
+      --subtle:     #B5A899;
+      --border:     #DDD4C8;
+      --border-l:   #EDE8E1;
+    }
+
+    html, body { height: 100%; }
+    body {
+      font-family: 'DM Sans', -apple-system, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       PAGE SHELL — 3 column layout
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .page {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       LEFT SIDEBAR — Deep Maroon
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .sidebar {
+      width: 240px;
+      flex-shrink: 0;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      background: var(--primary-d);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Dot-grid texture overlay */
+    .sidebar::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle, rgba(201,137,74,.1) 1px, transparent 1px);
+      background-size: 24px 24px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Decorative concentric ring */
+    .sb-ring {
+      position: absolute;
+      bottom: -100px;
+      left: -100px;
+      width: 360px;
+      height: 360px;
+      border-radius: 50%;
+      border: 1px solid rgba(201,137,74,.12);
+      box-shadow:
+        0 0 0 50px  rgba(201,137,74,.04),
+        0 0 0 100px rgba(201,137,74,.02);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .sidebar > *:not(.sb-ring) { position: relative; z-index: 1; }
+
+    /* Brand */
+    .sb-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 22px 20px 20px;
+      border-bottom: 1px solid rgba(201,137,74,.15);
+    }
+
+    .sb-brand-mark {
+      width: 36px;
+      height: 36px;
+      border: 1.5px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .sb-brand-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: rgba(250,247,242,.92);
+    }
+
+    /* Nav section */
+    .sb-nav {
+      flex: 1;
+      padding: 12px 0;
+      overflow-y: auto;
+    }
+
+    .sb-section-label {
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: rgba(201,137,74,.55);
+      padding: 14px 20px 6px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 20px;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: rgba(250,247,242,.55);
+      text-decoration: none;
+      cursor: pointer;
+      transition: background .12s, color .12s;
+      position: relative;
+      border-left: 3px solid transparent;
+    }
+
+    .nav-item:hover {
+      background: rgba(250,247,242,.06);
+      color: rgba(250,247,242,.85);
+    }
+
+    .nav-item.active {
+      background: rgba(201,137,74,.1);
+      color: var(--accent);
+      border-left-color: var(--accent);
+      font-weight: 600;
+    }
+
+    .nav-item svg {
+      width: 17px;
+      height: 17px;
+      flex-shrink: 0;
+    }
+
+    /* Notification badge */
+    .nav-badge {
+      margin-left: auto;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 5px;
+      background: var(--accent);
+      color: var(--primary-dd);
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .sb-divider {
+      height: 1px;
+      background: rgba(201,137,74,.12);
+      margin: 8px 0;
+    }
+
+    /* User card at bottom */
+    .sb-user-section {
+      border-top: 1px solid rgba(201,137,74,.15);
+      padding: 14px 16px 10px;
+    }
+
+    .sb-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      padding: 0 0 10px;
+    }
+
+    .sb-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(201,137,74,.18);
+      border: 1.5px solid rgba(201,137,74,.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .sb-user-info { flex: 1; min-width: 0; }
+
+    .sb-user-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: rgba(250,247,242,.9);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sb-user-role {
+      font-size: 11px;
+      color: rgba(250,247,242,.4);
+      margin-top: 1px;
+    }
+
+    /* Open Profile button */
+    .sb-profile-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      width: 100%;
+      padding: 9px 16px;
+      border: 1px solid rgba(201,137,74,.35);
+      background: rgba(201,137,74,.08);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: var(--accent);
+      cursor: pointer;
+      transition: background .15s, border-color .15s;
+      text-decoration: none;
+    }
+
+    .sb-profile-btn:hover {
+      background: rgba(201,137,74,.18);
+      border-color: var(--accent);
+    }
+
+    .sb-profile-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       MAIN FEED AREA
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .feed-area {
+      flex: 1;
+      height: 100vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+
+      /* Hide scrollbar but keep scroll */
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE/Edge */
+    }
+    .feed-area::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+
+    /* Top bar with gold accent */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(250,247,242,.96);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    /* Gold accent line at top of bar */
+    .topbar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), rgba(201,137,74,.3), transparent);
+    }
+
+    .topbar-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -.01em;
+    }
+
+    /* ── Create Post + Filters Row ── */
+    .feed-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 32px 0;
+      gap: 16px;
+    }
+
+    .create-post-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 22px;
+      background: var(--primary);
+      color: rgba(250,247,242,.95);
+      border: none;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: .04em;
+      cursor: pointer;
+      transition: background .15s, transform .1s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .create-post-btn:hover {
+      background: var(--primary-dd);
+      transform: translateY(-1px);
+    }
+
+    .create-post-btn:active { transform: translateY(0); }
+
+    .create-post-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+    /* Filter tabs */
+    .filter-tabs {
+      display: flex;
+      gap: 0;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      overflow: hidden;
+      border-radius: 10px;
+    }
+
+    .filter-tab {
+      padding: 8px 18px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      border-right: 1px solid var(--border-l);
+      transition: background .12s, color .12s;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .filter-tab:last-child { border-right: none; }
+
+    .filter-tab:hover {
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .filter-tab.active {
+      background: var(--primary);
+      color: rgba(250,247,242,.95);
+      font-weight: 600;
+    }
+
+    /* Feed content wrapper */
+    .feed-content {
+      padding: 20px 32px 40px;
+      flex: 1;
+    }
+
+    /* ── Feed Cards ── */
+    .feed-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 18px;
+      transition: border-color .15s, box-shadow .2s;
+    }
+
+    .feed-card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 4px 20px rgba(92,18,32,.06);
+    }
+
+    .card-body { padding: 20px 24px 16px; }
+
+    /* Card header */
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .card-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--accent-bg);
+      border: 1.5px solid rgba(201,137,74,.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .card-avatar.alumni {
+      background: rgba(92,18,32,.07);
+      border-color: rgba(92,18,32,.2);
+      color: var(--primary);
+    }
+
+    .card-avatar.faculty {
+      background: rgba(92,18,32,.07);
+      border-color: rgba(92,18,32,.2);
+      color: var(--primary);
+    }
+
+    .card-user-info { flex: 1; min-width: 0; }
+
+    .card-author {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .card-user-detail {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 2px;
+      line-height: 1.3;
+    }
+
+    .card-time {
+      font-size: 12.5px;
+      color: var(--subtle);
+      white-space: nowrap;
+      margin-top: 2px;
+    }
+
+    /* Card title */
+    .card-title {
+      font-size: 17.5px;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.4;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+
+    .card-title:hover { color: var(--primary); }
+
+    /* Card content */
+    .card-content {
+      font-size: 15px;
+      color: var(--muted);
+      line-height: 1.65;
+      margin-bottom: 14px;
+    }
+
+    /* Tags */
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 0;
+    }
+
+    .tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      font-weight: 500;
+      padding: 4px 11px;
+      border-radius: 20px;
+      background: var(--accent-bg);
+      color: var(--accent);
+      border: 1px solid rgba(201,137,74,.18);
+      cursor: pointer;
+      transition: background .12s;
+    }
+
+    .tag:hover { background: rgba(201,137,74,.14); }
+
+    /* Card footer / actions */
+    .card-footer {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 24px 0 24px;
+      border-top: 1px solid var(--border-l);
+      background: #FDFBF8;
+    }
+
+    .card-action {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13.5px;
+      color: var(--subtle);
+      cursor: pointer;
+      transition: color .12s, background .12s;
+      padding: 11px 14px;
+      border-radius: 8px;
+      text-decoration: none;
+      border: none;
+      background: transparent;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .card-action:hover {
+      color: var(--primary);
+      background: var(--primary-bg);
+    }
+
+    .card-action.liked {
+      color: #C04040;
+      font-weight: 600;
+    }
+
+    .card-action.liked:hover { color: #A03030; }
+
+    .card-action svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+    .card-action-spacer { flex: 1; }
+
+    .card-action.share { color: var(--subtle); }
+    .card-action.share:hover { color: var(--accent); background: var(--accent-bg); }
+
+    /* Read more link */
+    .read-more {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--primary);
+      cursor: pointer;
+      text-decoration: none;
+      margin-top: 4px;
+    }
+
+    .read-more:hover { color: var(--primary-d); }
+    .read-more svg { width: 13px; height: 13px; }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       RIGHT PANEL — Sticky
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+    .right-panel {
+      width: 280px;
+      flex-shrink: 0;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+      border-left: 1px solid var(--border);
+      background: var(--surface);
+
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .right-panel::-webkit-scrollbar { display: none; }
+
+    .rp-section {
+      padding: 20px;
+      border-bottom: 1px solid var(--border-l);
+    }
+
+    .rp-heading {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--subtle);
+      margin-bottom: 14px;
+    }
+
+    /* Suggested connection */
+    .suggestion-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+    }
+
+    .suggestion-item + .suggestion-item {
+      border-top: 1px solid var(--border-l);
+    }
+
+    .sug-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--accent-bg);
+      border: 1.5px solid rgba(201,137,74,.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .sug-avatar.faculty {
+      background: rgba(92,18,32,.07);
+      border-color: rgba(92,18,32,.2);
+      color: var(--primary);
+    }
+
+    .sug-info { flex: 1; min-width: 0; }
+
+    .sug-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sug-role {
+      font-size: 11px;
+      color: var(--subtle);
+      margin-top: 2px;
+    }
+
+    .connect-btn {
+      padding: 5px 12px;
+      border: 1px solid var(--primary);
+      border-radius: 8px;
+      background: transparent;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--primary);
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background .12s, color .12s;
+    }
+
+    .connect-btn:hover {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    /* Trending tags */
+    .trending-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      cursor: pointer;
+    }
+
+    .trending-item + .trending-item {
+      border-top: 1px solid var(--border-l);
+    }
+
+    .trending-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .trending-tag:hover { color: var(--primary); }
+
+    .trending-count {
+      font-size: 11.5px;
+      color: var(--subtle);
+    }
+
+    /* Announcements */
+    .announcement-item {
+      padding: 10px 0;
+    }
+
+    .announcement-item + .announcement-item {
+      border-top: 1px solid var(--border-l);
+    }
+
+    .ann-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 3px;
+      line-height: 1.35;
+    }
+
+    .ann-meta {
+      font-size: 12px;
+      color: var(--subtle);
+    }
+
+    .ann-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    /* Comments section */
+    .comments-section {
+      padding: 16px 24px 20px;
+      border-top: 1px solid var(--border-l);
+      background: #FDFBF8;
+    }
+
+    .comments-label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--subtle);
+      margin-bottom: 14px;
+    }
+
+    .comment-item {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .comment-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--accent-bg);
+      border: 1.5px solid rgba(201,137,74,.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .comment-body { flex: 1; }
+
+    .comment-meta {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 3px;
+    }
+
+    .comment-author {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .comment-time {
+      font-size: 11.5px;
+      color: var(--subtle);
+    }
+
+    .comment-text {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .comment-compose {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 4px;
+    }
+
+    .comment-compose-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(92,18,32,.07);
+      border: 1.5px solid rgba(92,18,32,.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--primary);
+      flex-shrink: 0;
+    }
+
+    .comment-input {
+      flex: 1;
+      padding: 9px 14px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: var(--surface);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      transition: border-color .15s;
+    }
+
+    .comment-input:focus {
+      border-color: var(--accent);
+    }
+
+    .comment-input::placeholder {
+      color: var(--subtle);
+    }
+
+    /* Right panel footer link */
+    .rp-more {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--primary);
+      text-decoration: none;
+      margin-top: 12px;
+      letter-spacing: .03em;
+    }
+
+    .rp-more:hover { text-decoration: underline; }
+
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ═══════════════════════════════════════
+       LEFT SIDEBAR — Deep Maroon
+  ═══════════════════════════════════════ -->
+  <aside class="sidebar">
+    <div class="sb-ring"></div>
+
+    <!-- Brand -->
+    <div class="sb-brand">
+      <div class="sb-brand-mark">A</div>
+      <span class="sb-brand-name">Ascend</span>
+    </div>
+
+    <!-- Nav links -->
+    <nav class="sb-nav">
+
+      <div class="sb-section-label">Discover</div>
+
+      <a href="#" class="nav-item active">
+        <!-- Home icon -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        Feed
+      </a>
+
+      <a href="#" class="nav-item">
+        <!-- Help circle (Q&A) -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        Questions
+      </a>
+
+      <a href="#" class="nav-item">
+        <!-- Book open -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+        </svg>
+        Resources
+      </a>
+
+      <div class="sb-divider"></div>
+      <div class="sb-section-label">Connect</div>
+
+      <a href="#" class="nav-item">
+        <!-- Users -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        People
+      </a>
+
+      <a href="#" class="nav-item">
+        <!-- Message square -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+        Messages
+      </a>
+
+      <div class="sb-divider"></div>
+
+      <a href="#" class="nav-item">
+        <!-- Bell -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        Notifications
+        <span class="nav-badge">3</span>
+      </a>
+
+    </nav>
+
+    <!-- User profile at bottom + Open Profile -->
+    <div class="sb-user-section">
+      <div class="sb-user">
+        <div class="sb-avatar">AK</div>
+        <div class="sb-user-info">
+          <div class="sb-user-name">Arjun K.</div>
+          <div class="sb-user-role">CSE · 4th Semester</div>
+        </div>
+      </div>
+      <a href="#" class="sb-profile-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+          <circle cx="12" cy="7" r="4"/>
+        </svg>
+        Open Profile
+      </a>
+    </div>
+
+  </aside>
+
+  <!-- ═══════════════════════════════════════
+       MAIN FEED
+  ═══════════════════════════════════════ -->
+  <main class="feed-area">
+
+    <!-- Sticky top bar with gold accent line -->
+    <div class="topbar">
+      <h1 class="topbar-title">Feed</h1>
+    </div>
+
+    <!-- Create Post + Filters row -->
+    <div class="feed-toolbar">
+      <button class="create-post-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Create Post
+      </button>
+
+      <div class="filter-tabs">
+        <a href="#" class="filter-tab active">Recent</a>
+        <a href="#" class="filter-tab">Trending</a>
+        <a href="#" class="filter-tab">Relevant</a>
+        <a href="#" class="filter-tab">Following</a>
+      </div>
+    </div>
+
+    <div class="feed-content">
+
+      <!-- ── Post 1: Alumni Experience ── -->
+      <div class="feed-card">
+        <div class="card-body">
+          <div class="card-header">
+            <div class="card-avatar alumni">RM</div>
+            <div class="card-user-info">
+              <div class="card-author">Rahul Menon</div>
+              <div class="card-user-detail">Alumni · SDE at Infosys · CSE '22</div>
+            </div>
+            <span class="card-time">5h ago</span>
+          </div>
+
+          <div class="card-title">My placement journey — what I wish someone had told me in 4th semester</div>
+          <div class="card-content">
+            Three years ago I was exactly where most of you are now — overwhelmed, unsure of what companies expect, and genuinely scared I'd miss the bus. I want to share a practical timeline that actually worked for me, including the mistakes I made along the way that I never see people talk about honestly.
+            <br><br>
+            The biggest mistake I made was not starting projects early enough. I spent two months grinding LeetCode problems before realizing that companies at our level (Infosys, TCS, Wipro) actually care more about your project portfolio and communication than your competitive programming rating. If I could go back, I'd start with one solid full-stack project in 4th semester, then layer DSA practice on top.
+          </div>
+
+          <div class="tags">
+            <span class="tag">#placement</span>
+            <span class="tag">#experience</span>
+            <span class="tag">#career-advice</span>
+            <span class="tag">#cse</span>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <button class="card-action liked">
+            <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+            38
+          </button>
+          <button class="card-action">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            12
+          </button>
+          <span class="card-action-spacer"></span>
+          <button class="card-action share">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Comments section (visible on first post) -->
+        <div class="comments-section">
+          <div class="comments-label">Comments · 12</div>
+
+          <div class="comment-compose">
+            <div class="comment-compose-avatar">AK</div>
+            <input class="comment-input" type="text" placeholder="Write a comment…" />
+          </div>
+
+          <div class="comment-item">
+            <div class="comment-avatar">PV</div>
+            <div class="comment-body">
+              <div class="comment-meta">
+                <span class="comment-author">Priya V.</span>
+                <span class="comment-time">3h ago</span>
+              </div>
+              <div class="comment-text">This is exactly what I needed to hear. I've been obsessing over LeetCode for the past month and barely touched any projects. Starting a full-stack project this weekend!</div>
+            </div>
+          </div>
+
+          <div class="comment-item">
+            <div class="comment-avatar alumni" style="background:rgba(92,18,32,.07);border-color:rgba(92,18,32,.2);color:#5C1220;">AN</div>
+            <div class="comment-body">
+              <div class="comment-meta">
+                <span class="comment-author">Arun Nair</span>
+                <span class="comment-time">4h ago</span>
+              </div>
+              <div class="comment-text">Great breakdown, Rahul. I'd add — don't underestimate how much a confident walkthrough of your project matters in the interview itself. Rehearse explaining it out loud.</div>
+            </div>
+          </div>
+
+          <div class="comment-item">
+            <div class="comment-avatar">KS</div>
+            <div class="comment-body">
+              <div class="comment-meta">
+                <span class="comment-author">Keerthi S.</span>
+                <span class="comment-time">5h ago</span>
+              </div>
+              <div class="comment-text">Shared this with my entire study group. The part about communication over CP rating really hit. Thank you!</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Post 2: Tech Update ── -->
+      <div class="feed-card">
+        <div class="card-body">
+          <div class="card-header">
+            <div class="card-avatar alumni">AN</div>
+            <div class="card-user-info">
+              <div class="card-author">Arun Nair</div>
+              <div class="card-user-detail">Alumni · FAANG SDE-2 · CSE '21</div>
+            </div>
+            <span class="card-time">1d ago</span>
+          </div>
+
+          <div class="card-title">Why every CS student should learn system design basics before final year</div>
+          <div class="card-content">
+            I've been conducting mock interviews for juniors lately, and the one consistent gap I keep seeing is system design thinking. Even for entry-level positions, companies like Amazon and Google now include at least one "design-oriented" round.
+            <br><br>
+            You don't need to master distributed systems right away. Start with the fundamentals — load balancing, caching strategies, database sharding concepts, and basic API design. I recommend starting with "Designing Data-Intensive Applications" by Martin Kleppmann. It's dense, but even reading the first five chapters will put you ahead of 90% of fresh graduates. Pair this with building a small project that involves at least a REST API, a database, and some basic caching layer.
+          </div>
+
+          <div class="tags">
+            <span class="tag">#system-design</span>
+            <span class="tag">#interviews</span>
+            <span class="tag">#tech</span>
+            <span class="tag">#learning</span>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <button class="card-action">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+            56
+          </button>
+          <button class="card-action">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            21
+          </button>
+          <span class="card-action-spacer"></span>
+          <button class="card-action share">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── Post 3: Student Guidance ── -->
+      <div class="feed-card">
+        <div class="card-body">
+          <div class="card-header">
+            <div class="card-avatar faculty">DM</div>
+            <div class="card-user-info">
+              <div class="card-author">Dr. Deepa Menon</div>
+              <div class="card-user-detail">Faculty · Associate Professor · CSE Dept.</div>
+            </div>
+            <span class="card-time">2d ago</span>
+          </div>
+
+          <div class="card-title">Reminder: How to choose your final year project wisely</div>
+          <div class="card-content">
+            Every year I see students scramble to find a project topic in their 7th semester. Let me save you some stress with a framework I've seen work well over the years.
+            <br><br>
+            First, pick a domain you're genuinely curious about — ML, web development, IoT, whatever interests you. Then, look for a real problem to solve rather than duplicating existing projects you find on GitHub. Talk to local businesses, NGOs, or even other departments in college. A placement panel will always prefer a project that solves a real-world problem over a technically impressive but directionless one. Finally, document everything from day one. Your project report matters more than most students realize.
+          </div>
+
+          <div class="tags">
+            <span class="tag">#projects</span>
+            <span class="tag">#final-year</span>
+            <span class="tag">#guidance</span>
+            <span class="tag">#academic</span>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <button class="card-action">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+            29
+          </button>
+          <button class="card-action">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            8
+          </button>
+          <span class="card-action-spacer"></span>
+          <button class="card-action share">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── Post 4: Student Experience ── -->
+      <div class="feed-card">
+        <div class="card-body">
+          <div class="card-header">
+            <div class="card-avatar">SK</div>
+            <div class="card-user-info">
+              <div class="card-author">Sreejith K.</div>
+              <div class="card-user-detail">Student · CSE · 6th Semester</div>
+            </div>
+            <span class="card-time">3d ago</span>
+          </div>
+
+          <div class="card-title">Just completed my first open source contribution — here's how I did it</div>
+          <div class="card-content">
+            I've been wanting to contribute to open source for over a year, but always felt intimidated. Last week I finally made my first pull request to a real project and it got merged! Here's what helped me get over the fear.
+            <br><br>
+            I started by looking at repositories tagged with "good first issue" on GitHub. I found a documentation bug in a popular JavaScript testing library — nothing fancy, just fixing a code example that had an outdated API call. The entire process from fork to merged PR took about 3 hours. The maintainers were incredibly supportive. If you're hesitant like I was, just start with docs or test improvements. You don't need to rewrite core logic to be a contributor.
+          </div>
+
+          <div class="tags">
+            <span class="tag">#open-source</span>
+            <span class="tag">#github</span>
+            <span class="tag">#experience</span>
+            <span class="tag">#beginner</span>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <button class="card-action">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+            45
+          </button>
+          <button class="card-action">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            15
+          </button>
+          <span class="card-action-spacer"></span>
+          <button class="card-action share">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── Post 5: Technology Update ── -->
+      <div class="feed-card">
+        <div class="card-body">
+          <div class="card-header">
+            <div class="card-avatar alumni">NJ</div>
+            <div class="card-user-info">
+              <div class="card-author">Nidhi Joshi</div>
+              <div class="card-user-detail">Alumni · SDE at Google · CSE '23</div>
+            </div>
+            <span class="card-time">4d ago</span>
+          </div>
+
+          <div class="card-title">The AI landscape is shifting fast — here's what I'd focus on if I were a student right now</div>
+          <div class="card-content">
+            Working at Google has given me a front-row seat to how quickly the AI/ML space is evolving. If you're a student wondering whether to invest time in AI or stick to traditional software engineering, here's my honest take.
+            <br><br>
+            Learn both, but don't spread yourself thin. Get solid at one programming language (Python is the safest bet), understand data structures well, and then pick ONE area of AI — whether it's NLP, computer vision, or reinforcement learning — and go deep. The graduates who stand out aren't the ones who've done ten shallow Coursera courses; they're the ones who can explain their one project in intricate detail and demonstrate genuine curiosity about the field.
+          </div>
+
+          <div class="tags">
+            <span class="tag">#ai</span>
+            <span class="tag">#machine-learning</span>
+            <span class="tag">#career</span>
+            <span class="tag">#tech-trends</span>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <button class="card-action liked">
+            <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+            72
+          </button>
+          <button class="card-action">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            34
+          </button>
+          <span class="card-action-spacer"></span>
+          <button class="card-action share">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ═══════════════════════════════════════
+       RIGHT PANEL — Sticky
+  ═══════════════════════════════════════ -->
+  <aside class="right-panel">
+
+    <!-- Suggested Connections -->
+    <div class="rp-section">
+      <div class="rp-heading">Suggested Connections</div>
+
+      <div class="suggestion-item">
+        <div class="sug-avatar">SK</div>
+        <div class="sug-info">
+          <div class="sug-name">Sreejith K.</div>
+          <div class="sug-role">CSE · 6th Semester</div>
+        </div>
+        <button class="connect-btn">Connect</button>
+      </div>
+
+      <div class="suggestion-item">
+        <div class="sug-avatar" style="background:rgba(92,18,32,.07);border-color:rgba(92,18,32,.2);color:#5C1220;">NJ</div>
+        <div class="sug-info">
+          <div class="sug-name">Nidhi Joshi</div>
+          <div class="sug-role">Alumni · Google · CSE '23</div>
+        </div>
+        <button class="connect-btn">Connect</button>
+      </div>
+
+      <div class="suggestion-item">
+        <div class="sug-avatar faculty">DM</div>
+        <div class="sug-info">
+          <div class="sug-name">Dr. Deepa Menon</div>
+          <div class="sug-role">Faculty · CSE Dept.</div>
+        </div>
+        <button class="connect-btn">Connect</button>
+      </div>
+
+      <a href="#" class="rp-more">Browse all people →</a>
+    </div>
+
+    <!-- Trending Tags -->
+    <div class="rp-section">
+      <div class="rp-heading">Trending Topics</div>
+
+      <div class="trending-item">
+        <span class="trending-tag">#placement</span>
+        <span class="trending-count">86 posts</span>
+      </div>
+      <div class="trending-item">
+        <span class="trending-tag">#system-design</span>
+        <span class="trending-count">64 posts</span>
+      </div>
+      <div class="trending-item">
+        <span class="trending-tag">#internship</span>
+        <span class="trending-count">41 posts</span>
+      </div>
+      <div class="trending-item">
+        <span class="trending-tag">#open-source</span>
+        <span class="trending-count">29 posts</span>
+      </div>
+      <div class="trending-item">
+        <span class="trending-tag">#ai</span>
+        <span class="trending-count">22 posts</span>
+      </div>
+    </div>
+
+    <!-- College Announcements -->
+    <div class="rp-section">
+      <div class="rp-heading">Announcements</div>
+
+      <div class="announcement-item">
+        <div class="ann-title"><span class="ann-dot"></span>Campus placement drive — TCS &amp; Wipro</div>
+        <div class="ann-meta">Registrations open · Ends Apr 15</div>
+      </div>
+
+      <div class="announcement-item">
+        <div class="ann-title">KTU exam schedule published for S6</div>
+        <div class="ann-meta">Academic · Apr 2, 2026</div>
+      </div>
+
+      <div class="announcement-item">
+        <div class="ann-title">Ascend Resource Drive — share your notes</div>
+        <div class="ann-meta">Community · Ongoing</div>
+      </div>
+    </div>
+
+  </aside>
+
+</div>
+</body>
+</html>
