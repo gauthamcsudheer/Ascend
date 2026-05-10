@@ -1,0 +1,758 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum Persona {
+  STUDENT
+  FACULTY
+  ALUMNUS
+  FORMER_STUDENT
+}
+
+enum VerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+  LOCKED
+}
+
+enum AuthProvider {
+  PASSWORD
+  GOOGLE_SSO
+}
+
+enum VisibilityScope {
+  INSTITUTION
+  DEPARTMENT
+}
+
+enum PostCategory {
+  INTERNSHIP
+  PROJECT
+  HACKATHON
+  CAREER_JOURNEY
+  COURSE_REFLECTION
+  FACULTY_ANNOUNCEMENT
+}
+
+enum ResourceCategory {
+  COURSE_MATERIAL
+  TOOLS
+  REFERENCE
+  CAREER
+  HIGHER_STUDIES
+  INSPIRATION
+}
+
+enum ResourceStatus {
+  PENDING
+  LIBRARY
+  TOMBSTONE
+}
+
+enum LinkStatus {
+  OK
+  BROKEN
+  UNCHECKED
+}
+
+enum CommentParentType {
+  QUESTION
+  ANSWER
+  POST
+  RESOURCE
+}
+
+enum VoteTargetType {
+  QUESTION
+  ANSWER
+  POST
+  RESOURCE
+  RESOURCE_PENDING
+}
+
+enum FollowTargetType {
+  USER
+  TAG
+  CATEGORY
+}
+
+enum BookmarkTargetType {
+  QUESTION
+  ANSWER
+  POST
+  RESOURCE
+}
+
+enum ConnectionStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  SILENTLY_DECLINED
+  EXPIRED
+  CANCELLED
+}
+
+enum ThreadStatus {
+  ACTIVE
+  READ_ONLY
+}
+
+enum ReputationEventType {
+  Q_UPVOTE
+  A_UPVOTE
+  A_ACCEPTED
+  Q_DOWNVOTE
+  A_DOWNVOTE
+  RESOURCE_ENDORSED
+  CONTENT_REMOVED
+}
+
+enum BadgeType {
+  HELPFUL
+  CONNECTOR
+  CURATOR
+  STORYTELLER
+  WELCOMER
+  RELIABLE
+  SUBJECT_SPECIALIST
+  SAGE
+  PILLAR
+  OPEN_DOOR
+  ELDER
+  CATALYST
+  CLASS_OF
+}
+
+enum ReportTargetType {
+  QUESTION
+  ANSWER
+  POST
+  COMMENT
+  RESOURCE
+  DM_MESSAGE
+  PROFILE
+}
+
+enum ReportReason {
+  SPAM
+  HARASSMENT
+  HATE_SPEECH
+  OFF_TOPIC
+  MISINFORMATION
+  PLAGIARISM
+  INAPPROPRIATE
+  IMPERSONATION
+  OTHER
+}
+
+enum ReportStatus {
+  OPEN
+  RESOLVED
+  DISMISSED
+}
+
+enum ReportAction {
+  NONE
+  WARNED
+  CONTENT_REMOVED
+  USER_SUSPENDED_24H
+  USER_SUSPENDED_7D
+  USER_SUSPENDED_30D
+  USER_BANNED
+}
+
+enum PenaltyType {
+  WARNING
+  SUSPENSION_24H
+  SUSPENSION_7D
+  SUSPENSION_30D
+  PERMANENT_BAN
+}
+
+enum NotificationType {
+  ANSWER_RECEIVED
+  COMMENT
+  ANSWER_ACCEPTED
+  ANSWER_ENDORSED
+  NEW_FOLLOWER
+  FOLLOWED_POST
+  BADGE_EARNED
+  CONNECTION_REQUEST
+  CONNECTION_ACCEPTED
+  CONNECTION_DECLINED
+  CONNECTION_EXPIRED
+  NEW_DM
+  MENTION
+  DEPT_ANNOUNCEMENT
+  REPORT_OUTCOME
+  CONTENT_REMOVED
+  VERIFICATION_APPROVED
+  VERIFICATION_REJECTED
+  RESOURCE_PROMOTED
+  DIGEST
+}
+
+enum NotificationChannel {
+  IN_APP
+  EMAIL
+  PUSH
+}
+
+enum TagSuggestionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// ============================================
+// USER & AUTHENTICATION
+// ============================================
+
+model User {
+  id                          String             @id @default(cuid())
+  email                       String             @unique
+  emailVerifiedAt             DateTime?
+  passwordHash                String?
+  authProvider                AuthProvider       @default(PASSWORD)
+  googleSubjectId             String?            @unique
+  persona                     Persona
+  verificationStatus          VerificationStatus @default(VERIFIED)
+  name                        String
+  branch                      String?
+  department                  String?
+  semester                    Int?
+  batchYear                   Int?
+  isLateralEntry              Boolean            @default(false)
+  currentRole                 String?
+  currentCompany              String?
+  linkedinUrl                 String?
+  bio                         String?            @db.VarChar(280)
+  expertiseTagIds             String[]
+  hideActivity                Boolean            @default(false)
+  noConnectionRequests        Boolean            @default(false)
+  mfaEnabled                  Boolean            @default(false)
+  mfaSecretEncrypted          String?
+  repScore                    Int                @default(0)
+  failedLoginAttempts         Int                @default(0)
+  lockedUntil                 DateTime?
+  lastLoginAt                 DateTime?
+  createdAt                   DateTime           @default(now())
+  updatedAt                   DateTime           @updatedAt
+  deletedAt                   DateTime?
+  hardDeletedAt               DateTime?
+  graduationConfirmationDueAt DateTime?
+  graduationFlaggedAt         DateTime?
+
+  adminRole               AdminRole?
+  questionsAsked          Question[]             @relation("QuestionAuthor")
+  answersGiven            Answer[]               @relation("AnswerAuthor")
+  comments                Comment[]
+  posts                   Post[]
+  resources               Resource[]
+  votesGiven              Vote[]
+  reputationEvents        ReputationEvent[]
+  badges                  Badge[]
+  follows                 Follow[]
+  followers               Follow[]               @relation("FollowedUser")
+  bookmarks               Bookmark[]
+  connectionsSent         ConnectionRequest[]    @relation("ConnSender")
+  connectionsReceived     ConnectionRequest[]    @relation("ConnRecipient")
+  messagesSent            Message[]
+  blocksMade              Block[]                @relation("Blocker")
+  blocksAgainst           Block[]                @relation("Blocked")
+  reportsFiled            Report[]               @relation("Reporter")
+  reportsResolved         Report[]               @relation("Resolver")
+  penalties               PenaltyRecord[]
+  notifications           Notification[]
+  notificationPreferences NotificationPreference[]
+  tagSuggestions          TagSuggestion[]
+  auditActions            AuditLogEntry[]        @relation("Actor")
+  sessionRecords          SessionRecord[]
+  pushSubscriptions       PushSubscription[]
+
+  @@index([persona, verificationStatus])
+  @@index([branch, semester])
+  @@index([batchYear])
+  @@index([deletedAt])
+  @@index([repScore])
+}
+
+model AdminRole {
+  userId      String    @id
+  user        User      @relation(fields: [userId], references: [id])
+  grantedById String
+  grantedAt   DateTime  @default(now())
+  revokedAt   DateTime?
+}
+
+model SessionRecord {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  redisSessionKey String
+  userAgent       String?
+  ipAddress       String?
+  createdAt       DateTime @default(now())
+  lastSeenAt      DateTime @default(now())
+  expiresAt       DateTime
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+// ============================================
+// Q&A
+// ============================================
+
+model Question {
+  id               String                   @id @default(cuid())
+  authorId         String
+  author           User                     @relation("QuestionAuthor", fields: [authorId], references: [id])
+  title            String                   @db.VarChar(120)
+  body             String                   @db.VarChar(5000)
+  visibilityScope  VisibilityScope          @default(INSTITUTION)
+  anonymousFlag    Boolean                  @default(false)
+  acceptedAnswerId String?                  @unique
+  acceptedAnswer   Answer?                  @relation("AcceptedAnswer", fields: [acceptedAnswerId], references: [id])
+  archivedAt       DateTime?
+  archivedById     String?
+  voteScore        Int                      @default(0)
+  editCount        Int                      @default(0)
+  createdAt        DateTime                 @default(now())
+  editedAt         DateTime?
+  searchVector     Unsupported("tsvector")?
+  answers          Answer[]                 @relation("QuestionAnswers")
+  questionTags     QuestionTag[]
+
+  @@index([authorId])
+  @@index([createdAt(sort: Desc)])
+  @@index([visibilityScope])
+  @@index([archivedAt])
+}
+
+model Answer {
+  id                  String                   @id @default(cuid())
+  questionId          String
+  question            Question                 @relation("QuestionAnswers", fields: [questionId], references: [id])
+  authorId            String
+  author              User                     @relation("AnswerAuthor", fields: [authorId], references: [id])
+  body                String                   @db.VarChar(10000)
+  voteScore           Int                      @default(0)
+  acceptedAt          DateTime?
+  facultyEndorsedBy   String[]
+  editCount           Int                      @default(0)
+  createdAt           DateTime                 @default(now())
+  editedAt            DateTime?
+  acceptedAsAnswerFor Question?                @relation("AcceptedAnswer")
+  searchVector        Unsupported("tsvector")?
+
+  @@unique([questionId, authorId])
+  @@index([questionId])
+  @@index([authorId])
+  @@index([createdAt(sort: Desc)])
+}
+
+model Comment {
+  id         String            @id @default(cuid())
+  parentType CommentParentType
+  parentId   String
+  authorId   String
+  author     User              @relation(fields: [authorId], references: [id])
+  body       String            @db.VarChar(2000)
+  createdAt  DateTime          @default(now())
+
+  @@index([parentType, parentId, createdAt])
+  @@index([authorId])
+}
+
+// ============================================
+// EXPERIENCE FEED
+// ============================================
+
+model Post {
+  id           String                   @id @default(cuid())
+  authorId     String
+  author       User                     @relation(fields: [authorId], references: [id])
+  title        String                   @db.VarChar(120)
+  body         String                   @db.VarChar(15000)
+  category     PostCategory
+  pinned       Boolean                  @default(false)
+  expiryDate   DateTime?
+  upvoteCount  Int                      @default(0)
+  editCount    Int                      @default(0)
+  createdAt    DateTime                 @default(now())
+  editedAt     DateTime?
+  deletedAt    DateTime?
+  searchVector Unsupported("tsvector")?
+  postTags     PostTag[]
+
+  @@index([category, createdAt(sort: Desc)])
+  @@index([authorId])
+  @@index([pinned, createdAt(sort: Desc)])
+  @@index([deletedAt])
+}
+
+// ============================================
+// RESOURCE LIBRARY
+// ============================================
+
+model Resource {
+  id               String                   @id @default(cuid())
+  submitterId      String
+  submitter        User                     @relation(fields: [submitterId], references: [id])
+  url              String
+  title            String                   @db.VarChar(120)
+  description      String                   @db.VarChar(500)
+  category         ResourceCategory
+  status           ResourceStatus           @default(PENDING)
+  endorsedByIds    String[]
+  endorsementCount Int                      @default(0)
+  upvoteCount      Int                      @default(0)
+  linkStatus       LinkStatus               @default(UNCHECKED)
+  lastLinkCheckAt  DateTime?
+  createdAt        DateTime                 @default(now())
+  updatedAt        DateTime                 @updatedAt
+  searchVector     Unsupported("tsvector")?
+  resourceTags     ResourceTag[]
+
+  @@index([status, category])
+  @@index([submitterId])
+  @@index([linkStatus])
+}
+
+// ============================================
+// TAGS
+// ============================================
+
+model Tag {
+  id           String        @id @default(cuid())
+  name         String        @unique
+  description  String?       @db.VarChar(280)
+  createdById  String
+  mergedIntoId String?
+  createdAt    DateTime      @default(now())
+
+  questionTags QuestionTag[]
+  postTags     PostTag[]
+  resourceTags ResourceTag[]
+
+  @@index([mergedIntoId])
+}
+
+model QuestionTag {
+  questionId String
+  tagId      String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  tag        Tag      @relation(fields: [tagId], references: [id])
+
+  @@id([questionId, tagId])
+  @@index([tagId])
+}
+
+model PostTag {
+  postId String
+  tagId  String
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag    Tag    @relation(fields: [tagId], references: [id])
+
+  @@id([postId, tagId])
+  @@index([tagId])
+}
+
+model ResourceTag {
+  resourceId String
+  tagId      String
+  resource   Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  tag        Tag      @relation(fields: [tagId], references: [id])
+
+  @@id([resourceId, tagId])
+  @@index([tagId])
+}
+
+model TagSuggestion {
+  id           String              @id @default(cuid())
+  suggesterId  String
+  suggester    User                @relation(fields: [suggesterId], references: [id])
+  proposedName String
+  context      String?             @db.VarChar(500)
+  status       TagSuggestionStatus @default(PENDING)
+  reviewedById String?
+  reviewedAt   DateTime?
+  createdAt    DateTime            @default(now())
+
+  @@index([status, createdAt])
+}
+
+// ============================================
+// CONNECTIONS & DM
+// ============================================
+
+model ConnectionRequest {
+  id            String           @id @default(cuid())
+  senderId      String
+  sender        User             @relation("ConnSender", fields: [senderId], references: [id])
+  recipientId   String
+  recipient     User             @relation("ConnRecipient", fields: [recipientId], references: [id])
+  note          String           @db.VarChar(500)
+  topic         String           @db.VarChar(120)
+  status        ConnectionStatus @default(PENDING)
+  declineReason String?          @db.VarChar(500)
+  expiresAt     DateTime
+  decidedAt     DateTime?
+  createdAt     DateTime         @default(now())
+
+  @@index([senderId, status])
+  @@index([recipientId, status])
+  @@index([status, expiresAt])
+}
+
+model DMThread {
+  id               String       @id @default(cuid())
+  userAId          String
+  userBId          String
+  status           ThreadStatus @default(ACTIVE)
+  disconnectedAt   DateTime?
+  disconnectedById String?
+  createdAt        DateTime     @default(now())
+
+  messages Message[]
+
+  @@unique([userAId, userBId])
+  @@index([userAId])
+  @@index([userBId])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  threadId  String
+  thread    DMThread @relation(fields: [threadId], references: [id])
+  senderId  String
+  sender    User     @relation(fields: [senderId], references: [id])
+  body      String   @db.VarChar(5000)
+  readAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([threadId, createdAt])
+  @@index([senderId])
+}
+
+model Block {
+  id        String   @id @default(cuid())
+  blockerId String
+  blocker   User     @relation("Blocker", fields: [blockerId], references: [id])
+  blockedId String
+  blocked   User     @relation("Blocked", fields: [blockedId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([blockerId, blockedId])
+  @@index([blockedId])
+}
+
+// ============================================
+// VOTING & REPUTATION
+// ============================================
+
+model Vote {
+  id         String         @id @default(cuid())
+  voterId    String
+  voter      User           @relation(fields: [voterId], references: [id])
+  targetType VoteTargetType
+  targetId   String
+  direction  Int
+  createdAt  DateTime       @default(now())
+
+  @@unique([voterId, targetType, targetId])
+  @@index([targetType, targetId])
+}
+
+model ReputationEvent {
+  id             String              @id @default(cuid())
+  userId         String
+  user           User                @relation(fields: [userId], references: [id])
+  delta          Int
+  sourceType     ReputationEventType
+  sourceId       String?
+  decayFactor    Decimal             @default(1.0) @db.Decimal(5, 4)
+  effectiveValue Decimal             @db.Decimal(10, 4)
+  createdAt      DateTime            @default(now())
+  decayedAt      DateTime?
+
+  @@index([userId, createdAt])
+  @@index([createdAt])
+}
+
+model Badge {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  badgeType BadgeType
+  subTagId  String?
+  subYear   Int?
+  earnedAt  DateTime  @default(now())
+  revokedAt DateTime?
+
+  @@unique([userId, badgeType, subTagId, subYear])
+  @@index([userId])
+  @@index([badgeType])
+}
+
+// ============================================
+// FOLLOWS & BOOKMARKS
+// ============================================
+
+model Follow {
+  id           String           @id @default(cuid())
+  followerId   String
+  follower     User             @relation(fields: [followerId], references: [id])
+  targetType   FollowTargetType
+  targetId     String
+  followedUser User?            @relation("FollowedUser", fields: [targetId], references: [id], map: "followed_user_fk")
+  createdAt    DateTime         @default(now())
+
+  @@unique([followerId, targetType, targetId])
+  @@index([targetType, targetId])
+}
+
+model Bookmark {
+  id         String             @id @default(cuid())
+  userId     String
+  user       User               @relation(fields: [userId], references: [id])
+  targetType BookmarkTargetType
+  targetId   String
+  createdAt  DateTime           @default(now())
+
+  @@unique([userId, targetType, targetId])
+  @@index([targetType, targetId])
+}
+
+// ============================================
+// REPORTS & MODERATION
+// ============================================
+
+model Report {
+  id              String           @id @default(cuid())
+  reporterId      String
+  reporter        User             @relation("Reporter", fields: [reporterId], references: [id])
+  targetType      ReportTargetType
+  targetId        String
+  reason          ReportReason
+  freeText        String?          @db.VarChar(1000)
+  status          ReportStatus     @default(OPEN)
+  resolvedById    String?
+  resolvedBy      User?            @relation("Resolver", fields: [resolvedById], references: [id])
+  resolvedAt      DateTime?
+  actionTaken     ReportAction     @default(NONE)
+  severityLevel   String
+  resolutionNotes String?          @db.VarChar(2000)
+  createdAt       DateTime         @default(now())
+
+  @@index([status, severityLevel, createdAt])
+  @@index([targetType, targetId])
+  @@index([reporterId])
+}
+
+model PenaltyRecord {
+  id              String      @id @default(cuid())
+  userId          String
+  user            User        @relation(fields: [userId], references: [id])
+  type            PenaltyType
+  relatedReportId String?
+  reason          String      @db.VarChar(1000)
+  issuedById      String
+  issuedAt        DateTime    @default(now())
+  expiresAt       DateTime?
+
+  @@index([userId, issuedAt(sort: Desc)])
+  @@index([expiresAt])
+}
+
+// ============================================
+// AUDIT & NOTIFICATIONS
+// ============================================
+
+model AuditLogEntry {
+  id         String   @id @default(cuid())
+  actorId    String
+  actor      User     @relation("Actor", fields: [actorId], references: [id])
+  action     String
+  targetType String?
+  targetId   String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@index([actorId, createdAt(sort: Desc)])
+  @@index([targetType, targetId, createdAt(sort: Desc)])
+  @@index([action, createdAt(sort: Desc)])
+}
+
+model Notification {
+  id          String              @id @default(cuid())
+  userId      String
+  user        User                @relation(fields: [userId], references: [id])
+  type        NotificationType
+  content     Json
+  channel     NotificationChannel
+  readAt      DateTime?
+  deliveredAt DateTime?
+  createdAt   DateTime            @default(now())
+
+  @@index([userId, readAt, createdAt(sort: Desc)])
+  @@index([userId, channel, createdAt(sort: Desc)])
+  @@index([deliveredAt])
+}
+
+model NotificationPreference {
+  id       String           @id @default(cuid())
+  userId   String
+  user     User             @relation(fields: [userId], references: [id])
+  category NotificationType
+  inApp    Boolean          @default(true)
+  email    Boolean          @default(true)
+  push     Boolean          @default(true)
+
+  @@unique([userId, category])
+}
+
+// ============================================
+// FEATURE FLAGS & PLATFORM CONFIG
+// ============================================
+
+model FeatureFlag {
+  key         String   @id
+  enabled     Boolean  @default(false)
+  description String?
+  updatedAt   DateTime @updatedAt
+}
+
+model AcademicCalendar {
+  id            String   @id @default(cuid())
+  semesterLabel String
+  startsAt      DateTime
+  endsAt        DateTime
+  active        Boolean  @default(false)
+
+  @@index([active])
+  @@index([startsAt])
+}

@@ -1,0 +1,29 @@
+{
+  "name": "@ascend/worker",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "dotenv -e ../../.env -- tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "lint": "eslint .",
+    "type-check": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@ascend/db": "workspace:*",
+    "@ascend/shared": "workspace:*",
+    "bullmq": "^5.12.0",
+    "ioredis": "^5.4.1",
+    "pino": "^9.3.0",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@ascend/config": "workspace:*",
+    "dotenv-cli": "^7.4.2",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.5.0",
+    "tsx": "^4.16.0",
+    "vitest": "^2.0.0"
+  }
+}

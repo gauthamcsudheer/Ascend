@@ -1,0 +1,33 @@
+{
+  "name": "@ascend/web",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "lint": "eslint .",
+    "type-check": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@ascend/shared": "workspace:*",
+    "next": "^15.0.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
+    "socket.io-client": "^4.7.5"
+  },
+  "devDependencies": {
+    "@ascend/config": "workspace:*",
+    "@types/node": "^22.0.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "@next/eslint-plugin-next": "^15.0.0",
+    "typescript": "^5.5.0",
+    "tailwindcss": "^3.4.0",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.39",
+    "class-variance-authority": "^0.7.0",
+    "vitest": "^2.0.0"
+  }
+}

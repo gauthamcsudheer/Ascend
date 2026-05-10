@@ -1,0 +1,29 @@
+{
+  "name": "ascend",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm -r --parallel run dev",
+    "build": "pnpm -r run build",
+    "lint": "pnpm -r run lint",
+    "type-check": "pnpm -r run type-check",
+    "test": "pnpm -r run test",
+    "db:migrate": "pnpm --filter @ascend/db run migrate",
+    "db:reset": "pnpm --filter @ascend/db run migrate:reset",
+    "db:deploy": "pnpm --filter @ascend/db run migrate:deploy",
+    "db:seed": "pnpm --filter @ascend/db run seed",
+    "db:studio": "pnpm --filter @ascend/db run studio"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0",
+    "prettier": "^3.3.0",
+    "eslint": "^9.0.0",
+    "@eslint/js": "^9.0.0",
+    "typescript-eslint": "^8.0.0",
+    "globals": "^15.9.0"
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.6.0"
+}
