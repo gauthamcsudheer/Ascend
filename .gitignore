@@ -147,3 +147,6 @@ packages/db/node_modules/.prisma/
 
 # Turbo
 .turbo/
+
+# AI agent context (local-only; persistence via ~/.claude memory)
+CLAUDE.md
